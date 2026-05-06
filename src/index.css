@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/* ───────────────────────────── Konjo Design Tokens ─────────────────────────────
+   ቆንጆ — beauty   ·   根性 — fighting spirit   ·   康宙 — system health   ·   건조 — strip to essence
+   These tokens are the single source of truth. Every Konjo UI in the portfolio
+   inherits this palette so eight apps feel like one.                           */
+@theme {
+  /* Surface */
+  --color-konjo-bg:        #0a0c12;
+  --color-konjo-surface:   #11141c;
+  --color-konjo-surface-2: #181c27;
+  --color-konjo-line:      #232838;
+  --color-konjo-line-soft: #1a1e2a;
+
+  /* Foreground */
+  --color-konjo-fg:        #e7ecf4;
+  --color-konjo-fg-muted:  #8a93a8;
+  --color-konjo-fg-faint:  #4a5063;
+
+  /* Brand spectrum */
+  --color-konjo-accent:    #7ad7ff;   /* primary — kyo cyan */
+  --color-konjo-violet:    #b794ff;   /* secondary — konjo purple */
+  --color-konjo-warm:      #f6c177;   /* warning */
+  --color-konjo-hot:       #ff4d6d;   /* danger / red */
+  --color-konjo-good:      #6ee7a3;   /* success / green */
+  --color-konjo-cool:      #5fb3ff;   /* info / blue */
+
+  /* Semantic — derived from spectrum */
+  --color-konjo-ok:        var(--color-konjo-good);
+  --color-konjo-warn:      var(--color-konjo-warm);
+  --color-konjo-danger:    var(--color-konjo-hot);
+
+  /* Glow tints — used in shadow-konjo-glow / outline rings */
+  --color-konjo-glow-accent: color-mix(in oklch, #7ad7ff 60%, transparent);
+  --color-konjo-glow-violet: color-mix(in oklch, #b794ff 60%, transparent);
+  --color-konjo-glow-hot:    color-mix(in oklch, #ff4d6d 60%, transparent);
+
+  /* Typography */
+  --font-konjo-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-konjo-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-konjo-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Motion easings — three named curves */
+  --ease-kanjo:   cubic-bezier(0.16, 1, 0.3, 1);     /* settle / smooth land */
+  --ease-nehan:   cubic-bezier(0.4, 0, 0.2, 1);      /* quick decisive */
+  --ease-seishin: cubic-bezier(0.65, 0, 0.35, 1);    /* steady pulse */
+
+  /* Radii */
+  --radius-konjo-sm: 6px;
+  --radius-konjo:    10px;
+  --radius-konjo-lg: 16px;
+  --radius-konjo-xl: 24px;
+}
+
+/* Global base */
+:root {
+  color-scheme: dark;
+  font-family: var(--font-konjo-sans);
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.005em;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Glass surface — used in panels, cards, the brand shell */
+@utility glass-konjo {
+  background: linear-gradient(180deg,
+    color-mix(in oklch, var(--color-konjo-surface) 92%, transparent),
+    color-mix(in oklch, var(--color-konjo-surface-2) 92%, transparent));
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  border: 1px solid var(--color-konjo-line);
+}
+
+/* Aurora background — the portfolio shell signature */
+@utility aurora-konjo {
+  position: relative;
+  isolation: isolate;
+}
+@utility aurora-konjo-bg {
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  background:
+    radial-gradient(40% 50% at 20% 20%, color-mix(in oklch, var(--color-konjo-accent) 18%, transparent), transparent 60%),
+    radial-gradient(35% 45% at 80% 30%, color-mix(in oklch, var(--color-konjo-violet) 16%, transparent), transparent 60%),
+    radial-gradient(50% 60% at 50% 110%, color-mix(in oklch, var(--color-konjo-cool) 14%, transparent), transparent 70%);
+  filter: blur(40px) saturate(120%);
+  pointer-events: none;
+  animation: aurora-konjo-drift 24s var(--ease-seishin) infinite alternate;
+}
+
+@keyframes aurora-konjo-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(2%, -1%, 0) scale(1.05); }
+}
+
+/* Konjo glow ring — shadow utility for emphasis */
+@utility shadow-konjo-glow {
+  box-shadow:
+    0 0 0 1px var(--color-konjo-line),
+    0 0 24px -4px var(--color-konjo-glow-accent),
+    0 8px 32px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* Subtle scanline texture for terminal-like surfaces */
+@utility scanlines-konjo {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 2px,
+    color-mix(in oklch, var(--color-konjo-fg) 2%, transparent) 2px,
+    color-mix(in oklch, var(--color-konjo-fg) 2%, transparent) 3px
+  );
+}
+
+/* Pulse — the seishin heartbeat used for live indicators */
+@keyframes konjo-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.92); }
+}
+@utility konjo-pulse {
+  animation: konjo-pulse 1.6s var(--ease-seishin) infinite;
+}
+
+/* Typography utilities */
+@utility text-konjo-display {
+  font-family: var(--font-konjo-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+@utility text-konjo-mono {
+  font-family: var(--font-konjo-mono);
+  font-feature-settings: "ss02", "zero";
+  letter-spacing: 0;
+}
