@@ -1,5 +1,5 @@
 {
-  "name": "konjoai-ui",
+  "name": "@konjoai/monorepo",
   "version": "0.1.0",
   "private": true,
   "description": "KonjoAI design system + portfolio site monorepo",

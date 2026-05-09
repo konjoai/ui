@@ -1,14 +1,16 @@
-# konjoai-ui
+# konjoai/ui
 
 The KonjoAI design system and portfolio site, in one monorepo.
 
 ```
-konjoai-ui/
+ui/
 ├── packages/
 │   └── ui/         # @konjoai/ui — shared React component library
 └── apps/
     └── web/        # @konjoai/web — konjo.ai portfolio homepage (Next.js 15)
 ```
+
+Repo: <https://github.com/konjoai/ui>
 
 ## Stack
 
@@ -54,6 +56,6 @@ KONJO — Know, Outline, Nail, Justify, Optimize.
 
 ## Consumers
 
-`@konjoai/ui` is consumed by these portfolio repos via `file:../../konjoai-ui/packages/ui`:
+`@konjoai/ui` is consumed by these portfolio repos via `file:../../ui/packages/ui`:
 
 squash · squish · vectro · kyro · kairu · miru · toki · kohaku

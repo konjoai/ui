@@ -22,7 +22,7 @@ export function Footer() {
             GitHub
           </a>
           <a
-            href="https://github.com/konjoai/konjoai-ui"
+            href="https://github.com/konjoai/ui"
             target="_blank"
             rel="noreferrer"
             className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"

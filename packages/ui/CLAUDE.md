@@ -1,6 +1,6 @@
-# konjoai-ui
+# @konjoai/ui
 
-The shared design system for the KonjoAI portfolio. Five primitives, three motion curves, one brand shell — consumed by `vectro`, `squish`, `kyro`, `miru`, `kohaku`, `kairu`, `toki`, `squash`.
+The shared design system for the KonjoAI portfolio. Lives at `packages/ui/` in the `konjoai/ui` monorepo (alongside `apps/web/` — the konjo.ai homepage). Five primitives, three motion curves, one brand shell — consumed by `vectro`, `squish`, `kyro`, `miru`, `kohaku`, `kairu`, `toki`, `squash`.
 
 **v0.1.0** — Sprint 0 of the Konjo UI Initiative.
 
