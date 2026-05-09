@@ -1,0 +1,28 @@
+{
+  "name": "@konjoai/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "konjo.ai — KonjoAI portfolio homepage",
+  "scripts": {
+    "dev": "next dev -p 3030",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@konjoai/ui": "workspace:*",
+    "motion": "^12.38.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "~5.7.2"
+  }
+}

@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@import "@konjoai/ui/styles";
+
+/* Brand override — portfolio uses #7c3aed as the dominant accent */
+@theme {
+  --color-konjo-brand:        #7c3aed;
+  --color-konjo-brand-soft:   #a78bfa;
+  --color-konjo-brand-deep:   #5b21b6;
+  --color-konjo-brand-glow:   color-mix(in oklch, #7c3aed 55%, transparent);
+}
+
+@utility text-konjo-gradient {
+  background: linear-gradient(120deg,
+    var(--color-konjo-brand-soft) 0%,
+    var(--color-konjo-brand) 45%,
+    var(--color-konjo-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@utility shadow-konjo-brand {
+  box-shadow:
+    0 0 0 1px var(--color-konjo-line),
+    0 0 32px -6px var(--color-konjo-brand-glow),
+    0 12px 40px -16px rgba(0, 0, 0, 0.7);
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--color-konjo-bg); color: var(--color-konjo-fg); }
