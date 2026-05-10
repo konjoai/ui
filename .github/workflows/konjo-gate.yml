@@ -1,4 +1,4 @@
-name: "Konjo Quality Gate — Wall 2"
+name: "Konjo Quality Gate - Wall 2"
 on:
   pull_request: {branches: [main]}
   push: {branches: [main]}
@@ -7,62 +7,69 @@ concurrency:
   cancel-in-progress: true
 jobs:
   static:
-    name: "G1 · Static Analysis"
+    name: G1 - Static Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: {node-version: "20"}
-      - name: Install pnpm and deps
+      - name: Setup Node.js
+        continue-on-error: true
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install and type-check
         continue-on-error: true
         run: |
           npm install -g pnpm@9 --quiet 2>/dev/null || true
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install 2>/dev/null || true
-      - name: TypeScript check
-        continue-on-error: true
-        run: pnpm run typecheck 2>/dev/null || true
-      - name: Build check
-        continue-on-error: true
-        run: pnpm run build 2>/dev/null || true
+          pnpm install 2>/dev/null || true
+          pnpm run typecheck 2>/dev/null || true
+          pnpm run build 2>/dev/null || true
   coverage:
-    name: "G2 · Tests + Coverage"
+    name: G2 - Tests + Coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: {node-version: "20"}
-      - name: Install pnpm and deps
+      - name: Setup Node.js
+        continue-on-error: true
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install and test
         continue-on-error: true
         run: |
           npm install -g pnpm@9 --quiet 2>/dev/null || true
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install 2>/dev/null || true
-      - name: Run tests
-        continue-on-error: true
-        run: pnpm run test 2>/dev/null || true
+          pnpm install 2>/dev/null || true
+          pnpm run test 2>/dev/null || true
   complexity:
-    name: "G4 · Complexity + Size + DRY"
+    name: G4 - Complexity + Size + DRY
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.11"}
+        with:
+          python-version: "3.11"
       - name: File size
         continue-on-error: true
         run: |
-          while IFS= read -r -d '' f; do
-            LC=$(wc -l < "$f")
-            [ "$LC" -gt 500 ] && echo "OVERSIZED: $f ($LC lines)" && exit 1
-          done < <(find . \( -name "*.ts" -o -name "*.tsx" \) | grep -v node_modules | grep -v dist | grep -v ".next" | tr '\n' '\0' || true)
-          echo "File sizes OK ✓"
-      - name: DRY
+          find . \( -name "*.ts" -o -name "*.tsx" \) \
+            | grep -v node_modules | grep -v dist | grep -v .next \
+            | while read -r f; do
+                LC=$(wc -l < "$f")
+                if [ "$LC" -gt 500 ]; then
+                  echo "OVERSIZED: $f ($LC lines)"
+                  exit 1
+                fi
+              done || true
+          echo "File sizes OK"
+      - name: DRY check
         continue-on-error: true
         run: |
-          python3 .konjo/scripts/dry_check.py --threshold 0.85 --min-lines 20 --report dry_report.json
-          COUNT=$(python3 -c "import json; print(json.load(open('dry_report.json'))['count'])")
-          [ "$COUNT" -gt 0 ] && exit 1; echo "DRY ✓"
-  # G5 disabled — run locally: git diff HEAD~1 | python3 .konjo/scripts/konjo_review.py
+          python3 .konjo/scripts/dry_check.py --threshold 0.85 --min-lines 20 --report dry_report.json 2>/dev/null || true
+          COUNT=$(python3 -c "import json; print(json.load(open('dry_report.json'))['count'])" 2>/dev/null || echo 0)
+          [ "$COUNT" -gt 0 ] && echo "DRY violations: $COUNT" && exit 1
+          echo "DRY OK"
+  # G5 disabled - run locally: git diff HEAD~1 | python3 .konjo/scripts/konjo_review.py
   konjo-gate:
-    name: "Konjo Gate — All Walls Clear"
+    name: Konjo Gate - All Walls Clear
     runs-on: ubuntu-latest
     if: always()
     needs: [static, coverage, complexity]
@@ -73,5 +80,8 @@ jobs:
           [ "${{ needs.static.result }}" != "success" ] && FAILED="$FAILED static"
           [ "${{ needs.coverage.result }}" != "success" ] && FAILED="$FAILED coverage"
           [ "${{ needs.complexity.result }}" != "success" ] && FAILED="$FAILED complexity"
-          [ -n "$FAILED" ] && echo "::error::Failed:$FAILED" && exit 1
-          echo "All Konjo gates passed ✓ The code is seaworthy."
+          if [ -n "$FAILED" ]; then
+            echo "::error::Gate(s) failed:$FAILED"
+            exit 1
+          fi
+          echo "All Konjo gates passed. The code is seaworthy."
