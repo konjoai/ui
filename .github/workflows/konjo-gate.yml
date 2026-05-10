@@ -11,26 +11,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: {version: 9}
       - uses: actions/setup-node@v4
-        with: {node-version: "20", cache: "npm"}
-      - run: npm install
+        with: {node-version: "20", cache: "pnpm"}
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
       - name: TypeScript check
         continue-on-error: true
-        run: npm run typecheck || npx tsc --noEmit
+        run: pnpm run typecheck
       - name: Build check
         continue-on-error: true
-        run: npm run build
+        run: pnpm run build
   coverage:
     name: "G2 · Tests + Coverage"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: {version: 9}
       - uses: actions/setup-node@v4
-        with: {node-version: "20", cache: "npm"}
-      - run: npm install
+        with: {node-version: "20", cache: "pnpm"}
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
       - name: Run tests
         continue-on-error: true
-        run: npm test -- --coverage 2>/dev/null || npm test 2>/dev/null || true
+        run: pnpm run test 2>/dev/null || true
   complexity:
     name: "G4 · Complexity + Size + DRY"
     runs-on: ubuntu-latest
@@ -41,7 +47,10 @@ jobs:
       - name: File size
         continue-on-error: true
         run: |
-          while IFS= read -r -d '' f; do LC=$(wc -l < "$f"); [ "$LC" -gt 500 ] && echo "OVERSIZED: $f ($LC)" && exit 1; done < <(find src packages -name "*.ts" -o -name "*.tsx" 2>/dev/null | tr '\n' '\0' || true)
+          while IFS= read -r -d '' f; do
+            LC=$(wc -l < "$f")
+            [ "$LC" -gt 500 ] && echo "OVERSIZED: $f ($LC lines)" && exit 1
+          done < <(find . \( -name "*.ts" -o -name "*.tsx" \) | grep -v node_modules | grep -v dist | grep -v ".next" | tr '\n' '\0' || true)
           echo "File sizes OK ✓"
       - name: DRY
         continue-on-error: true
