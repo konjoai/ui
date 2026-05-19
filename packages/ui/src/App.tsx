@@ -5,9 +5,75 @@ import {
   TokenStream,
   StagePipeline,
   RiskRing,
+  StatusMatrix,
+  TimeSeriesChart,
+  ComparisonBar,
+  RankList,
 } from "./components";
-import type { Stage, StreamToken } from "./components";
+import type {
+  Stage,
+  StreamToken,
+  StatusMatrixRow,
+  ComparisonBarItem,
+  RankListItem,
+  TimeSeriesPoint,
+} from "./components";
 import { color } from "./lib/tokens";
+
+const MATRIX_ROWS: StatusMatrixRow[] = [
+  {
+    label: "Article 9 — Risk",
+    cells: [
+      { status: "pass", detail: "Risk classification documented" },
+      { status: "pass", detail: "Mitigation measures in place" },
+      { status: "warn", detail: "Review pending" },
+    ],
+  },
+  {
+    label: "Article 13 — Trans.",
+    cells: [
+      { status: "pass" },
+      { status: "fail", detail: "Missing user disclosure" },
+      { status: "pass" },
+    ],
+  },
+  {
+    label: "Article 17 — QMS",
+    cells: [
+      { status: "warn", detail: "Partial implementation" },
+      { status: "pass" },
+      { status: "pending" },
+    ],
+  },
+  {
+    label: "Annex IV — Docs",
+    cells: [
+      { status: "pass" },
+      { status: "pass" },
+      { status: "pass" },
+    ],
+  },
+];
+
+const TS_DATA: TimeSeriesPoint[] = Array.from({ length: 40 }, (_, i) => ({
+  t: i * 500,
+  value: 42 + Math.sin(i * 0.38) * 14 + (i % 6) * 1.8,
+}));
+
+const COMPARISON_ITEMS: ComparisonBarItem[] = [
+  { label: "Recall@10",    value: 87, baseline: 85 },
+  { label: "MRR@10",      value: 74, baseline: 79 },
+  { label: "NDCG@10",     value: 91, baseline: 88 },
+  { label: "Precision@5", value: 83, baseline: 82 },
+];
+
+const RANK_ITEMS: RankListItem[] = [
+  { label: "Constitutional AI",        score: 0.942, sublabel: "Anthropic · 2022" },
+  { label: "Scalable Oversight",       score: 0.881, sublabel: "Bowman et al. · 2022" },
+  { label: "Chain-of-Thought",         score: 0.834, sublabel: "Wei et al. · 2022" },
+  { label: "Self-Consistency Decoding",score: 0.776, sublabel: "Wang et al. · 2022" },
+  { label: "Least-to-Most Prompting",  score: 0.714, sublabel: "Zhou et al. · 2022" },
+];
 
 const SAMPLE_REASONING: StreamToken[] = [
   { text: "I see ",          color: color.fgMuted },
@@ -93,12 +159,12 @@ function App() {
     <KonjoApp
       product="ui"
       tagline="The Konjo design system — beauty, honesty, motion."
-      status={{ label: "v0.1.0", severity: "info" }}
+      status={{ label: "v0.2.0", severity: "info" }}
     >
       {/* Hero */}
       <section className="mb-14 text-center">
         <p className="text-konjo-mono uppercase tracking-[0.32em] text-konjo-accent" style={{ fontSize: 11 }}>
-          @konjoai/ui · sprint 0
+          @konjoai/ui · sprint 0.5
         </p>
         <h1
           className="text-konjo-display text-konjo-fg mt-4 mx-auto"
@@ -150,6 +216,44 @@ function App() {
       {/* TokenStream */}
       <Section title="TokenStream" caption="Streaming text with per-token color and attention-weight halo. Built for miru, squish, kairu, kyro, toki.">
         <TokenStream tokens={tokens} maxHeight={220} />
+      </Section>
+
+      {/* StatusMatrix */}
+      <Section
+        title="StatusMatrix"
+        caption="Pass/fail/warn grid for compliance and quality dashboards. Built for squash (EU AI Act article checks) and toki (adversarial defence matrix)."
+      >
+        <StatusMatrix
+          rows={MATRIX_ROWS}
+          columns={["Requirements", "Evidence", "Timeline"]}
+        />
+      </Section>
+
+      {/* TimeSeriesChart */}
+      <Section
+        title="TimeSeriesChart"
+        caption="Rolling sparkline for live metric streams. Used by kairu (tok/s), squish (throughput), toki (loss curves). Path draws in via kanjo easing."
+      >
+        <div className="flex flex-wrap gap-6">
+          <TimeSeriesChart data={TS_DATA} label="Throughput" unit="tok/s" severity="ok" width={360} />
+          <TimeSeriesChart data={TS_DATA.map((p) => ({ t: p.t, value: p.value * 0.6 + 5 }))} label="Latency" unit="ms" severity="warn" width={360} />
+        </div>
+      </Section>
+
+      {/* ComparisonBar */}
+      <Section
+        title="ComparisonBar"
+        caption="Horizontal benchmark bars with a ghost baseline marker. Used by vectro (recall vs. fp32), kairu (draft tok/s vs. AR), squash (score vs. threshold)."
+      >
+        <ComparisonBar items={COMPARISON_ITEMS} unit="%" max={100} />
+      </Section>
+
+      {/* RankList */}
+      <Section
+        title="RankList"
+        caption="Scored ranked list with relevance bars. Used by kyro (retrieval results with NDCG), miru (reasoning steps by attention), toki (attacks by severity)."
+      >
+        <RankList items={RANK_ITEMS} maxScore={1} scoreDecimals={3} />
       </Section>
 
       {/* Footer note */}
