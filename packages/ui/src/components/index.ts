@@ -24,3 +24,6 @@ export type { ComparisonBarProps, ComparisonBarItem } from "./ComparisonBar";
 
 export { RankList } from "./RankList";
 export type { RankListProps, RankListItem } from "./RankList";
+
+export { MetricCard } from "./MetricCard";
+export type { MetricCardProps } from "./MetricCard";
