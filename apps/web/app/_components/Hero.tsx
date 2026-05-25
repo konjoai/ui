@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { ease } from "@konjoai/ui";
 
 export function Hero() {
   return (
@@ -8,20 +9,20 @@ export function Hero() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.6, ease: ease.kanjo }}
         className="mb-6 inline-flex items-center gap-2 rounded-full border border-konjo-line bg-konjo-surface/60 px-4 py-1.5 text-xs text-konjo-fg-muted backdrop-blur"
       >
         <span
           className="konjo-pulse inline-block size-1.5 rounded-full"
           style={{ background: "var(--color-konjo-brand)" }}
         />
-        <span className="text-konjo-mono">v0.1 · Sprint 0 of the Konjo UI Initiative</span>
+        <span className="text-konjo-mono">v0.2 · Sprint 0.5 of the Konjo UI Initiative</span>
       </motion.div>
 
       <motion.h1
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+        transition={{ duration: 0.7, ease: ease.kanjo, delay: 0.05 }}
         className="text-konjo-display text-konjo-gradient text-6xl font-semibold tracking-tight sm:text-8xl"
       >
         KonjoAI
@@ -30,7 +31,7 @@ export function Hero() {
       <motion.p
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+        transition={{ duration: 0.7, ease: ease.kanjo, delay: 0.15 }}
         className="mt-6 max-w-2xl text-balance text-lg text-konjo-fg-muted sm:text-xl"
       >
         High-performance AI infrastructure, built in the{" "}
@@ -49,7 +50,7 @@ export function Hero() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+        transition={{ duration: 0.6, ease: ease.kanjo, delay: 0.4 }}
         className="mt-10 flex flex-wrap items-center justify-center gap-3"
       >
         <a

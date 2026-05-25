@@ -9,6 +9,7 @@ import {
   TimeSeriesChart,
   ComparisonBar,
   RankList,
+  MetricCard,
 } from "./components";
 import type {
   Stage,
@@ -18,6 +19,7 @@ import type {
   RankListItem,
   TimeSeriesPoint,
 } from "./components";
+
 import { color } from "./lib/tokens";
 
 const MATRIX_ROWS: StatusMatrixRow[] = [
@@ -65,6 +67,13 @@ const COMPARISON_ITEMS: ComparisonBarItem[] = [
   { label: "MRR@10",      value: 74, baseline: 79 },
   { label: "NDCG@10",     value: 91, baseline: 88 },
   { label: "Precision@5", value: 83, baseline: 82 },
+];
+
+const SQUASH_COMPARISON: ComparisonBarItem[] = [
+  { label: "EU AI Act",        value: 88, baseline: 80 },
+  { label: "NIST AI RMF",      value: 74, baseline: 85 },
+  { label: "OWASP LLM Top-10", value: 91, baseline: 75 },
+  { label: "ISO 42001",        value: 67, baseline: 70 },
 ];
 
 const RANK_ITEMS: RankListItem[] = [
@@ -254,6 +263,39 @@ function App() {
         caption="Scored ranked list with relevance bars. Used by kyro (retrieval results with NDCG), miru (reasoning steps by attention), toki (attacks by severity)."
       >
         <RankList items={RANK_ITEMS} maxScore={1} scoreDecimals={3} />
+      </Section>
+
+      {/* MetricCard */}
+      <Section
+        title="MetricCard"
+        caption="Single-value stat card for any scalar metric with optional delta indicator. Used by squash, kairu, squish, kyro, vectro, miru."
+      >
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <MetricCard value={88} label="EU AI Act"        unit="%" delta={4}  deltaLabel="vs prior audit" severity="ok"   />
+          <MetricCard value={74} label="NIST AI RMF"      unit="%" delta={-2} deltaLabel="vs target"      severity="warn" />
+          <MetricCard value={91} label="OWASP LLM Top-10" unit="%" delta={7}  deltaLabel="vs baseline"    severity="ok"   />
+          <MetricCard value={62} label="Annex IV Docs"    unit="%" delta={0}  deltaLabel="no change"      severity="warn" />
+        </div>
+      </Section>
+
+      {/* squash — Compliance Bridge */}
+      <Section
+        title="squash — Compliance Bridge"
+        caption="Composed dashboard preview for Sprint 1. MetricCard headline KPIs + StatusMatrix article checks + ComparisonBar score vs. threshold."
+      >
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <MetricCard value={88} label="EU AI Act"        unit="%" delta={4}  deltaLabel="vs prior audit" severity="ok"   />
+            <MetricCard value={74} label="NIST AI RMF"      unit="%" delta={-2} deltaLabel="vs target"      severity="warn" />
+            <MetricCard value={91} label="OWASP LLM Top-10" unit="%" delta={7}  deltaLabel="vs baseline"    severity="ok"   />
+            <MetricCard value={62} label="Annex IV Docs"    unit="%" delta={0}  deltaLabel="no change"      severity="warn" />
+          </div>
+          <StatusMatrix
+            rows={MATRIX_ROWS}
+            columns={["Requirements", "Evidence", "Timeline"]}
+          />
+          <ComparisonBar items={SQUASH_COMPARISON} unit="%" max={100} />
+        </div>
       </Section>
 
       {/* Footer note */}
