@@ -1,3 +1,5 @@
+"use client";
+
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { cn } from "../lib/cn";

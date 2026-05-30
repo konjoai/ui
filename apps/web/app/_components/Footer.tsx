@@ -14,6 +14,12 @@ export function Footer() {
 
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <a
+            href="/status"
+            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
+          >
+            Status
+          </a>
+          <a
             href="https://github.com/konjoai"
             target="_blank"
             rel="noreferrer"

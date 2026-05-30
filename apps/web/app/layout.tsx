@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SiteNav } from "./_components/SiteNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className="bg-konjo-bg text-konjo-fg antialiased font-konjo-sans">
+        <SiteNav />
         {children}
       </body>
     </html>
