@@ -24,3 +24,18 @@ export type { ProductHeroProps } from "./ProductHero";
 
 export { Nav } from "./Nav";
 export type { NavProps, NavLink, NavProductGroup } from "./Nav";
+
+export { StatusMatrix } from "./StatusMatrix";
+export type { StatusMatrixProps, StatusMatrixRow, StatusCell, CellStatus } from "./StatusMatrix";
+
+export { TimeSeriesChart } from "./TimeSeriesChart";
+export type { TimeSeriesChartProps, TimeSeriesPoint } from "./TimeSeriesChart";
+
+export { ComparisonBar } from "./ComparisonBar";
+export type { ComparisonBarProps, ComparisonBarItem } from "./ComparisonBar";
+
+export { RankList } from "./RankList";
+export type { RankListProps, RankListItem } from "./RankList";
+
+export { MetricCard } from "./MetricCard";
+export type { MetricCardProps } from "./MetricCard";

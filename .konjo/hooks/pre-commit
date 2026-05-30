@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Konjo Quality Framework — Wall 1: Pre-Commit Hook (TypeScript)
+set -euo pipefail
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+BOLD="$(tput bold 2>/dev/null || echo '')"
+RED="$(tput setaf 1 2>/dev/null || echo '')"
+YEL="$(tput setaf 3 2>/dev/null || echo '')"
+GRN="$(tput setaf 2 2>/dev/null || echo '')"
+RST="$(tput sgr0 2>/dev/null || echo '')"
+banner() { echo "${BOLD}[konjo] $1${RST}"; }
+pass()   { echo "${GRN}  ✓ $1${RST}"; }
+warn()   { echo "${YEL}  ⚠ $1${RST}"; }
+fail()   { echo "${RED}  ✗ $1${RST}" >&2; exit 1; }
+STAGED="$(git diff --cached --name-only 2>/dev/null || echo '')"
+[[ -z "$STAGED" ]] && echo "[konjo] No staged files." && exit 0
+STAGED_TS="$(echo "$STAGED" | grep -E '\.(ts|tsx)$' || true)"
+banner "Wall 1 pre-commit ($(date +%H:%M:%S))"
+banner "1. file size check"
+while IFS= read -r f; do
+    [[ -f "$f" ]] || continue
+    case "$f" in *.ts|*.tsx) ;; *) continue ;; esac
+    LC=$(wc -l < "$f" | tr -d ' ')
+    [[ "$LC" -gt 500 ]] && warn "$f: $LC lines (limit 500)"
+done <<< "$STAGED"
+pass "file size check complete"
+banner "2. DRY check"
+if [[ -f "$REPO_ROOT/.konjo/scripts/dry_check.py" ]] && command -v python3 &>/dev/null; then
+    python3 "$REPO_ROOT/.konjo/scripts/dry_check.py" --staged-only --min-lines 20 --threshold 0.85 2>&1 || fail "DRY violation"
+    pass "DRY check"
+else warn "dry_check.py not found"; fi
+banner "3. TODO/FIXME scan"
+TODO_HITS=""
+while IFS= read -r f; do
+    [[ -f "$f" ]] || continue
+    [[ "$f" =~ \.konjo/hooks/ ]] && continue; [[ "$f" =~ \.claude/ ]] && continue; [[ "$f" =~ \.md$ ]] && continue
+    HITS=$(grep -En '(TODO|FIXME|HACK|XXX)\b' "$f" || true)
+    [[ -n "$HITS" ]] && TODO_HITS+="$f: $HITS"$'\n'
+done <<< "$STAGED"
+[[ -n "$TODO_HITS" ]] && echo "$TODO_HITS" && fail "TODO/FIXME in staged code"
+pass "no TODO/FIXME"
+echo ""
+pass "Wall 1 cleared."

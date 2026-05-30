@@ -1,8 +1,5 @@
 # Git Workflow
-
 - Conventional Commits: `type(scope): description`
-  - Types: feat, fix, refactor, test, docs, chore, perf
-- `git add && git commit && git push` after every completed sprint
-- `cargo build` and `cargo test` must be green before committing
-- Never suppress command output — failures must be visible in real time
+- `npm run typecheck` and `npm run build` must be green before committing
+- `npm test` must pass before committing
 - Never commit with known failing tests

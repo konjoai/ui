@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { ease } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
 
 export function ProjectGrid() {
@@ -37,7 +38,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       viewport={{ once: true, margin: "-60px" }}
       transition={{
         duration: 0.45,
-        ease: [0.16, 1, 0.3, 1],
+        ease: ease.kanjo,
         delay: Math.min(index * 0.04, 0.32),
       }}
       className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-0.5"
