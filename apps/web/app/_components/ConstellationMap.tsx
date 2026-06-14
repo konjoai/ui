@@ -119,6 +119,38 @@ export function ConstellationMap() {
             );
           })}
 
+          {/* Center hub — shows portfolio stats at rest, product info on hover */}
+          <motion.g
+            initial={reduce ? { opacity: 1 } : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.4 }}
+          >
+            <circle cx={CX} cy={CY} r={38} fill="rgba(10,8,18,0.92)" stroke="rgba(124,58,237,0.4)" strokeWidth="1" />
+            <circle cx={CX} cy={CY} r={34} fill="none" stroke="rgba(124,58,237,0.12)" strokeWidth="0.5" />
+            {active ? (
+              <>
+                <text x={CX} y={CY - 10} textAnchor="middle" dominantBaseline="middle" fontSize="15" fill="rgba(167,139,250,0.95)" style={{ fontFamily: "monospace", transition: "opacity 0.2s" }}>
+                  {PRODUCT_MAP[active].glyph}
+                </text>
+                <text x={CX} y={CY + 6} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fontWeight="600" fill={sevColor[PRODUCT_MAP[active].metric.severity]} style={{ fontFamily: "monospace", letterSpacing: "0.03em" }}>
+                  {PRODUCT_MAP[active].metric.value}{PRODUCT_MAP[active].metric.unit}
+                </text>
+                <text x={CX} y={CY + 19} textAnchor="middle" dominantBaseline="middle" fontSize="7" fill="rgba(110,100,150,0.75)" style={{ fontFamily: "monospace", letterSpacing: "0.06em" }}>
+                  {PRODUCT_MAP[active].metric.label.toUpperCase()}
+                </text>
+              </>
+            ) : (
+              <>
+                <text x={CX} y={CY - 5} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fill="rgba(167,139,250,0.85)" style={{ fontFamily: "monospace", letterSpacing: "0.1em" }}>
+                  KonjoAI
+                </text>
+                <text x={CX} y={CY + 9} textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fill="rgba(100,90,140,0.55)" style={{ fontFamily: "monospace", letterSpacing: "0.06em" }}>
+                  9 products
+                </text>
+              </>
+            )}
+          </motion.g>
+
           {/* Nodes */}
           {NODES.map(({ slug, x, y, product }, i) => {
             const col = sevColor[product.metric.severity];

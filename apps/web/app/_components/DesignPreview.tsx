@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { ease } from "@konjoai/ui";
+import { useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { ease, cn } from "@konjoai/ui";
 import { StreamSection }     from "./showcase/StreamSection";
 import { MetricsSection }    from "./showcase/MetricsSection";
 import { ComplianceSection } from "./showcase/ComplianceSection";
@@ -37,7 +38,7 @@ const BLOCKS: Block[] = [
   {
     id: "compliance",
     title: "Compliance Monitor",
-    description: "EU AI Act article grid, cycling RiskRing re-assessments, score vs. threshold.",
+    description: "EU AI Act article grid, RiskRing re-assessments, score vs. threshold.",
     tag: "squash",
     live: true,
     Section: ComplianceSection,
@@ -53,15 +54,19 @@ const BLOCKS: Block[] = [
   {
     id: "shell",
     title: "Shell & Layout",
-    description: "Status indicators, feature tiles, and product hero — used across all nine product pages.",
+    description: "Status indicators, feature tiles, and product hero across all nine pages.",
     tag: "all products",
     live: false,
     Section: ShellSection,
   },
 ];
 
+/** Interactive tabbed showcase of the @konjoai/ui design system. */
 export function DesignPreview() {
   const reduce = useReducedMotion();
+  const [activeId, setActiveId] = useState("stream");
+  const active = BLOCKS.find((b) => b.id === activeId) ?? BLOCKS[0];
+
   return (
     <section
       aria-label="Design system showcase"
@@ -72,9 +77,9 @@ export function DesignPreview() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, ease: ease.kanjo }}
-        className="mb-14"
+        className="mb-8"
       >
-        <div className="flex items-center gap-3 mb-3">
+        <div className="mb-3 flex items-center gap-3">
           <p className="text-konjo-mono text-xs uppercase tracking-[0.24em] text-konjo-accent">
             @konjoai/ui · 14 components · 5 sections · all live
           </p>
@@ -90,50 +95,84 @@ export function DesignPreview() {
           Live design system
         </h2>
         <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
-          Every primitive, alive. Five sections streaming real-time data — the shared visual language powering nine KonjoAI products.
+          Every primitive, alive. Five sections streaming real-time data — the shared visual language powering all nine products.
         </p>
       </motion.div>
 
-      <div className="flex flex-col gap-10">
-        {BLOCKS.map(({ id, title, description, tag, live, Section }, i) => (
-          <motion.div
-            key={id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.55, ease: ease.kanjo, delay: i * 0.05 }}
-          >
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-konjo-display text-xl font-semibold tracking-tight">
-                    {title}
-                  </h3>
-                  {live && (
-                    <span
-                      className="konjo-pulse inline-block size-1.5 rounded-full bg-konjo-accent"
-                      aria-label="live"
-                    />
-                  )}
-                </div>
-                <p className="mt-0.5 text-xs text-konjo-fg-muted">{description}</p>
-              </div>
-              <span className="text-konjo-mono shrink-0 text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-                {tag}
-              </span>
-            </div>
-            <motion.div
-              className="glass-konjo rounded-konjo-xl p-6 sm:p-8"
-              whileHover={reduce ? undefined : {
-                boxShadow: "0 0 0 1px rgba(124,58,237,0.25), 0 0 48px -10px rgba(124,58,237,0.18)",
-                transition: { duration: 0.25 },
-              }}
+      {/* Tab bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.15, ease: ease.kanjo }}
+        className="mb-6 flex flex-wrap gap-2"
+        role="tablist"
+        aria-label="Design system sections"
+      >
+        {BLOCKS.map((block) => {
+          const isActive = block.id === activeId;
+          return (
+            <button
+              key={block.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`panel-${block.id}`}
+              id={`tab-${block.id}`}
+              onClick={() => setActiveId(block.id)}
+              className={cn(
+                "text-konjo-mono relative inline-flex items-center gap-2 rounded-konjo border px-3.5 py-2 text-xs transition-all duration-200",
+                isActive
+                  ? "border-konjo-brand/50 bg-konjo-brand/10 text-konjo-fg"
+                  : "border-konjo-line/40 bg-konjo-surface/20 text-konjo-fg-muted hover:border-konjo-line hover:text-konjo-fg",
+              )}
             >
-              <Section />
-            </motion.div>
-          </motion.div>
-        ))}
+              {block.live && (
+                <span
+                  className={cn(
+                    "inline-block size-1.5 rounded-full transition-colors",
+                    isActive ? "bg-konjo-good" : "bg-konjo-fg-faint",
+                  )}
+                  aria-hidden
+                />
+              )}
+              {block.title}
+            </button>
+          );
+        })}
+      </motion.div>
+
+      {/* Active section description */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-konjo-fg-muted">{active.description}</p>
+        <span className="text-konjo-mono shrink-0 text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+          {active.tag}
+        </span>
       </div>
+
+      {/* Tabpanel */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeId}
+          id={`panel-${activeId}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${activeId}`}
+          initial={reduce ? { opacity: 1 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={{ duration: 0.28, ease: ease.nehan }}
+        >
+          <motion.div
+            className="glass-konjo rounded-konjo-xl p-6 sm:p-8"
+            whileHover={reduce ? undefined : {
+              boxShadow: "0 0 0 1px rgba(124,58,237,0.22), 0 0 48px -10px rgba(124,58,237,0.15)",
+              transition: { duration: 0.25 },
+            }}
+          >
+            <active.Section />
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
     </section>
   );
 }
