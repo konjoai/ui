@@ -25,10 +25,13 @@ const STATUS_DOT: Record<StatusFilter, string> = {
   research:    "var(--color-konjo-violet)",
 };
 
+type ViewMode = "grid" | "table";
+
 /** Portfolio grid — nine animated product cards with 3-D tilt, status filter, and text search. */
 export function ProjectGrid() {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const searchRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -102,6 +105,31 @@ export function ProjectGrid() {
           transition={{ duration: 0.4, delay: 0.2, ease: ease.kanjo }}
           className="flex flex-wrap items-center gap-2"
         >
+          {/* View mode toggle */}
+          <div
+            className="flex items-center gap-0.5 rounded-konjo border border-konjo-line/50 bg-konjo-surface/30 p-0.5"
+            role="group"
+            aria-label="Switch between grid and table view"
+          >
+            {(["grid", "table"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setViewMode(mode)}
+                aria-pressed={viewMode === mode}
+                className={cn(
+                  "text-konjo-mono rounded px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
+                  viewMode === mode
+                    ? "bg-konjo-brand/15 text-konjo-fg"
+                    : "text-konjo-fg-faint hover:text-konjo-fg",
+                )}
+                aria-label={mode === "grid" ? "Grid view" : "Table view"}
+              >
+                {mode === "grid" ? "⊞" : "☰"}
+              </button>
+            ))}
+          </div>
+
           {/* Text search */}
           <input
             ref={searchRef}
@@ -153,11 +181,33 @@ export function ProjectGrid() {
         </p>
       )}
 
-      <GridSpotlight>
-        {filtered.map((p, i) => (
-          <ProjectCard key={p.slug} project={p} index={i} />
-        ))}
-      </GridSpotlight>
+      <AnimatePresence mode="wait" initial={false}>
+        {viewMode === "grid" ? (
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <GridSpotlight>
+              {filtered.map((p, i) => (
+                <ProjectCard key={p.slug} project={p} index={i} />
+              ))}
+            </GridSpotlight>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="table"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ProductTable products={filtered} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -352,5 +402,87 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
         </a>
       </div>
     </motion.li>
+  );
+}
+
+/** Compact table view — one product per row. Alternative to the card grid. */
+function ProductTable({ products }: { products: Product[] }) {
+  return (
+    <div
+      className="glass-konjo rounded-konjo-xl divide-y divide-konjo-line/20 overflow-hidden"
+      role="table"
+      aria-label="Product list"
+    >
+      {/* Header */}
+      <div
+        role="row"
+        className="flex items-center gap-4 bg-konjo-surface/40 px-5 py-2.5"
+      >
+        {["#", "Product", "Status", "Metric", ""].map((h, i) => (
+          <span
+            key={i}
+            role="columnheader"
+            className={cn(
+              "text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint",
+              i === 0 && "w-7 shrink-0 text-right",
+              i === 1 && "flex-1",
+              i === 2 && "w-24 shrink-0",
+              i === 3 && "w-28 shrink-0",
+              i === 4 && "w-20 shrink-0 text-right",
+            )}
+          >
+            {h}
+          </span>
+        ))}
+      </div>
+
+      {products.map((p, i) => {
+        const col = sevColor[p.metric.severity];
+        const metricDisplay = Number.isInteger(p.metric.value)
+          ? String(p.metric.value)
+          : p.metric.value.toFixed(1);
+        return (
+          <motion.div
+            key={p.slug}
+            role="row"
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.28, ease: ease.kanjo, delay: i * 0.04 }}
+            className="group flex items-center gap-4 px-5 py-3 transition-colors hover:bg-konjo-surface/30"
+          >
+            <span role="cell" className="text-konjo-mono w-7 shrink-0 text-right text-[11px] text-konjo-fg-faint tabular-nums">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div role="cell" className="flex flex-1 items-center gap-3 min-w-0">
+              <span className="text-xl leading-none" style={{ color: col }} aria-hidden>{p.glyph}</span>
+              <Link
+                href={`/products/${p.slug}`}
+                className="text-konjo-mono text-sm font-medium text-konjo-fg hover:text-konjo-violet transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent rounded"
+              >
+                {p.name}
+              </Link>
+              <span className="text-konjo-mono hidden text-[11px] text-konjo-fg-faint sm:block truncate">{p.tagline}</span>
+            </div>
+            <div role="cell" className="w-24 shrink-0">
+              <StatusBadge level={p.status} />
+            </div>
+            <div role="cell" className="w-28 shrink-0">
+              <span className="text-konjo-mono text-sm font-semibold tabular-nums" style={{ color: col }}>
+                {metricDisplay}<span className="ml-0.5 text-xs font-normal text-konjo-fg-faint">{p.metric.unit}</span>
+              </span>
+              <span className="text-konjo-mono ml-2 text-[10px] text-konjo-fg-faint">{p.metric.label}</span>
+            </div>
+            <div role="cell" className="flex w-20 shrink-0 items-center justify-end gap-1.5">
+              <Link
+                href={`/products/${p.slug}`}
+                className="text-konjo-mono rounded border border-konjo-line/50 px-2 py-0.5 text-[10px] text-konjo-fg-muted transition-colors hover:border-konjo-line hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+              >
+                Details →
+              </Link>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
   );
 }
