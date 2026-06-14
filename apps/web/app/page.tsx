@@ -9,6 +9,7 @@ import { LiveDemo } from "./_components/LiveDemo";
 import { BenchmarkSection } from "./_components/BenchmarkSection";
 import { InferenceHeatmap } from "./_components/InferenceHeatmap";
 import { TokenVelocity } from "./_components/TokenVelocity";
+import { ProductLeaderboard } from "./_components/ProductLeaderboard";
 import { SignalMonitor } from "./_components/SignalMonitor";
 import { DesignPreview } from "./_components/DesignPreview";
 import { ProjectGrid } from "./_components/ProjectGrid";
@@ -32,6 +33,7 @@ export default function HomePage() {
       <BenchmarkSection />
       <InferenceHeatmap />
       <TokenVelocity />
+      <ProductLeaderboard />
       <SignalMonitor />
       <DesignPreview />
       <ProjectGrid />
