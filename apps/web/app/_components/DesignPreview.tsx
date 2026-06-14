@@ -8,6 +8,7 @@ import { MetricsSection }    from "./showcase/MetricsSection";
 import { ComplianceSection } from "./showcase/ComplianceSection";
 import { RankingsSection }   from "./showcase/RankingsSection";
 import { ShellSection }      from "./showcase/ShellSection";
+import { TokenPalette }      from "./showcase/TokenPalette";
 import { ScrambleText }      from "./ScrambleText";
 
 type Block = {
@@ -59,6 +60,14 @@ const BLOCKS: Block[] = [
     tag: "all products",
     live: false,
     Section: ShellSection,
+  },
+  {
+    id: "tokens",
+    title: "Design Tokens",
+    description: "The full color token palette — click any swatch to copy its CSS variable.",
+    tag: "@konjoai/ui · tokens",
+    live: false,
+    Section: TokenPalette,
   },
 ];
 
@@ -115,7 +124,7 @@ export function DesignPreview() {
       >
         <div className="mb-3 flex items-center gap-3">
           <p className="text-konjo-mono text-xs uppercase tracking-[0.24em] text-konjo-accent">
-            @konjoai/ui · 14 components · 5 sections · all live
+            @konjoai/ui · 14 components · 6 sections · all live
           </p>
           <span
             className="text-konjo-mono inline-flex items-center gap-1.5 rounded-full border border-konjo-good/30 bg-konjo-good/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-konjo-good"
