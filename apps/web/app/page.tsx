@@ -18,6 +18,7 @@ import { Footer } from "./_components/Footer";
 import { WelcomeBack } from "./_components/WelcomeBack";
 import { SystemPulse } from "./_components/SystemPulse";
 import { PipelineTrace } from "./_components/PipelineTrace";
+import { ChangelogFeed } from "./_components/ChangelogFeed";
 
 export default function HomePage() {
   return (
@@ -39,6 +40,7 @@ export default function HomePage() {
       <TokenVelocity />
       <ProductLeaderboard />
       <SignalMonitor />
+      <ChangelogFeed />
       <DesignPreview />
       <ProjectGrid />
       <CTASection />

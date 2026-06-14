@@ -96,6 +96,16 @@ const GLOBAL_ACTIONS: PaletteAction[] = [
     },
   },
   {
+    id: "changelog",
+    icon: "◎",
+    label: "Changelog",
+    description: "Recent commits and releases across all nine products",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("changelog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
     id: "github",
     icon: "↗",
     label: "KonjoAI on GitHub",

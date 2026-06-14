@@ -18,6 +18,7 @@ const SECTIONS: SectionDef[] = [
   { id: "velocity",      label: "Token velocity"  },
   { id: "leaderboard",   label: "Leaderboard"    },
   { id: "signals",       label: "Signal monitor" },
+  { id: "changelog",     label: "Changelog"      },
   { id: "design",        label: "Design system"  },
   { id: "projects",      label: "Portfolio"      },
 ];
