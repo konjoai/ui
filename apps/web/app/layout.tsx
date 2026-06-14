@@ -3,6 +3,7 @@ import { SiteNav } from "./_components/SiteNav";
 import { ScrollProgressBar } from "./_components/ScrollProgressBar";
 import { CommandPalette } from "./_components/CommandPalette";
 import { FloatingDock } from "./_components/FloatingDock";
+import { KeyboardHelp } from "./_components/KeyboardHelp";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <ScrollProgressBar />
         <CommandPalette />
+        <KeyboardHelp />
         <FloatingDock />
         <SiteNav />
         <div id="main-content">{children}</div>
