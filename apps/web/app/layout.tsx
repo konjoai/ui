@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SiteNav } from "./_components/SiteNav";
 import { ScrollProgressBar } from "./_components/ScrollProgressBar";
+import { CommandPalette } from "./_components/CommandPalette";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <body className="bg-konjo-bg text-konjo-fg antialiased font-konjo-sans">
         <ScrollProgressBar />
+        <CommandPalette />
         <SiteNav />
         {children}
       </body>

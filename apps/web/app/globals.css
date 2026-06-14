@@ -57,3 +57,17 @@
 
 html { scroll-behavior: smooth; }
 body { background: var(--color-konjo-bg); color: var(--color-konjo-fg); }
+
+/* Live metrics ticker — scrolls left, pauses on hover, freezes for reduced-motion */
+@keyframes konjo-ticker-scroll {
+  to { transform: translateX(-50%); }
+}
+.konjo-ticker {
+  animation: konjo-ticker-scroll 55s linear infinite;
+}
+.konjo-ticker:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .konjo-ticker { animation: none; }
+}

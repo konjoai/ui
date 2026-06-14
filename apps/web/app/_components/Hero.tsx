@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, animate, useInView, useReducedMotion } from "motion/react";
+import { motion, animate, useInView, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 
@@ -72,10 +72,51 @@ function AnimatedStat({ stat }: { stat: Stat }) {
   );
 }
 
-/** Homepage hero — animated headline, count-up stats, floating glyph constellation. */
+/** Homepage hero — animated headline, count-up stats, floating glyph constellation, cursor glow. */
 export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const mouseX = useMotionValue(-600);
+  const mouseY = useMotionValue(-600);
+  const glowX = useSpring(mouseX, { stiffness: 70, damping: 18 });
+  const glowY = useSpring(mouseY, { stiffness: 70, damping: 18 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
+    if (reduce) return;
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(-600);
+    mouseY.set(-600);
+  }
+
   return (
-    <section className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28">
+    <section
+      ref={sectionRef}
+      className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Ambient cursor glow */}
+      {!reduce && (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            x: glowX,
+            y: glowY,
+            width: 520,
+            height: 520,
+            background:
+              "radial-gradient(circle, rgba(124,58,237,0.13) 0%, rgba(167,139,250,0.05) 45%, transparent 70%)",
+          }}
+        />
+      )}
+
       <FloatingGlyphs />
 
       <motion.div
