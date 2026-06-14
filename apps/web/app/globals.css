@@ -71,3 +71,16 @@ body { background: var(--color-konjo-bg); color: var(--color-konjo-fg); }
 @media (prefers-reduced-motion: reduce) {
   .konjo-ticker { animation: none; }
 }
+
+/* Constellation edge flow — dashed stroke that flows outward from hovered node */
+@keyframes konjo-edge-flow {
+  from { stroke-dashoffset: 12; }
+  to   { stroke-dashoffset: 0; }
+}
+.konjo-edge-flow {
+  stroke-dasharray: 4 4;
+  animation: konjo-edge-flow 0.45s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .konjo-edge-flow { animation: none; stroke-dasharray: none; }
+}

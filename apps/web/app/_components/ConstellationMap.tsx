@@ -108,12 +108,13 @@ export function ConstellationMap() {
             const lit =
               activeIdx >= 0 && (a === activeIdx || b === activeIdx);
             return (
-              <motion.line
+              <line
                 key={i}
                 x1={na.x} y1={na.y}
                 x2={nb.x} y2={nb.y}
-                stroke={lit ? "rgba(124,58,237,0.55)" : "rgba(124,58,237,0.12)"}
+                stroke={lit ? "rgba(124,58,237,0.6)" : "rgba(124,58,237,0.12)"}
                 strokeWidth={lit ? 1.5 : 1}
+                className={lit && !reduce ? "konjo-edge-flow" : undefined}
                 style={{ transition: "stroke 0.2s, stroke-width 0.2s" }}
               />
             );
@@ -173,6 +174,23 @@ export function ConstellationMap() {
                 onMouseLeave={() => setActive(null)}
               >
                 <a href={`/products/${slug}`} aria-label={`${product.name} — ${product.status}`} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-konjo-accent rounded-full">
+                  {/* Gentle breathing ring when idle */}
+                  {!isActive && !reduce && (
+                    <motion.circle
+                      cx={x} cy={y}
+                      fill="none"
+                      stroke="rgba(124,58,237,0.18)"
+                      strokeWidth="1"
+                      initial={{ r: 22, opacity: 0 }}
+                      animate={{ r: [22, 27, 22], opacity: [0.5, 0.1, 0.5] }}
+                      transition={{
+                        duration: 3 + (i % 3) * 0.8,
+                        delay: i * 0.25,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  )}
                   {/* Outer glow ring when active */}
                   {isActive && (
                     <motion.circle
