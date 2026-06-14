@@ -41,7 +41,15 @@ export function ProjectGrid() {
             The portfolio
           </h2>
           <p className="text-konjo-mono mt-2 text-sm text-konjo-fg-muted">
-            Nine projects · one design system · one Konjo
+            <span
+              className="tabular-nums"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={`Showing ${filtered.length} of ${PRODUCTS.length} projects`}
+            >
+              {String(filtered.length).padStart(2, "0")}&thinsp;/&thinsp;{String(PRODUCTS.length).padStart(2, "0")}
+            </span>
+            {" "}projects · one design system · one Konjo
           </p>
         </div>
         <motion.div

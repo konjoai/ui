@@ -23,21 +23,38 @@ export function Footer() {
             Systems
           </span>
           <div className="flex flex-wrap items-center gap-2" aria-label="Product health overview">
-            {PRODUCTS.map((p) => (
-              <Link
-                key={p.slug}
-                href={`/products/${p.slug}`}
-                title={`${p.name} — ${p.status}`}
-                className="text-konjo-mono flex items-center gap-1.5 rounded-konjo border border-konjo-line/40 bg-konjo-surface/40 px-2 py-0.5 text-[10px] text-konjo-fg-faint transition-colors hover:border-konjo-line hover:text-konjo-fg"
-              >
-                <span
-                  className="inline-block size-1.5 rounded-full"
-                  style={{ background: STATUS_COLOR[p.status] ?? sevColor.info }}
-                  aria-hidden
-                />
-                {p.slug}
-              </Link>
-            ))}
+            {PRODUCTS.map((p) => {
+              const dotColor = STATUS_COLOR[p.status] ?? sevColor.info;
+              return (
+                <Link
+                  key={p.slug}
+                  href={`/products/${p.slug}`}
+                  aria-label={`${p.name} — ${p.status}`}
+                  className="group text-konjo-mono relative flex items-center gap-1.5 rounded-konjo border border-konjo-line/40 bg-konjo-surface/40 px-2 py-0.5 text-[10px] text-konjo-fg-faint transition-colors hover:border-konjo-line hover:text-konjo-fg"
+                >
+                  <span
+                    className="inline-block size-1.5 rounded-full"
+                    style={{ background: dotColor }}
+                    aria-hidden
+                  />
+                  {p.slug}
+
+                  {/* CSS-only tooltip — no JS required, server-safe */}
+                  <span
+                    role="tooltip"
+                    className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-36 -translate-x-1/2 rounded-konjo border border-konjo-line/60 bg-konjo-surface px-3 py-2 text-center text-[10px] opacity-0 shadow-lg backdrop-blur transition-opacity duration-150 group-hover:opacity-100"
+                  >
+                    <span className="block font-medium text-konjo-fg">{p.name}</span>
+                    <span className="mt-0.5 block text-konjo-fg-faint tabular-nums">
+                      {p.metric.value}{p.metric.unit} · {p.metric.label}
+                    </span>
+                    <span className="mt-0.5 block font-medium" style={{ color: dotColor }}>
+                      {p.status}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
