@@ -58,35 +58,37 @@ export default async function ProductPage({
 
       <ProductMetricStrip metric={product.metric} productName={product.name} />
 
-      <ProductHero
-        name={product.name}
-        tagline={product.tagline}
-        glyph={product.glyph}
-        eyebrow={product.eyebrow}
-        version={product.version}
-        status={<StatusBadge level={product.status} />}
-        actions={
-          <>
-            <a
-              href={product.github}
-              target="_blank"
-              rel="noreferrer"
-              className="shadow-konjo-brand rounded-konjo-lg px-5 py-2.5 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
-              style={{ background: "var(--color-konjo-brand)" }}
-            >
-              View on GitHub ↗
-            </a>
-            <a
-              href={product.demo}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-5 py-2.5 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:bg-konjo-surface"
-            >
-              Open demo ↗
-            </a>
-          </>
-        }
-      />
+      <AnimatedSection as="div" delay={0.05}>
+        <ProductHero
+          name={product.name}
+          tagline={product.tagline}
+          glyph={product.glyph}
+          eyebrow={product.eyebrow}
+          version={product.version}
+          status={<StatusBadge level={product.status} />}
+          actions={
+            <>
+              <a
+                href={product.github}
+                target="_blank"
+                rel="noreferrer"
+                className="shadow-konjo-brand rounded-konjo-lg px-5 py-2.5 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
+                style={{ background: "var(--color-konjo-brand)" }}
+              >
+                View on GitHub ↗
+              </a>
+              <a
+                href={product.demo}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-5 py-2.5 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:bg-konjo-surface"
+              >
+                Open demo ↗
+              </a>
+            </>
+          }
+        />
+      </AnimatedSection>
 
       <AnimatedSection className="mx-auto max-w-6xl px-6 pb-12">
         <p className="max-w-3xl text-base leading-relaxed text-konjo-fg-muted sm:text-lg">
