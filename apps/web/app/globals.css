@@ -90,6 +90,22 @@ body { background: var(--color-konjo-bg); color: var(--color-konjo-fg); }
   .konjo-grain { animation: none; }
 }
 
+/* Dual-row product marquee — one row scrolls left, one right */
+@keyframes konjo-marquee-ltr {
+  from { transform: translateX(0%);   }
+  to   { transform: translateX(-50%); }
+}
+@keyframes konjo-marquee-rtl {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%);   }
+}
+.konjo-marquee-ltr { animation: konjo-marquee-ltr 45s linear infinite; }
+.konjo-marquee-rtl { animation: konjo-marquee-rtl 45s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .konjo-marquee-ltr,
+  .konjo-marquee-rtl { animation: none; }
+}
+
 /* Constellation edge flow — dashed stroke that flows outward from hovered node */
 @keyframes konjo-edge-flow {
   from { stroke-dashoffset: 12; }

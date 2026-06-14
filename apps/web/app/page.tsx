@@ -2,12 +2,14 @@ import { Hero } from "./_components/Hero";
 import { LiveTicker } from "./_components/LiveTicker";
 import { ConstellationMap } from "./_components/ConstellationMap";
 import { ActivityFeed } from "./_components/ActivityFeed";
+import { ProductMarquee } from "./_components/ProductMarquee";
 import { PhilosophySection } from "./_components/PhilosophySection";
 import { TerminalSection } from "./_components/TerminalSection";
 import { LiveDemo } from "./_components/LiveDemo";
 import { BenchmarkSection } from "./_components/BenchmarkSection";
 import { DesignPreview } from "./_components/DesignPreview";
 import { ProjectGrid } from "./_components/ProjectGrid";
+import { CTASection } from "./_components/CTASection";
 import { Footer } from "./_components/Footer";
 import { WelcomeBack } from "./_components/WelcomeBack";
 
@@ -20,12 +22,14 @@ export default function HomePage() {
       <LiveTicker />
       <ConstellationMap />
       <ActivityFeed />
+      <ProductMarquee />
       <PhilosophySection />
       <TerminalSection />
       <LiveDemo />
       <BenchmarkSection />
       <DesignPreview />
       <ProjectGrid />
+      <CTASection />
       <Footer />
     </main>
   );
