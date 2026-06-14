@@ -7,6 +7,7 @@ import { PhilosophySection } from "./_components/PhilosophySection";
 import { TerminalSection } from "./_components/TerminalSection";
 import { LiveDemo } from "./_components/LiveDemo";
 import { BenchmarkSection } from "./_components/BenchmarkSection";
+import { SignalMonitor } from "./_components/SignalMonitor";
 import { DesignPreview } from "./_components/DesignPreview";
 import { ProjectGrid } from "./_components/ProjectGrid";
 import { CTASection } from "./_components/CTASection";
@@ -27,6 +28,7 @@ export default function HomePage() {
       <TerminalSection />
       <LiveDemo />
       <BenchmarkSection />
+      <SignalMonitor />
       <DesignPreview />
       <ProjectGrid />
       <CTASection />
