@@ -82,20 +82,18 @@ export function KeyboardHelp() {
         return;
       }
 
-      if (e.key === "]") {
-        e.preventDefault();
-        const idx = currentProductIdx();
-        const next = (idx + 1) % PRODUCTS.length;
-        router.push(`/products/${PRODUCTS[next].slug}`);
-        return;
-      }
-
-      if (e.key === "[") {
-        e.preventDefault();
-        const idx = currentProductIdx();
-        const prev = (idx - 1 + PRODUCTS.length) % PRODUCTS.length;
-        router.push(`/products/${PRODUCTS[prev].slug}`);
-        return;
+      // [ / ] — defer to ProductKeyboardNav on product pages (it adds a toast)
+      if (currentProductIdx() === -1) {
+        if (e.key === "]") {
+          e.preventDefault();
+          router.push(`/products/${PRODUCTS[0].slug}`);
+          return;
+        }
+        if (e.key === "[") {
+          e.preventDefault();
+          router.push(`/products/${PRODUCTS[PRODUCTS.length - 1].slug}`);
+          return;
+        }
       }
 
       if (/^[1-9]$/.test(e.key)) {

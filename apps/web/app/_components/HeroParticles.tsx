@@ -60,10 +60,14 @@ function startParticles(
   }
   function onMouseLeave() { mx = -9999; my = -9999; }
 
+  const LINK_DIST = 100;
+  const LINK_DIST_SQ = LINK_DIST * LINK_DIST;
+
   function frame() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
+    // Advance each particle
     for (const p of particles) {
       p.x += p.vx;
       p.y += p.vy;
@@ -84,10 +88,32 @@ function startParticles(
         p.y += (dy / dist) * force;
       }
 
-      // Breathing opacity: 0.05 – 0.18
       p.phase += p.phaseSpeed;
-      const opacity = 0.05 + (Math.sin(p.phase) * 0.5 + 0.5) * 0.13;
+    }
 
+    // Draw connection lines between nearby pairs
+    ctx.lineWidth = 0.6;
+    for (let i = 0; i < particles.length; i++) {
+      const a = particles[i];
+      for (let j = i + 1; j < particles.length; j++) {
+        const b = particles[j];
+        const ddx = a.x - b.x;
+        const ddy = a.y - b.y;
+        const d2 = ddx * ddx + ddy * ddy;
+        if (d2 < LINK_DIST_SQ) {
+          const t = 1 - Math.sqrt(d2) / LINK_DIST;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(124,58,237,${(t * 0.08).toFixed(3)})`;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw particles
+    for (const p of particles) {
+      const opacity = 0.05 + (Math.sin(p.phase) * 0.5 + 0.5) * 0.13;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(124,58,237,${opacity.toFixed(3)})`;
