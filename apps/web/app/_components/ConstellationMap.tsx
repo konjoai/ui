@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ease, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 import { ScrambleText } from "./ScrambleText";
@@ -163,28 +163,45 @@ export function ConstellationMap() {
             )}
             <circle cx={CX} cy={CY} r={38} fill="rgba(10,8,18,0.92)" stroke="rgba(124,58,237,0.4)" strokeWidth="1" />
             <circle cx={CX} cy={CY} r={34} fill="none" stroke="rgba(124,58,237,0.12)" strokeWidth="0.5" />
-            {displaySlug ? (
-              <>
-                <text x={CX} y={CY - 10} textAnchor="middle" dominantBaseline="middle" fontSize="15" fill="rgba(167,139,250,0.95)" style={{ fontFamily: "monospace", transition: "opacity 0.25s" }}>
-                  {PRODUCT_MAP[displaySlug].glyph}
-                </text>
-                <text x={CX} y={CY + 6} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fontWeight="600" fill={sevColor[PRODUCT_MAP[displaySlug].metric.severity]} style={{ fontFamily: "monospace", letterSpacing: "0.03em", transition: "fill 0.25s" }}>
-                  {PRODUCT_MAP[displaySlug].metric.value}{PRODUCT_MAP[displaySlug].metric.unit}
-                </text>
-                <text x={CX} y={CY + 19} textAnchor="middle" dominantBaseline="middle" fontSize="7" fill="rgba(110,100,150,0.75)" style={{ fontFamily: "monospace", letterSpacing: "0.06em" }}>
-                  {PRODUCT_MAP[displaySlug].metric.label.toUpperCase()}
-                </text>
-              </>
-            ) : (
-              <>
-                <text x={CX} y={CY - 5} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fill="rgba(167,139,250,0.85)" style={{ fontFamily: "monospace", letterSpacing: "0.1em" }}>
-                  KonjoAI
-                </text>
-                <text x={CX} y={CY + 9} textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fill="rgba(100,90,140,0.55)" style={{ fontFamily: "monospace", letterSpacing: "0.06em" }}>
-                  9 products
-                </text>
-              </>
-            )}
+            {/* Hub label — foreignObject for smooth AnimatePresence crossfade */}
+            <foreignObject x={CX - 34} y={CY - 26} width="68" height="52" style={{ overflow: "visible" }}>
+              <AnimatePresence mode="wait">
+                {displaySlug ? (
+                  <motion.div
+                    key={displaySlug}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.22 }}
+                    className="flex flex-col items-center justify-center"
+                    style={{ fontFamily: "monospace", userSelect: "none" }}
+                  >
+                    <span style={{ fontSize: 15, color: "rgba(167,139,250,0.95)", lineHeight: 1 }}>
+                      {PRODUCT_MAP[displaySlug].glyph}
+                    </span>
+                    <span style={{ fontSize: 9.5, fontWeight: 600, color: sevColor[PRODUCT_MAP[displaySlug].metric.severity], letterSpacing: "0.03em", marginTop: 4 }}>
+                      {PRODUCT_MAP[displaySlug].metric.value}{PRODUCT_MAP[displaySlug].metric.unit}
+                    </span>
+                    <span style={{ fontSize: 7, color: "rgba(110,100,150,0.75)", letterSpacing: "0.06em", marginTop: 2 }}>
+                      {PRODUCT_MAP[displaySlug].metric.label.toUpperCase()}
+                    </span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center justify-center"
+                    style={{ fontFamily: "monospace", userSelect: "none" }}
+                  >
+                    <span style={{ fontSize: 9.5, color: "rgba(167,139,250,0.85)", letterSpacing: "0.1em" }}>KonjoAI</span>
+                    <span style={{ fontSize: 7.5, color: "rgba(100,90,140,0.55)", letterSpacing: "0.06em", marginTop: 3 }}>9 products</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </foreignObject>
           </motion.g>
 
           {/* Nodes */}

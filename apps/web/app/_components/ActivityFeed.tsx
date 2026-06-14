@@ -128,6 +128,12 @@ export function ActivityFeed() {
               transition={{ duration: 0.35, ease: ease.nehan }}
               className="glass-konjo rounded-konjo group relative overflow-hidden"
             >
+              {/* Colored left accent border */}
+              <div
+                className="absolute left-0 top-0 bottom-0 w-[2px] rounded-l"
+                style={{ background: ev.dotColor, opacity: 0.6 }}
+                aria-hidden
+              />
               <Link
                 href={`/products/${ev.slug}`}
                 className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-konjo-surface/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-inset"
