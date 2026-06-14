@@ -5,6 +5,7 @@ import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { AnimatedSection } from "@/app/_components/AnimatedSection";
 import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
+import { ProductMetricStrip } from "@/app/products/_components/ProductMetricStrip";
 import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
@@ -53,6 +54,8 @@ export default async function ProductPage({
           ]}
         />
       </div>
+
+      <ProductMetricStrip metric={product.metric} productName={product.name} />
 
       <ProductHero
         name={product.name}

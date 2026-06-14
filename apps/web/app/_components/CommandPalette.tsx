@@ -6,6 +6,20 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn, ease, StatusBadge } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
+/** Wraps the first occurrence of `query` inside `text` with an accent highlight span. */
+function Highlight({ text, query }: { text: string; query: string }) {
+  if (!query) return <>{text}</>;
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <span className="text-konjo-accent">{text.slice(idx, idx + query.length)}</span>
+      {text.slice(idx + query.length)}
+    </>
+  );
+}
+
 /**
  * Keyboard-driven command palette — Cmd+K / Ctrl+K opens, Esc closes.
  * Also responds to the "konjo:open-palette" custom DOM event so SiteNav
@@ -148,8 +162,12 @@ export function CommandPalette() {
                         {p.glyph}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-konjo-mono text-sm font-medium">{p.name}</p>
-                        <p className="truncate text-xs text-konjo-fg-faint">{p.tagline}</p>
+                        <p className="text-konjo-mono text-sm font-medium">
+                          <Highlight text={p.name} query={query} />
+                        </p>
+                        <p className="truncate text-xs text-konjo-fg-faint">
+                          <Highlight text={p.tagline} query={query} />
+                        </p>
                       </div>
                       <StatusBadge level={p.status} />
                     </button>

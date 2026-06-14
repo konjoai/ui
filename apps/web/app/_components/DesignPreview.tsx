@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
 import { StreamSection }     from "./showcase/StreamSection";
 import { MetricsSection }    from "./showcase/MetricsSection";
@@ -61,6 +61,7 @@ const BLOCKS: Block[] = [
 ];
 
 export function DesignPreview() {
+  const reduce = useReducedMotion();
   return (
     <section
       aria-label="Design system showcase"
@@ -121,9 +122,15 @@ export function DesignPreview() {
                 {tag}
               </span>
             </div>
-            <div className="glass-konjo rounded-konjo-xl p-6 sm:p-8">
+            <motion.div
+              className="glass-konjo rounded-konjo-xl p-6 sm:p-8"
+              whileHover={reduce ? undefined : {
+                boxShadow: "0 0 0 1px rgba(124,58,237,0.25), 0 0 48px -10px rgba(124,58,237,0.18)",
+                transition: { duration: 0.25 },
+              }}
+            >
               <Section />
-            </div>
+            </motion.div>
           </motion.div>
         ))}
       </div>
