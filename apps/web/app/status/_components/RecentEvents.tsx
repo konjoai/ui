@@ -47,8 +47,14 @@ export function RecentEvents() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-20px" }}
             transition={{ duration: 0.35, ease: ease.kanjo, delay: i * 0.06 }}
-            className="flex items-start gap-4 px-5 py-4 transition-colors hover:bg-konjo-surface/40"
+            className="relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-konjo-surface/40"
           >
+            {/* Left accent border */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-[2px] rounded-l"
+              style={{ background: sevColor[ev.severity], opacity: 0.55 }}
+              aria-hidden
+            />
             {/* Status dot + icon */}
             <div
               className="text-konjo-mono mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"

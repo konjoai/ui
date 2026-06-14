@@ -239,7 +239,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18 } }}
       whileHover={reduce ? undefined : {
         y: -4,
-        boxShadow: "0 0 0 1px rgba(124,58,237,0.35), 0 0 40px -6px rgba(124,58,237,0.18)",
+        boxShadow: `0 0 0 1px color-mix(in oklch, ${metricColor} 35%, transparent), 0 0 40px -6px color-mix(in oklch, ${metricColor} 18%, transparent)`,
         transition: { duration: 0.2, ease: ease.nehan },
       }}
       transition={{
@@ -261,12 +261,11 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         />
       )}
-      {/* Top shimmer on hover */}
+      {/* Top shimmer on hover — product-specific color */}
       <div
         className="pointer-events-none absolute inset-x-0 -top-px h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background:
-            "linear-gradient(90deg, transparent, var(--color-konjo-brand), transparent)",
+          background: `linear-gradient(90deg, transparent, ${metricColor}, transparent)`,
         }}
         aria-hidden
       />
