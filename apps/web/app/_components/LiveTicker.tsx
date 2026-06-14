@@ -2,6 +2,13 @@ import Link from "next/link";
 import { severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
+const STATUS_COLOR: Record<string, string> = {
+  operational: "var(--color-konjo-good)",
+  degraded:    "var(--color-konjo-warm)",
+  outage:      "var(--color-konjo-hot)",
+  research:    "var(--color-konjo-violet)",
+};
+
 /** Duplicated for seamless CSS marquee — scroll by 50% to loop invisibly. */
 const TICKER_ITEMS = [...PRODUCTS, ...PRODUCTS];
 
@@ -26,9 +33,14 @@ export function LiveTicker() {
               key={`${p.slug}-${i}`}
               href={`/products/${p.slug}`}
               tabIndex={i >= PRODUCTS.length ? -1 : 0}
-              aria-label={`${p.name}: ${p.metric.label} ${val}${p.metric.unit}`}
+              aria-label={`${p.name}: ${p.metric.label} ${val}${p.metric.unit} — ${p.status}`}
               className="text-konjo-mono flex shrink-0 items-center gap-2.5 px-6 text-xs text-konjo-fg-muted transition-colors hover:text-konjo-fg"
             >
+              <span
+                className="inline-block size-1.5 shrink-0 rounded-full"
+                style={{ background: STATUS_COLOR[p.status] ?? sevColor.info }}
+                aria-hidden
+              />
               <span
                 className="text-base leading-none"
                 style={{ color: "var(--color-konjo-brand-soft)" }}

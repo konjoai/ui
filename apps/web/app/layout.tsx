@@ -6,6 +6,7 @@ import { FloatingDock } from "./_components/FloatingDock";
 import { KeyboardHelp } from "./_components/KeyboardHelp";
 import { ToastProvider } from "./_components/ToastProvider";
 import { CursorGlow } from "./_components/CursorGlow";
+import { Grain } from "./_components/Grain";
 import { PageTitleEffect } from "./_components/PageTitleEffect";
 import { SectionDots } from "./_components/SectionDots";
 import { StatusRibbon } from "./_components/StatusRibbon";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <CursorGlow />
+        <Grain />
         <PageTitleEffect />
         <ScrollProgressBar />
         <CommandPalette />
