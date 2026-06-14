@@ -46,6 +46,46 @@ const GLOBAL_ACTIONS: PaletteAction[] = [
     },
   },
   {
+    id: "heatmap",
+    icon: "▦",
+    label: "Inference heatmap",
+    description: "9×24 live request-density grid",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("heatmap")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
+    id: "velocity",
+    icon: "⚡",
+    label: "Token velocity",
+    description: "Live tok/s per product with flip digits",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("velocity")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
+    id: "leaderboard",
+    icon: "◈",
+    label: "Live leaderboard",
+    description: "Product rankings that shift in real time",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("leaderboard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
+    id: "signals",
+    icon: "〰",
+    label: "Signal monitor",
+    description: "Nine oscilloscope waveform channels",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("signals")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
     id: "github",
     icon: "↗",
     label: "KonjoAI on GitHub",
