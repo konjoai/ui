@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ease } from "@konjoai/ui";
+import { ease, StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
 
 export function ProjectGrid() {
@@ -31,6 +31,12 @@ export function ProjectGrid() {
 }
 
 function ProjectCard({ project, index }: { project: Product; index: number }) {
+  const metricColor = sevColor[project.metric.severity];
+  const metricDisplay =
+    Number.isInteger(project.metric.value)
+      ? String(project.metric.value)
+      : project.metric.value.toFixed(1);
+
   return (
     <motion.li
       initial={{ opacity: 0, y: 14 }}
@@ -43,6 +49,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       }}
       className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-0.5"
     >
+      {/* Top shimmer on hover */}
       <div
         className="pointer-events-none absolute inset-x-0 -top-px h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
@@ -52,6 +59,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
         aria-hidden
       />
 
+      {/* Header: glyph + number + status */}
       <div className="flex items-start justify-between gap-4">
         <a
           href={`/products/${project.slug}`}
@@ -61,11 +69,15 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
         >
           <span aria-hidden>{project.glyph}</span>
         </a>
-        <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-          {String(index + 1).padStart(2, "0")}
-        </span>
+        <div className="flex flex-col items-end gap-1.5">
+          <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <StatusBadge level={project.status} />
+        </div>
       </div>
 
+      {/* Name + tagline */}
       <a
         href={`/products/${project.slug}`}
         className="text-konjo-display mt-5 inline-block text-2xl font-semibold tracking-tight transition-colors hover:text-konjo-violet"
@@ -76,7 +88,22 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
         {project.tagline}
       </p>
 
-      <div className="mt-6 flex items-center gap-3 text-xs">
+      {/* Headline metric */}
+      <div className="mt-4 flex items-baseline gap-1.5" aria-label={`${project.metric.label}: ${metricDisplay}${project.metric.unit}`}>
+        <span
+          className="text-konjo-display text-2xl font-semibold tabular-nums leading-none"
+          style={{ color: metricColor }}
+        >
+          {metricDisplay}
+          <span className="ml-0.5 text-base text-konjo-fg-muted">{project.metric.unit}</span>
+        </span>
+        <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+          {project.metric.label}
+        </span>
+      </div>
+
+      {/* CTAs */}
+      <div className="mt-5 flex items-center gap-3 text-xs">
         <a
           href={`/products/${project.slug}`}
           className="text-konjo-mono inline-flex items-center gap-1.5 rounded-konjo border border-konjo-line bg-konjo-surface-2/60 px-3 py-1.5 text-konjo-fg transition-colors hover:bg-konjo-surface-2"

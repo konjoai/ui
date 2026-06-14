@@ -1,9 +1,18 @@
-import type { StatusLevel } from "@konjoai/ui";
+import type { StatusLevel, Severity } from "@konjoai/ui";
 
 export type ProductFeature = {
   glyph: string;
   title: string;
   description: string;
+};
+
+export type ProductMetric = {
+  value: number;
+  label: string;
+  unit: string;
+  severity: Severity;
+  min?: number;
+  max?: number;
 };
 
 export type Product = {
@@ -23,6 +32,8 @@ export type Product = {
   /** Long-form description shown on the product page below the hero. */
   about: string;
   features: ProductFeature[];
+  /** Headline KPI displayed on the portfolio card. */
+  metric: ProductMetric;
 };
 
 export const PRODUCTS: Product[] = [
@@ -55,6 +66,7 @@ export const PRODUCTS: Product[] = [
         description: "INT4 AWQ ≥ 70.6% arc_easy on Qwen2.5-1.5B. SQINT2 ships only when it beats the gate.",
       },
     ],
+    metric: { value: 42, label: "Throughput", unit: "tok/s", severity: "info", min: 0, max: 120 },
   },
   {
     slug: "vectro",
@@ -85,6 +97,7 @@ export const PRODUCTS: Product[] = [
         description: "Python and Rust suites both green. PyO3 zero-copy interop verified per release.",
       },
     ],
+    metric: { value: 87, label: "Recall@10", unit: "%", severity: "ok" },
   },
   {
     slug: "kyro",
@@ -115,6 +128,7 @@ export const PRODUCTS: Product[] = [
         description: "Drop kyro into Claude Code or any MCP host as a retrieval primitive.",
       },
     ],
+    metric: { value: 91, label: "NDCG@10", unit: "%", severity: "ok" },
   },
   {
     slug: "kairu",
@@ -145,6 +159,7 @@ export const PRODUCTS: Product[] = [
         description: "Latency SLOs encoded in CI — regressions block merge before they ship.",
       },
     ],
+    metric: { value: 8.2, label: "p99 Latency", unit: "ms", severity: "warn", min: 0, max: 20 },
   },
   {
     slug: "miru",
@@ -175,6 +190,7 @@ export const PRODUCTS: Product[] = [
         description: "Strict typed inputs, optional CLIP integration, batch upload from a single CLI.",
       },
     ],
+    metric: { value: 76, label: "Attn. Coverage", unit: "%", severity: "info" },
   },
   {
     slug: "toki",
@@ -205,6 +221,7 @@ export const PRODUCTS: Product[] = [
         description: "clap-driven Rust front-end; PEFT trainer behind `toki[train]`.",
       },
     ],
+    metric: { value: 67, label: "Robustness", unit: "%", severity: "warn" },
   },
   {
     slug: "kohaku",
@@ -235,6 +252,7 @@ export const PRODUCTS: Product[] = [
         description: "Drop in front of any /v1/chat/completions and your agent has persistent memory.",
       },
     ],
+    metric: { value: 89, label: "Memory Recall", unit: "%", severity: "ok" },
   },
   {
     slug: "lopi",
@@ -265,6 +283,7 @@ export const PRODUCTS: Product[] = [
         description: "Persistent across restarts. Resume an in-flight investigation from any device.",
       },
     ],
+    metric: { value: 94, label: "Success Rate", unit: "%", severity: "ok" },
   },
   {
     slug: "drex",
@@ -295,6 +314,7 @@ export const PRODUCTS: Product[] = [
         description: "Workspace gates: oxidizr + blazr crates green. CI hard-stops at any red.",
       },
     ],
+    metric: { value: 38, label: "Progress", unit: "%", severity: "info" },
   },
 ];
 
