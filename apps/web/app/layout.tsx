@@ -10,6 +10,7 @@ import { Grain } from "./_components/Grain";
 import { PageTitleEffect } from "./_components/PageTitleEffect";
 import { SectionDots } from "./_components/SectionDots";
 import { StatusRibbon } from "./_components/StatusRibbon";
+import { KonamiKonjo } from "./_components/KonamiKonjo";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SectionDots />
         <SiteNav />
         <StatusRibbon />
+        <KonamiKonjo />
         <div id="main-content">{children}</div>
       </body>
     </html>
