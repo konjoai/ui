@@ -4,6 +4,77 @@ import { motion, animate, useInView, useMotionValue, useSpring, useReducedMotion
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 
+const PHRASES = [
+  "High-performance AI infrastructure, built in the Konjo way.",
+  "Nine products. One design system. Zero compromises.",
+  "Open-source. Benchmarked. Shipped with 根性.",
+  "Speed. Memory. Vision. Safety. One constellation.",
+];
+
+/**
+ * Cycles through PHRASES with a typing/deleting animation and a blinking cursor.
+ * Starts fully typed (SSR-safe) then enters the delete→type loop after 2.2 s.
+ */
+function Typewriter() {
+  const reduce = useReducedMotion();
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(PHRASES[0].length);
+  const [deleting, setDeleting] = useState(false);
+  const [displayed, setDisplayed] = useState(PHRASES[0]);
+  const [cursorOn, setCursorOn] = useState(true);
+
+  useEffect(() => {
+    if (reduce) return;
+    const phrase = PHRASES[phraseIdx];
+
+    if (!deleting && charIdx < phrase.length) {
+      const id = setTimeout(() => {
+        setCharIdx((c) => c + 1);
+        setDisplayed(phrase.slice(0, charIdx + 1));
+      }, 38);
+      return () => clearTimeout(id);
+    }
+    if (!deleting && charIdx === phrase.length) {
+      const id = setTimeout(() => setDeleting(true), 2400);
+      return () => clearTimeout(id);
+    }
+    if (deleting && charIdx > 0) {
+      const id = setTimeout(() => {
+        setCharIdx((c) => c - 1);
+        setDisplayed(phrase.slice(0, charIdx - 1));
+      }, 20);
+      return () => clearTimeout(id);
+    }
+    if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setPhraseIdx((i) => (i + 1) % PHRASES.length);
+    }
+  }, [charIdx, deleting, phraseIdx, reduce]);
+
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => setCursorOn((v) => !v), 530);
+    return () => clearInterval(id);
+  }, [reduce]);
+
+  if (reduce) return <span>{PHRASES[0]}</span>;
+
+  return (
+    <span>
+      {displayed}
+      <span
+        aria-hidden
+        className="ml-0.5 inline-block h-[1em] w-[2px] -mb-[2px] align-middle rounded-sm"
+        style={{
+          background: "var(--color-konjo-brand)",
+          opacity: cursorOn ? 1 : 0,
+          transition: "opacity 0.1s",
+        }}
+      />
+    </span>
+  );
+}
+
 type Stat = { display: string; label: string; color: string; countTo?: number };
 
 const STATS: Stat[] = [
@@ -147,9 +218,9 @@ export function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: ease.kanjo, delay: 0.15 }}
         className="mt-6 max-w-2xl text-balance text-lg text-konjo-fg-muted sm:text-xl"
+        aria-label="KonjoAI tagline"
       >
-        High-performance AI infrastructure, built in the{" "}
-        <span className="text-konjo-fg">Konjo</span> way.
+        <Typewriter />
       </motion.p>
 
       <motion.p

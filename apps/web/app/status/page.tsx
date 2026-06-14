@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { StatusDashboard } from "@/app/status/_components/StatusDashboard";
 import { RecentEvents } from "@/app/status/_components/RecentEvents";
 import { MiniSparkline } from "@/app/status/_components/MiniSparkline";
+import { LastUpdated } from "@/app/status/_components/LastUpdated";
 import { PRODUCTS } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -136,9 +137,7 @@ export default function StatusPage() {
           ))}
         </ul>
 
-        <p className="text-konjo-mono mt-6 text-xs text-konjo-fg-faint">
-          Last regenerated · {BUILD_TIME}
-        </p>
+        <LastUpdated buildTime={BUILD_TIME} />
       </section>
 
       <Footer />
