@@ -1,13 +1,32 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
-import { ease, StatusBadge, severity as sevColor } from "@konjoai/ui";
+import { motion, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from "motion/react";
+import { ease, StatusBadge, severity as sevColor, cn } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
 
-/** Portfolio grid — nine animated product cards with 3-D tilt on hover. */
+type StatusFilter = "all" | "operational" | "degraded" | "research";
+
+const FILTER_OPTS: { label: string; value: StatusFilter }[] = [
+  { label: "All",         value: "all"         },
+  { label: "Operational", value: "operational" },
+  { label: "Degraded",    value: "degraded"    },
+  { label: "Research",    value: "research"    },
+];
+
+const STATUS_DOT: Record<StatusFilter, string> = {
+  all:         "var(--color-konjo-accent)",
+  operational: "var(--color-konjo-good)",
+  degraded:    "var(--color-konjo-warm)",
+  research:    "var(--color-konjo-violet)",
+};
+
+/** Portfolio grid — nine animated product cards with 3-D tilt and status filter. */
 export function ProjectGrid() {
+  const [filter, setFilter] = useState<StatusFilter>("all");
+  const filtered = filter === "all" ? PRODUCTS : PRODUCTS.filter((p) => p.status === filter);
+
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 pb-24">
       <motion.div
@@ -15,7 +34,7 @@ export function ProjectGrid() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.55, ease: ease.kanjo }}
-        className="mb-10 flex items-end justify-between gap-6"
+        className="mb-8 flex flex-wrap items-end justify-between gap-6"
       >
         <div>
           <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -25,15 +44,50 @@ export function ProjectGrid() {
             Nine projects · one design system · one Konjo
           </p>
         </div>
-        <div className="text-konjo-mono hidden text-xs text-konjo-fg-faint sm:block">
-          {PRODUCTS.length.toString().padStart(2, "0")} / {PRODUCTS.length.toString().padStart(2, "0")}
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.2, ease: ease.kanjo }}
+          className="flex flex-wrap items-center gap-1.5"
+          role="group"
+          aria-label="Filter by status"
+        >
+          {FILTER_OPTS.map(({ label, value }) => {
+            const count = value === "all" ? PRODUCTS.length : PRODUCTS.filter((p) => p.status === value).length;
+            const active = filter === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setFilter(value)}
+                aria-pressed={active}
+                className={cn(
+                  "text-konjo-mono inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] transition-all duration-200",
+                  active
+                    ? "border-konjo-brand/40 bg-konjo-brand/10 text-konjo-fg"
+                    : "border-konjo-line/50 bg-konjo-surface/30 text-konjo-fg-muted hover:border-konjo-line hover:text-konjo-fg",
+                )}
+              >
+                <span
+                  className="inline-block size-1.5 rounded-full"
+                  style={{ background: STATUS_DOT[value] }}
+                  aria-hidden
+                />
+                {label}
+                <span className="tabular-nums text-konjo-fg-faint">{String(count).padStart(2, "0")}</span>
+              </button>
+            );
+          })}
+        </motion.div>
       </motion.div>
 
       <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {PRODUCTS.map((p, i) => (
-          <ProjectCard key={p.slug} project={p} index={i} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {filtered.map((p, i) => (
+            <ProjectCard key={p.slug} project={p} index={i} />
+          ))}
+        </AnimatePresence>
       </ul>
     </section>
   );
@@ -78,18 +132,19 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
   return (
     <motion.li
       ref={cardRef}
+      layout
       initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18 } }}
       whileHover={reduce ? undefined : {
         y: -4,
         boxShadow: "0 0 0 1px rgba(124,58,237,0.35), 0 0 40px -6px rgba(124,58,237,0.18)",
         transition: { duration: 0.2, ease: ease.nehan },
       }}
-      viewport={{ once: true, margin: "-60px" }}
       transition={{
-        duration: 0.45,
+        duration: 0.38,
         ease: ease.kanjo,
-        delay: Math.min(index * 0.04, 0.32),
+        delay: Math.min(index * 0.04, 0.24),
       }}
       style={{ rotateX, rotateY, transformPerspective: 800 }}
       onMouseMove={handleMouseMove}

@@ -8,6 +8,7 @@ import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
 import { ProductMetricStrip } from "@/app/products/_components/ProductMetricStrip";
 import { AnimatedFeatureGrid } from "@/app/products/_components/AnimatedFeatureGrid";
 import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
+import { ProductSectionNav } from "@/app/products/_components/ProductSectionNav";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -45,6 +46,8 @@ export default async function ProductPage({
   return (
     <main className="aurora-konjo relative min-h-screen overflow-x-clip">
       <div className="aurora-konjo-bg" aria-hidden />
+
+      <ProductSectionNav />
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
         <Breadcrumbs
@@ -90,22 +93,26 @@ export default async function ProductPage({
         />
       </AnimatedSection>
 
-      <AnimatedSection className="mx-auto max-w-6xl px-6 pb-12">
+      <AnimatedSection id="product-overview" className="mx-auto max-w-6xl px-6 pb-12">
         <p className="max-w-3xl text-base leading-relaxed text-konjo-fg-muted sm:text-lg">
           {product.about}
         </p>
       </AnimatedSection>
 
-      <AnimatedSection className="mx-auto max-w-6xl px-6 pb-16" delay={0.08}>
+      <AnimatedSection id="product-features" className="mx-auto max-w-6xl px-6 pb-16" delay={0.08}>
         <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
           What it does
         </h2>
         <AnimatedFeatureGrid features={product.features} />
       </AnimatedSection>
 
-      <ProductDashboard slug={product.slug} />
+      <div id="product-dashboard">
+        <ProductDashboard slug={product.slug} />
+      </div>
 
-      <RelatedProducts currentSlug={product.slug} />
+      <div id="product-related">
+        <RelatedProducts currentSlug={product.slug} />
+      </div>
 
       <AnimatedSection className="mx-auto max-w-6xl px-6 pb-24" delay={0.05}>
         <div className="glass-konjo rounded-konjo-lg flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
