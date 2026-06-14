@@ -42,6 +42,7 @@ export function ActivityFeed() {
   const reduce = useReducedMotion();
   const [events, setEvents] = useState<FeedEvent[]>([]);
   const [poolIdx, setPoolIdx] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   const pushEvent = useCallback(() => {
     setEvents((prev) => {
@@ -50,6 +51,7 @@ export function ActivityFeed() {
       return [next, ...prev].slice(0, MAX_EVENTS);
     });
     setPoolIdx((i) => i + 1);
+    setTotalCount((n) => n + 1);
   }, [poolIdx]);
 
   // Initial batch + recurring trickle
@@ -84,6 +86,15 @@ export function ActivityFeed() {
           <span className="konjo-pulse inline-block size-1.5 rounded-full bg-konjo-good" aria-hidden />
           Stream
         </span>
+        {totalCount > 0 && (
+          <span
+            className="text-konjo-mono ml-auto text-[10px] tabular-nums text-konjo-fg-faint"
+            aria-live="polite"
+            aria-label={`${totalCount} events this session`}
+          >
+            {totalCount} event{totalCount !== 1 ? "s" : ""}
+          </span>
+        )}
       </motion.div>
 
       <ul

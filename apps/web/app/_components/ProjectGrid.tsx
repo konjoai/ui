@@ -251,19 +251,26 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
 
       {/* Headline metric */}
       <div
-        className="mt-4 flex items-baseline gap-1.5"
+        className="mt-4 flex items-center gap-2"
         aria-label={`${project.metric.label}: ${metricDisplay}${project.metric.unit}`}
       >
+        <div className="flex items-baseline gap-1.5">
+          <span
+            className="text-konjo-display text-2xl font-semibold tabular-nums leading-none"
+            style={{ color: metricColor }}
+          >
+            {metricDisplay}
+            <span className="ml-0.5 text-base text-konjo-fg-muted">{project.metric.unit}</span>
+          </span>
+          <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+            {project.metric.label}
+          </span>
+        </div>
         <span
-          className="text-konjo-display text-2xl font-semibold tabular-nums leading-none"
-          style={{ color: metricColor }}
-        >
-          {metricDisplay}
-          <span className="ml-0.5 text-base text-konjo-fg-muted">{project.metric.unit}</span>
-        </span>
-        <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-          {project.metric.label}
-        </span>
+          className="konjo-pulse ml-auto size-1.5 shrink-0 rounded-full"
+          style={{ background: metricColor }}
+          aria-label="Live metric"
+        />
       </div>
 
       {/* CTAs */}

@@ -143,6 +143,15 @@ export function CommandPalette() {
                 aria-autocomplete="list"
                 aria-controls="palette-list"
               />
+              {query && (
+                <span
+                  className="text-konjo-mono shrink-0 text-[10px] tabular-nums text-konjo-fg-faint"
+                  aria-live="polite"
+                  aria-label={`${filtered.length} result${filtered.length !== 1 ? "s" : ""}`}
+                >
+                  {filtered.length}
+                </span>
+              )}
               <kbd className="text-konjo-mono hidden rounded border border-konjo-line px-1.5 py-0.5 text-[10px] text-konjo-fg-faint sm:inline">
                 Esc
               </kbd>
