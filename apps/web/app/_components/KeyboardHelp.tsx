@@ -23,9 +23,10 @@ const SHORTCUTS: Shortcut[] = [
   { keys: ["]"],        label: "Next product",        group: "Navigate"  },
   { keys: ["↑", "↓"],  label: "Move selection",      group: "Palette"   },
   { keys: ["↵"],        label: "Open result",         group: "Palette"   },
+  { keys: ["↑↑↓↓←→←→ba"], label: "Konjo spirit 根性", group: "Easter egg" },
 ];
 
-const GROUPS = ["Global", "Navigate", "Palette"] as const;
+const GROUPS = ["Global", "Navigate", "Palette", "Easter egg"] as const;
 
 /**
  * Global keyboard help overlay — press ? to open.
