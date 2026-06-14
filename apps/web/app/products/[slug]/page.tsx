@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FeatureCard, ProductHero, StatusBadge } from "@konjoai/ui";
+import { ProductHero, StatusBadge } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { AnimatedSection } from "@/app/_components/AnimatedSection";
 import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
 import { ProductMetricStrip } from "@/app/products/_components/ProductMetricStrip";
+import { AnimatedFeatureGrid } from "@/app/products/_components/AnimatedFeatureGrid";
 import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
@@ -97,16 +98,7 @@ export default async function ProductPage({
         <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
           What it does
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {product.features.map((f) => (
-            <FeatureCard
-              key={f.title}
-              glyph={f.glyph}
-              title={f.title}
-              description={f.description}
-            />
-          ))}
-        </div>
+        <AnimatedFeatureGrid features={product.features} />
       </AnimatedSection>
 
       <ProductDashboard slug={product.slug} />
