@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion, useMotionValue, useSpring } from "motion/react";
 import { ease, cn } from "@konjoai/ui";
 import { StreamSection }     from "./showcase/StreamSection";
 import { MetricsSection }    from "./showcase/MetricsSection";
@@ -68,6 +68,24 @@ export function DesignPreview() {
   const [activeId, setActiveId] = useState("stream");
   const active = BLOCKS.find((b) => b.id === activeId) ?? BLOCKS[0];
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const spotX = useMotionValue(0);
+  const spotY = useMotionValue(0);
+  const smoothSpotX = useSpring(spotX, { stiffness: 80, damping: 20 });
+  const smoothSpotY = useSpring(spotY, { stiffness: 80, damping: 20 });
+
+  function handlePanelMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (reduce) return;
+    const rect = panelRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    spotX.set(e.clientX - rect.left);
+    spotY.set(e.clientY - rect.top);
+  }
+
+  function handlePanelMouseLeave() {
+    spotX.set(-999);
+    spotY.set(-999);
+  }
 
   const handleTabKeyDown = useCallback((e: React.KeyboardEvent, idx: number) => {
     let nextIdx: number | null = null;
@@ -185,12 +203,29 @@ export function DesignPreview() {
           transition={{ duration: 0.28, ease: ease.nehan }}
         >
           <motion.div
-            className="glass-konjo rounded-konjo-xl p-6 sm:p-8"
+            ref={panelRef}
+            className="glass-konjo rounded-konjo-xl relative overflow-hidden p-6 sm:p-8"
             whileHover={reduce ? undefined : {
               boxShadow: "0 0 0 1px rgba(124,58,237,0.22), 0 0 48px -10px rgba(124,58,237,0.15)",
               transition: { duration: 0.25 },
             }}
+            onMouseMove={handlePanelMouseMove}
+            onMouseLeave={handlePanelMouseLeave}
           >
+            {/* Cursor spotlight overlay */}
+            {!reduce && (
+              <motion.div
+                aria-hidden
+                className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+                style={{
+                  x: smoothSpotX,
+                  y: smoothSpotY,
+                  width: 320,
+                  height: 320,
+                  background: "radial-gradient(circle, rgba(124,58,237,0.09) 0%, transparent 65%)",
+                }}
+              />
+            )}
             <active.Section />
           </motion.div>
         </motion.div>

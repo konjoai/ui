@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { cn, ease, StatusBadge } from "@konjoai/ui";
+import { cn, ease, StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
 type RouterCtx = ReturnType<typeof useRouter>;
@@ -267,7 +267,15 @@ export function CommandPalette() {
                             <p className="text-konjo-mono text-sm font-medium">{p.name}</p>
                             <p className="truncate text-xs text-konjo-fg-faint">{p.tagline}</p>
                           </div>
-                          <StatusBadge level={p.status} />
+                          <div className="flex shrink-0 items-center gap-2">
+                            <span
+                              className="text-konjo-mono text-[10px] tabular-nums hidden sm:inline"
+                              style={{ color: sevColor[p.metric.severity] }}
+                            >
+                              {Number.isInteger(p.metric.value) ? p.metric.value : p.metric.value.toFixed(1)}{p.metric.unit}
+                            </span>
+                            <StatusBadge level={p.status} />
+                          </div>
                         </button>
                       </li>
                     );
@@ -310,7 +318,15 @@ export function CommandPalette() {
                             <Highlight text={p.tagline} query={query} />
                           </p>
                         </div>
-                        <StatusBadge level={p.status} />
+                        <div className="flex shrink-0 items-center gap-2">
+                          <span
+                            className="text-konjo-mono text-[10px] tabular-nums hidden sm:inline"
+                            style={{ color: sevColor[p.metric.severity] }}
+                          >
+                            {Number.isInteger(p.metric.value) ? p.metric.value : p.metric.value.toFixed(1)}{p.metric.unit}
+                          </span>
+                          <StatusBadge level={p.status} />
+                        </div>
                       </button>
                     </li>
                   );
