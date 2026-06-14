@@ -11,38 +11,77 @@ type TermLine = {
   kind: TermKind;
   text: string;
   pauseAfter?: number;
+  product?: string;
+  promptColor?: string;
 };
 
 type DisplayLine = TermLine & { chars: number };
 
+const PRODUCTS_ORDER = [
+  { slug: "squish", glyph: "◐", color: "var(--color-konjo-brand)"  },
+  { slug: "kyro",   glyph: "✸", color: "var(--color-konjo-accent)" },
+  { slug: "vectro", glyph: "◇", color: "var(--color-konjo-violet)" },
+  { slug: "kairu",  glyph: "▲", color: "var(--color-konjo-warm)"   },
+  { slug: "kohaku", glyph: "❖", color: "var(--color-konjo-good)"   },
+  { slug: "lopi",   glyph: "⌬", color: "var(--color-konjo-cool)"   },
+] as const;
+
+type ProductSlug = (typeof PRODUCTS_ORDER)[number]["slug"];
+
 const SCRIPT: TermLine[] = [
-  { kind: "cmd", text: "squish generate --model mlx-4 --stream",                pauseAfter: 420 },
+  // squish
+  { kind: "cmd", product: "squish", promptColor: "var(--color-konjo-brand)",
+    text: "squish generate --model mlx-4 --stream",                pauseAfter: 420 },
   { kind: "out", text: "  ▶  MLX path · 847 tok/s · p50 12ms · p99 28ms",     pauseAfter: 80  },
   { kind: "out", text: '  "The attention mechanism enables arbitrary scale..."' },
   { kind: "gap", text: "" },
-  { kind: "cmd", text: 'kyro search "attention is all you need" --top-k 5',      pauseAfter: 360 },
+  // kyro
+  { kind: "cmd", product: "kyro", promptColor: "var(--color-konjo-accent)",
+    text: 'kyro search "attention is all you need" --top-k 5',      pauseAfter: 360 },
   { kind: "out", text: "  ▶  5 chunks · confidence 0.94 · 18ms",               pauseAfter: 80  },
   { kind: "out", text: "  [1] Vaswani 2017 §3.2  score 0.97" },
   { kind: "gap", text: "" },
-  { kind: "cmd", text: "vectro compress vecs.npy --codec VQZ --ratio 4x",        pauseAfter: 360 },
+  // vectro
+  { kind: "cmd", product: "vectro", promptColor: "var(--color-konjo-violet)",
+    text: "vectro compress vecs.npy --codec VQZ --ratio 4x",        pauseAfter: 360 },
   { kind: "out", text: "  ▶  2048-dim → 512-dim · 12.4 MB → 3.1 MB · 99.2%", pauseAfter: 80  },
   { kind: "out", text: "  Mojo SIMD backend · 2.4 s · fidelity preserved"       },
+  { kind: "gap", text: "" },
+  // kairu
+  { kind: "cmd", product: "kairu", promptColor: "var(--color-konjo-warm)",
+    text: "kairu bench --window 1h --slo p99=12ms",                 pauseAfter: 360 },
+  { kind: "out", text: "  ▶  p50 4.1ms · p95 8.7ms · p99 11.2ms  ✓ SLO met", pauseAfter: 80  },
+  { kind: "out", text: "  speculative accept 0.74 · draft 210 tok/s" },
+  { kind: "gap", text: "" },
+  // kohaku
+  { kind: "cmd", product: "kohaku", promptColor: "var(--color-konjo-good)",
+    text: 'kohaku recall --query "last week context" --k 3',        pauseAfter: 360 },
+  { kind: "out", text: "  ▶  3 memories · HDC recall 89% · decay 0.94",        pauseAfter: 80  },
+  { kind: "out", text: '  [1] "attention paper discussion"  sim 0.96' },
+  { kind: "gap", text: "" },
+  // lopi
+  { kind: "cmd", product: "lopi", promptColor: "var(--color-konjo-cool)",
+    text: "lopi run task.yaml --agents 4 --branch-per-task",        pauseAfter: 360 },
+  { kind: "out", text: "  ▶  4 agents spawned · branches: feat/task-{1..4}",   pauseAfter: 80  },
+  { kind: "out", text: "  success 94% · 3.2 tasks/min · SQLite persisted"       },
 ];
 
-const CHAR_MS = 36;
-const OUT_MS  = 100;
+const SPEED = { normal: 36, fast: 10 } as const;
+type Speed = keyof typeof SPEED;
+const OUT_MS = 100;
 
-/** Applies inline color spans to terminal output lines for a richer ANSI-like appearance. */
+/** Applies inline color spans to terminal output for a richer ANSI-like appearance. */
 function ColoredOutput({ text }: { text: string }) {
-  // Split into segments: numbers+units get accent color, ▶ gets brand color, quoted strings get warm
-  const segments = text.split(/(\d+\.?\d*(?:\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?))\b|\▶|\[[^\]]+\]|"[^"]*")/g);
+  const segments = text.split(/(▶|✓[^·\n]*|\[[^\]]+\]|"[^"]*"|\d+\.?\d*\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?))/g);
   return (
     <>
       {segments.map((seg, i) => {
-        if (seg === "▶") return <span key={i} style={{ color: "var(--color-konjo-brand)" }}>{seg}</span>;
-        if (/^\d+\.?\d*\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?)/.test(seg)) return <span key={i} style={{ color: "var(--color-konjo-accent)" }}>{seg}</span>;
-        if (/^\[[^\]]+\]$/.test(seg)) return <span key={i} style={{ color: "var(--color-konjo-violet)" }}>{seg}</span>;
-        if (/^"[^"]*"$/.test(seg)) return <span key={i} style={{ color: "var(--color-konjo-warm)" }}>{seg}</span>;
+        if (seg === "▶")                            return <span key={i} style={{ color: "var(--color-konjo-brand)" }}>{seg}</span>;
+        if (/^✓/.test(seg))                         return <span key={i} style={{ color: "var(--color-konjo-good)" }}>{seg}</span>;
+        if (/^\[[^\]]+\]$/.test(seg))               return <span key={i} style={{ color: "var(--color-konjo-violet)" }}>{seg}</span>;
+        if (/^"[^"]*"$/.test(seg))                  return <span key={i} style={{ color: "var(--color-konjo-warm)" }}>{seg}</span>;
+        if (/^\d+\.?\d*\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?)/.test(seg))
+                                                    return <span key={i} style={{ color: "var(--color-konjo-accent)" }}>{seg}</span>;
         return <span key={i}>{seg}</span>;
       })}
     </>
@@ -56,7 +95,7 @@ const CLI_FEATURES: { icon: string; title: string; desc: string }[] = [
   { icon: "◇", title: "Auth-aware",  desc: "konjo-auth handles keys, scopes, and rotation."          },
 ];
 
-/** Animated CLI showcase — types out three product commands in sequence and loops. */
+/** Animated CLI showcase — types out six product commands in sequence. */
 export function TerminalSection() {
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
@@ -64,8 +103,13 @@ export function TerminalSection() {
   const [lines, setLines] = useState<DisplayLine[]>([]);
   const [replayCount, setReplayCount] = useState(0);
   const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
+  const [speed, setSpeed] = useState<Speed>("normal");
+  const [activeProduct, setActiveProduct] = useState<ProductSlug | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runRef = useRef(0);
+  const speedRef = useRef<Speed>("normal");
+
+  useEffect(() => { speedRef.current = speed; }, [speed]);
 
   const copyCmd = useCallback((text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -82,33 +126,30 @@ export function TerminalSection() {
 
     if (reduce) {
       setLines(SCRIPT.map((l) => ({ ...l, chars: l.text.length })));
+      const lastCmd = [...SCRIPT].reverse().find((l) => l.kind === "cmd");
+      if (lastCmd?.product) setActiveProduct(lastCmd.product as ProductSlug);
       return;
     }
 
     const run = ++runRef.current;
     setLines([]);
+    setActiveProduct(null);
 
-    function clear() {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    }
+    function clear() { if (timerRef.current) clearTimeout(timerRef.current); }
 
     function schedule(fn: () => void, ms: number) {
       clear();
-      timerRef.current = setTimeout(() => {
-        if (runRef.current === run) fn();
-      }, ms);
+      timerRef.current = setTimeout(() => { if (runRef.current === run) fn(); }, ms);
     }
 
     function step(lineIdx: number, charIdx: number): void {
-      if (lineIdx >= SCRIPT.length) {
-        // Loop once then stop — manual replay via button
-        return;
-      }
-
+      if (lineIdx >= SCRIPT.length) return;
       const line = SCRIPT[lineIdx];
+      const charMs = SPEED[speedRef.current];
 
       if (line.kind === "cmd") {
         if (charIdx === 0) {
+          if (line.product) setActiveProduct(line.product as ProductSlug);
           setLines((prev) => [...prev, { ...line, chars: 0 }]);
           schedule(() => step(lineIdx, 1), line.pauseAfter ?? 0);
         } else if (charIdx <= line.text.length) {
@@ -117,7 +158,7 @@ export function TerminalSection() {
             next[next.length - 1] = { ...next[next.length - 1], chars: charIdx };
             return next;
           });
-          schedule(() => step(lineIdx, charIdx + 1), CHAR_MS);
+          schedule(() => step(lineIdx, charIdx + 1), charMs);
         } else {
           step(lineIdx + 1, 0);
         }
@@ -131,16 +172,17 @@ export function TerminalSection() {
 
     schedule(() => step(0, 0), replayCount === 0 ? 600 : 120);
 
-    return () => {
-      clear();
-      ++runRef.current;
-    };
+    return () => { clear(); ++runRef.current; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, reduce, replayCount]);
 
   const lastLine = lines[lines.length - 1];
-  const isTypingCmd =
-    lastLine?.kind === "cmd" && lastLine.chars < lastLine.text.length;
+  const isTypingCmd = lastLine?.kind === "cmd" && lastLine.chars < lastLine.text.length;
+  const cursorColor = activeProduct
+    ? (PRODUCTS_ORDER.find((p) => p.slug === activeProduct)?.color ?? "var(--color-konjo-brand)")
+    : "var(--color-konjo-brand)";
+
+  const activeIdx = activeProduct ? PRODUCTS_ORDER.findIndex((p) => p.slug === activeProduct) : -1;
 
   return (
     <section
@@ -188,6 +230,28 @@ export function TerminalSection() {
             <span className="text-konjo-mono ml-2 flex-1 text-center text-[11px] text-konjo-fg-faint">
               konjo — bash
             </span>
+            {/* Speed toggle */}
+            <div
+              role="group"
+              aria-label="Animation speed"
+              className="flex items-center gap-0.5 rounded border border-konjo-line/40 p-0.5"
+            >
+              {(["normal", "fast"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpeed(s)}
+                  aria-pressed={speed === s}
+                  className="text-konjo-mono rounded px-1.5 py-0.5 text-[9px] uppercase tracking-widest transition-colors"
+                  style={speed === s ? {
+                    background: "color-mix(in oklch, var(--color-konjo-brand) 20%, transparent)",
+                    color: "var(--color-konjo-brand-soft)",
+                  } : { color: "var(--color-konjo-fg-faint)" }}
+                >
+                  {s === "fast" ? "⚡" : "1×"}
+                </button>
+              ))}
+            </div>
             <button
               type="button"
               onClick={() => setReplayCount((n) => n + 1)}
@@ -198,9 +262,40 @@ export function TerminalSection() {
             </button>
           </div>
 
+          {/* Product progress strip */}
+          <div
+            className="flex items-center gap-1 border-b border-konjo-line/30 bg-konjo-bg/40 px-3 py-1.5"
+            role="status"
+            aria-label="CLI demo progress"
+          >
+            {PRODUCTS_ORDER.map(({ slug, glyph, color }, idx) => {
+              const isActive = activeProduct === slug;
+              const isDone   = activeIdx > idx;
+              return (
+                <div
+                  key={slug}
+                  className="text-konjo-mono flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] transition-all duration-300"
+                  style={{
+                    background: isActive
+                      ? `color-mix(in oklch, ${color} 18%, transparent)`
+                      : "transparent",
+                    color: isActive ? color : isDone ? "var(--color-konjo-fg-muted)" : "var(--color-konjo-fg-faint)",
+                  }}
+                  aria-current={isActive ? "step" : undefined}
+                >
+                  <span aria-hidden>{glyph}</span>
+                  <span className="hidden sm:inline">{slug}</span>
+                  {isDone && (
+                    <span aria-hidden style={{ color: "var(--color-konjo-good)" }}>✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           {/* Terminal body */}
           <div
-            className="text-konjo-mono min-h-[260px] px-5 py-4 text-[13px] leading-6"
+            className="text-konjo-mono min-h-[300px] px-5 py-4 text-[13px] leading-6"
             aria-live="polite"
             aria-atomic="false"
             aria-label="CLI output"
@@ -209,12 +304,12 @@ export function TerminalSection() {
               line.kind === "cmd" ? (
                 <div key={i} className="group/line relative flex items-start justify-between gap-2">
                   <p className="flex-1">
-                    <span style={{ color: "var(--color-konjo-brand)" }}>❯ </span>
+                    <span style={{ color: line.promptColor ?? "var(--color-konjo-brand)" }}>❯ </span>
                     <span className="text-konjo-fg">{line.text.slice(0, line.chars)}</span>
                     {line.chars < line.text.length && (
                       <span
                         className="konjo-pulse ml-px inline-block h-[0.9em] w-[1.5px] -mb-[1px] align-middle rounded-[1px]"
-                        style={{ background: "var(--color-konjo-brand)" }}
+                        style={{ background: line.promptColor ?? "var(--color-konjo-brand)" }}
                         aria-hidden
                       />
                     )}
@@ -238,15 +333,17 @@ export function TerminalSection() {
               ) : line.kind === "gap" ? (
                 <div key={i} className="h-2" />
               ) : (
-                <p key={i} className="text-konjo-fg-muted"><ColoredOutput text={line.text} /></p>
+                <p key={i} className="text-konjo-fg-muted">
+                  <ColoredOutput text={line.text} />
+                </p>
               )
             )}
             {!isTypingCmd && (
               <p>
-                <span style={{ color: "var(--color-konjo-brand)" }}>❯ </span>
+                <span style={{ color: cursorColor }}>❯ </span>
                 <span
                   className="konjo-pulse inline-block h-[0.9em] w-[1.5px] -mb-[1px] align-middle rounded-[1px]"
-                  style={{ background: "var(--color-konjo-brand)" }}
+                  style={{ background: cursorColor }}
                   aria-hidden
                 />
               </p>

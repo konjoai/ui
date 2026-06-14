@@ -16,6 +16,7 @@ import { ProjectGrid } from "./_components/ProjectGrid";
 import { CTASection } from "./_components/CTASection";
 import { Footer } from "./_components/Footer";
 import { WelcomeBack } from "./_components/WelcomeBack";
+import { SystemPulse } from "./_components/SystemPulse";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
       <div className="aurora-konjo-bg" aria-hidden />
       <WelcomeBack />
       <Hero />
+      <SystemPulse />
       <LiveTicker />
       <ConstellationMap />
       <ActivityFeed />

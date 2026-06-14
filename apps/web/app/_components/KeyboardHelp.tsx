@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { PRODUCTS } from "@/lib/products";
 
 type Shortcut = {
   keys: string[];
@@ -36,12 +37,19 @@ export function KeyboardHelp() {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
   const router = useRouter();
+  const pathname = usePathname();
   const [gMode, setGMode] = useState(false);
 
   const isInputFocused = useCallback(() => {
     const el = document.activeElement;
     return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
   }, []);
+
+  const currentProductIdx = useCallback(() => {
+    if (!pathname.startsWith("/products/")) return -1;
+    const slug = pathname.replace("/products/", "").split("/")[0];
+    return PRODUCTS.findIndex((p) => p.slug === slug);
+  }, [pathname]);
 
   useEffect(() => {
     let gTimer: ReturnType<typeof setTimeout> | null = null;
@@ -73,6 +81,31 @@ export function KeyboardHelp() {
         gTimer = setTimeout(() => setGMode(false), 1000);
         return;
       }
+
+      if (e.key === "]") {
+        e.preventDefault();
+        const idx = currentProductIdx();
+        const next = (idx + 1) % PRODUCTS.length;
+        router.push(`/products/${PRODUCTS[next].slug}`);
+        return;
+      }
+
+      if (e.key === "[") {
+        e.preventDefault();
+        const idx = currentProductIdx();
+        const prev = (idx - 1 + PRODUCTS.length) % PRODUCTS.length;
+        router.push(`/products/${PRODUCTS[prev].slug}`);
+        return;
+      }
+
+      if (/^[1-9]$/.test(e.key)) {
+        const num = parseInt(e.key, 10);
+        if (num <= PRODUCTS.length) {
+          e.preventDefault();
+          router.push(`/products/${PRODUCTS[num - 1].slug}`);
+        }
+        return;
+      }
     }
 
     function onOpenEvent() { setOpen(true); }
@@ -83,7 +116,7 @@ export function KeyboardHelp() {
       document.removeEventListener("konjo:open-keyboard", onOpenEvent);
       if (gTimer) clearTimeout(gTimer);
     };
-  }, [gMode, isInputFocused, router]);
+  }, [gMode, isInputFocused, router, currentProductIdx]);
 
   return (
     <>
