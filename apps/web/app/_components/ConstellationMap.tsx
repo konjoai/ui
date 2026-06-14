@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ease, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
+import { ScrambleText } from "./ScrambleText";
 
 // ─── layout constants ─────────────────────────────────────────────────────────
 
@@ -90,9 +91,12 @@ export function ConstellationMap() {
         <p className="text-konjo-mono text-xs uppercase tracking-[0.24em] text-konjo-accent">
           Nine products · one design system
         </p>
-        <h2 className="text-konjo-display mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          The constellation
-        </h2>
+        <ScrambleText
+          as="h2"
+          text="The constellation"
+          className="text-konjo-display mt-1 text-3xl font-semibold tracking-tight sm:text-4xl"
+          delay={200}
+        />
         <p className="mt-2 text-sm text-konjo-fg-muted">
           Hover any node to trace its connections. Click to dive in.
         </p>

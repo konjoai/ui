@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease, StatusBadge, severity as sevColor, cn } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
+import { ScrambleText } from "./ScrambleText";
 
 type StatusFilter = "all" | "operational" | "degraded" | "research";
 
@@ -75,9 +76,12 @@ export function ProjectGrid() {
         className="mb-8 flex flex-wrap items-end justify-between gap-6"
       >
         <div>
-          <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            The portfolio
-          </h2>
+          <ScrambleText
+            as="h2"
+            text="The portfolio"
+            className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl"
+            delay={100}
+          />
           <p className="text-konjo-mono mt-2 text-sm text-konjo-fg-muted">
             <span
               className="tabular-nums"

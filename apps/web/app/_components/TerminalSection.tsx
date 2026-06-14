@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useReducedMotion, useInView } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { ScrambleText } from "./ScrambleText";
 
 type TermKind = "cmd" | "out" | "gap";
 
@@ -131,9 +132,12 @@ export function TerminalSection() {
         <p className="text-konjo-mono mb-3 text-xs uppercase tracking-[0.24em] text-konjo-accent">
           konjo-cli · open-source toolchain
         </p>
-        <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          Ship from the terminal
-        </h2>
+        <ScrambleText
+          as="h2"
+          text="Ship from the terminal"
+          className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl"
+          delay={120}
+        />
         <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
           Every product ships a first-class CLI. Inference, retrieval,
           compression — composable and scriptable.

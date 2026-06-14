@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, useInView, useReducedMotion, animate } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { ScrambleText } from "./ScrambleText";
 
 type BenchmarkRow = {
   glyph: string;
@@ -191,9 +192,12 @@ export function BenchmarkSection() {
         <p className="text-konjo-mono mb-3 text-xs uppercase tracking-[0.24em] text-konjo-accent">
           benchmarks · measured on M2 Pro
         </p>
-        <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          Built to outperform
-        </h2>
+        <ScrambleText
+          as="h2"
+          text="Built to outperform"
+          className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl"
+          delay={150}
+        />
         <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
           Four headline metrics against industry baselines. Every number is
           reproducible — each repo ships its own benchmark suite.
