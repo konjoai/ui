@@ -66,7 +66,11 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       ref={cardRef}
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
-      whileHover={reduce ? undefined : { y: -4, transition: { duration: 0.2, ease: ease.nehan } }}
+      whileHover={reduce ? undefined : {
+        y: -4,
+        boxShadow: "0 0 0 1px rgba(124,58,237,0.35), 0 0 40px -6px rgba(124,58,237,0.18)",
+        transition: { duration: 0.2, ease: ease.nehan },
+      }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{
         duration: 0.45,
