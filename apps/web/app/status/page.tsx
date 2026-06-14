@@ -6,6 +6,7 @@ import { StatusDashboard } from "@/app/status/_components/StatusDashboard";
 import { RecentEvents } from "@/app/status/_components/RecentEvents";
 import { LastUpdated } from "@/app/status/_components/LastUpdated";
 import { ProductStatusList } from "@/app/status/_components/ProductStatusList";
+import { UptimeCalendar } from "@/app/status/_components/UptimeCalendar";
 import { PRODUCTS } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -69,6 +70,10 @@ export default function StatusPage() {
       </section>
 
       <StatusDashboard />
+
+      <section className="mx-auto max-w-6xl px-6 pb-12">
+        <UptimeCalendar />
+      </section>
 
       <RecentEvents />
 
