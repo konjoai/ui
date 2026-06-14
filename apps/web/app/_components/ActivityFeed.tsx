@@ -66,6 +66,7 @@ export function ActivityFeed() {
 
   return (
     <section
+      id="activity"
       className="mx-auto max-w-6xl px-6 pb-16"
       aria-label="Live product activity feed"
     >
@@ -155,6 +156,17 @@ export function ActivityFeed() {
                   →
                 </span>
               </Link>
+              {/* Freshness decay bar — shrinks from full to empty over 10 s */}
+              {!reduce && (
+                <motion.div
+                  className="absolute bottom-0 left-0 h-[1.5px] rounded-full"
+                  style={{ background: ev.dotColor }}
+                  initial={{ width: "100%", opacity: 0.5 }}
+                  animate={{ width: `${Math.max(0, 100 - ev.age * 10)}%`, opacity: ev.age >= 10 ? 0 : 0.4 }}
+                  transition={{ duration: 0.6, ease: "linear" }}
+                  aria-hidden
+                />
+              )}
             </motion.li>
           ))}
         </AnimatePresence>

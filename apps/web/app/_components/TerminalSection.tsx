@@ -45,6 +45,7 @@ export function TerminalSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const inView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [lines, setLines] = useState<DisplayLine[]>([]);
+  const [replayCount, setReplayCount] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runRef = useRef(0);
 
@@ -57,6 +58,7 @@ export function TerminalSection() {
     }
 
     const run = ++runRef.current;
+    setLines([]);
 
     function clear() {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -71,7 +73,7 @@ export function TerminalSection() {
 
     function step(lineIdx: number, charIdx: number): void {
       if (lineIdx >= SCRIPT.length) {
-        schedule(() => { setLines([]); step(0, 0); }, END_MS);
+        // Loop once then stop — manual replay via button
         return;
       }
 
@@ -99,13 +101,14 @@ export function TerminalSection() {
       }
     }
 
-    schedule(() => step(0, 0), 600);
+    schedule(() => step(0, 0), replayCount === 0 ? 600 : 120);
 
     return () => {
       clear();
       ++runRef.current;
     };
-  }, [inView, reduce]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, reduce, replayCount]);
 
   const lastLine = lines[lines.length - 1];
   const isTypingCmd =
@@ -113,6 +116,7 @@ export function TerminalSection() {
 
   return (
     <section
+      id="terminal"
       ref={sectionRef}
       aria-label="Product CLI showcase"
       className="mx-auto max-w-6xl px-6 pb-24"
@@ -153,6 +157,14 @@ export function TerminalSection() {
             <span className="text-konjo-mono ml-2 flex-1 text-center text-[11px] text-konjo-fg-faint">
               konjo — bash
             </span>
+            <button
+              type="button"
+              onClick={() => setReplayCount((n) => n + 1)}
+              aria-label="Replay terminal demo"
+              className="text-konjo-mono flex items-center gap-1 rounded border border-konjo-line/40 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-konjo-fg-faint transition-colors hover:border-konjo-line hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+            >
+              <span aria-hidden>↺</span> replay
+            </button>
           </div>
 
           {/* Terminal body */}

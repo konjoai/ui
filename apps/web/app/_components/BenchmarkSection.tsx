@@ -176,6 +176,7 @@ export function BenchmarkSection() {
 
   return (
     <section
+      id="benchmarks"
       ref={ref}
       aria-label="Performance benchmarks"
       className="mx-auto max-w-6xl px-6 pb-24"

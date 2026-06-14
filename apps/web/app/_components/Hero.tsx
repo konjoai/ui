@@ -196,6 +196,7 @@ export function Hero() {
 
   return (
     <section
+      id="hero"
       ref={sectionRef}
       className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28"
       onMouseMove={handleMouseMove}

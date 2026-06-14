@@ -116,6 +116,7 @@ export function PhilosophySection() {
 
   return (
     <section
+      id="philosophy"
       className="mx-auto max-w-6xl px-6 pb-24"
       aria-label="The Konjo philosophy"
     >

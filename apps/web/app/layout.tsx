@@ -7,6 +7,7 @@ import { KeyboardHelp } from "./_components/KeyboardHelp";
 import { ToastProvider } from "./_components/ToastProvider";
 import { CursorGlow } from "./_components/CursorGlow";
 import { PageTitleEffect } from "./_components/PageTitleEffect";
+import { SectionDots } from "./_components/SectionDots";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <KeyboardHelp />
         <ToastProvider />
         <FloatingDock />
+        <SectionDots />
         <SiteNav />
         <div id="main-content">{children}</div>
       </body>

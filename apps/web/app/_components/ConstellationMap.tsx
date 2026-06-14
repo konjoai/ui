@@ -59,6 +59,7 @@ export function ConstellationMap() {
 
   return (
     <section
+      id="constellation"
       className="mx-auto max-w-6xl px-6 pb-16"
       aria-label="Product constellation map"
     >

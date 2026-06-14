@@ -83,6 +83,7 @@ export function DesignPreview() {
 
   return (
     <section
+      id="design"
       aria-label="Design system showcase"
       className="mx-auto max-w-6xl px-6 pb-24"
     >
