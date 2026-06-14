@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { ease } from "@konjoai/ui";
+import { ease, cn } from "@konjoai/ui";
 
 type FeedEvent = {
   id: number;
@@ -34,6 +34,11 @@ const EVENT_POOL: Omit<FeedEvent, "id" | "age">[] = [
 const MAX_EVENTS = 7;
 let nextId = 0;
 
+/** Unique product slugs + glyphs from the pool, for the filter row. */
+const POOL_PRODUCTS = [
+  ...new Map(EVENT_POOL.map((e) => [e.slug, { slug: e.slug, glyph: e.glyph }])).values(),
+];
+
 /**
  * Simulated real-time product activity feed.
  * New events trickle in every 2-4 s; old ones slide out once MAX_EVENTS is reached.
@@ -44,6 +49,7 @@ export function ActivityFeed() {
   const [poolIdx, setPoolIdx] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [filterSlug, setFilterSlug] = useState<string | null>(null);
   const pausedRef = useRef(false);
 
   useEffect(() => { pausedRef.current = paused; }, [paused]);
@@ -97,6 +103,11 @@ export function ActivityFeed() {
             paused
           </span>
         )}
+        {filterSlug && (
+          <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-accent">
+            · {filterSlug}
+          </span>
+        )}
         {totalCount > 0 && (
           <span
             className="text-konjo-mono ml-auto text-[10px] tabular-nums text-konjo-fg-faint"
@@ -108,6 +119,30 @@ export function ActivityFeed() {
         )}
       </motion.div>
 
+      {/* Product filter chips */}
+      <div className="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="Filter by product">
+        {POOL_PRODUCTS.map(({ slug, glyph }) => {
+          const active = filterSlug === slug;
+          return (
+            <button
+              key={slug}
+              type="button"
+              onClick={() => setFilterSlug(active ? null : slug)}
+              aria-pressed={active}
+              className={cn(
+                "text-konjo-mono inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
+                active
+                  ? "border-konjo-brand/50 bg-konjo-brand/10 text-konjo-fg"
+                  : "border-konjo-line/40 bg-konjo-surface/30 text-konjo-fg-faint hover:border-konjo-line hover:text-konjo-fg",
+              )}
+            >
+              <span aria-hidden>{glyph}</span>
+              {slug}
+            </button>
+          );
+        })}
+      </div>
+
       <ul
         role="list"
         className="flex flex-col gap-2"
@@ -118,7 +153,7 @@ export function ActivityFeed() {
         onMouseLeave={() => setPaused(false)}
       >
         <AnimatePresence initial={false}>
-          {events.map((ev) => (
+          {events.filter((ev) => !filterSlug || ev.slug === filterSlug).map((ev) => (
             <motion.li
               key={ev.id}
               layout={!reduce}
