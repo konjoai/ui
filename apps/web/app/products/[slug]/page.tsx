@@ -12,6 +12,7 @@ import { ProductSectionNav } from "@/app/products/_components/ProductSectionNav"
 import { ProductCodeSnippet } from "@/app/products/_components/ProductCodeSnippet";
 import { TrackVisit } from "@/app/products/_components/TrackVisit";
 import { ShareButton } from "@/app/products/_components/ShareButton";
+import { ProductKeyboardNav } from "@/app/products/_components/ProductKeyboardNav";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -52,6 +53,7 @@ export default async function ProductPage({
 
       <ProductSectionNav />
       <TrackVisit slug={product.slug} />
+      <ProductKeyboardNav currentSlug={product.slug} />
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
         <Breadcrumbs

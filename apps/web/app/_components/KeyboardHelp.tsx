@@ -18,6 +18,8 @@ const SHORTCUTS: Shortcut[] = [
   { keys: ["Esc"],      label: "Dismiss / close",     group: "Global"    },
   { keys: ["g", "h"],   label: "Go to Home",          group: "Navigate"  },
   { keys: ["g", "s"],   label: "Go to Status",        group: "Navigate"  },
+  { keys: ["["],        label: "Previous product",    group: "Navigate"  },
+  { keys: ["]"],        label: "Next product",        group: "Navigate"  },
   { keys: ["↑", "↓"],  label: "Move selection",      group: "Palette"   },
   { keys: ["↵"],        label: "Open result",         group: "Palette"   },
 ];
