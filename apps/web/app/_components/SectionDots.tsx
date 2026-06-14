@@ -14,6 +14,7 @@ const SECTIONS: SectionDef[] = [
   { id: "trace",         label: "Pipeline trace" },
   { id: "demo",          label: "Live demo"      },
   { id: "chat",          label: "Chat demo"      },
+  { id: "agents",        label: "Agent flow"     },
   { id: "benchmarks",    label: "Benchmarks"     },
   { id: "heatmap",       label: "Inference grid" },
   { id: "velocity",      label: "Token velocity"  },

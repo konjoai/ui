@@ -20,6 +20,7 @@ import { SystemPulse } from "./_components/SystemPulse";
 import { PipelineTrace } from "./_components/PipelineTrace";
 import { ChangelogFeed } from "./_components/ChangelogFeed";
 import { DemoChat } from "./_components/DemoChat";
+import { AgentFlow } from "./_components/AgentFlow";
 import { StatCounters } from "./_components/StatCounters";
 
 export default function HomePage() {
@@ -38,6 +39,7 @@ export default function HomePage() {
       <PipelineTrace />
       <LiveDemo />
       <DemoChat />
+      <AgentFlow />
       <BenchmarkSection />
       <InferenceHeatmap />
       <TokenVelocity />

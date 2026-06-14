@@ -33,6 +33,7 @@ const SCORE_AMP: Record<string, number> = {
 };
 
 type RankedProduct = { slug: string; score: number };
+type EndorseFlash = { slug: string; key: number };
 
 function seedScores(): RankedProduct[] {
   return PRODUCTS.map((p) => ({ slug: p.slug, score: BASE_SCORE[p.slug] ?? 70 }))
@@ -45,11 +46,15 @@ function LeaderRow({
   rank,
   prevRank,
   reduce,
+  flash,
+  onEndorse,
 }: {
   ranked: RankedProduct;
   rank: number;
   prevRank: number;
   reduce: boolean | null;
+  flash: boolean;
+  onEndorse: (slug: string) => void;
 }) {
   const product = PRODUCTS.find((p) => p.slug === ranked.slug);
   if (!product) return null;
@@ -139,6 +144,34 @@ function LeaderRow({
         </div>
       </Link>
 
+      {/* Endorse button */}
+      <button
+        type="button"
+        aria-label={`Endorse ${product.slug}`}
+        onClick={(e) => { e.preventDefault(); onEndorse(ranked.slug); }}
+        className="text-konjo-mono absolute right-2 top-1/2 -translate-y-1/2 flex size-6 items-center justify-center rounded-full text-[10px] text-konjo-fg-faint opacity-0 transition-all hover:bg-konjo-surface hover:text-konjo-brand group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+      >
+        ↑
+      </button>
+
+      {/* "+boost" flash badge */}
+      <AnimatePresence>
+        {flash && (
+          <motion.span
+            key="flash"
+            initial={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{ opacity: 0, y: -18, scale: 0.85 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: ease.kanjo }}
+            className="text-konjo-mono pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-[10px] font-semibold"
+            style={{ color: "var(--color-konjo-good)" }}
+            aria-hidden
+          >
+            +5
+          </motion.span>
+        )}
+      </AnimatePresence>
+
       {/* Rank 1 gets a subtle glow underline */}
       {rank === 1 && !reduce && (
         <div
@@ -156,14 +189,17 @@ function LeaderRow({
 
 /**
  * Live product leaderboard — scores fluctuate every 2.2 s and products reorder
- * with motion layout animations so rank changes are immediately visible.
+ * with motion layout animations. Click the ↑ endorse button to temporarily
+ * boost a product's score and watch it climb in real time.
  */
 export function ProductLeaderboard() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const reduce = useReducedMotion();
   const [ranked, setRanked] = useState<RankedProduct[]>(seedScores);
+  const [flash, setFlash] = useState<EndorseFlash | null>(null);
   const prevOrder = useRef<Map<string, number>>(new Map());
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Store rank before update for movement indicators
   useEffect(() => {
@@ -186,6 +222,21 @@ export function ProductLeaderboard() {
     }, 2200);
     return () => clearInterval(id);
   }, [reduce]);
+
+  function endorse(slug: string) {
+    setRanked((prev) => {
+      const base = BASE_SCORE[slug] ?? 70;
+      const next = prev.map((r) =>
+        r.slug === slug
+          ? { slug, score: Math.min(base + 8, r.score + 5) }
+          : r,
+      );
+      return [...next].sort((a, b) => b.score - a.score);
+    });
+    setFlash({ slug, key: Date.now() });
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = setTimeout(() => setFlash(null), 900);
+  }
 
   return (
     <section
@@ -252,6 +303,8 @@ export function ProductLeaderboard() {
                 rank={i + 1}
                 prevRank={prevOrder.current.get(r.slug) ?? i + 1}
                 reduce={reduce}
+                flash={flash?.slug === r.slug}
+                onEndorse={endorse}
               />
             ))}
           </AnimatePresence>

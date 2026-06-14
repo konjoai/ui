@@ -106,6 +106,16 @@ const GLOBAL_ACTIONS: PaletteAction[] = [
     },
   },
   {
+    id: "agents",
+    icon: "⌬",
+    label: "Agent flow",
+    description: "lopi orchestrating four products in parallel and sequence",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("agents")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
     id: "changelog",
     icon: "◎",
     label: "Changelog",
