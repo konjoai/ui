@@ -29,10 +29,20 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
+  const [recent, setRecent] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeItemRef = useRef<HTMLButtonElement>(null);
   const reduce = useReducedMotion();
   const router = useRouter();
+
+  // Load recently viewed slugs from localStorage each time the palette opens
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const raw = localStorage.getItem("konjo:recent");
+      if (raw) setRecent(JSON.parse(raw) as string[]);
+    } catch { /* storage unavailable */ }
+  }, [open]);
 
   const filtered = PRODUCTS.filter(
     (p) =>
@@ -40,6 +50,13 @@ export function CommandPalette() {
       p.name.toLowerCase().includes(query.toLowerCase()) ||
       p.tagline.toLowerCase().includes(query.toLowerCase()),
   );
+
+  // When no query, show recently viewed products at the top; rest below
+  const showRecent = !query && recent.length > 0;
+  const recentProducts = recent
+    .map((slug) => PRODUCTS.find((p) => p.slug === slug))
+    .filter((p): p is (typeof PRODUCTS)[number] => !!p);
+  const displayList = showRecent ? PRODUCTS : filtered;
 
   useEffect(() => { setCursor(0); }, [query]);
   useEffect(() => { activeItemRef.current?.scrollIntoView({ block: "nearest" }); }, [cursor]);
@@ -73,12 +90,12 @@ export function CommandPalette() {
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setCursor((i) => Math.min(i + 1, filtered.length - 1));
+      setCursor((i) => Math.min(i + 1, displayList.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setCursor((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && filtered[cursor]) {
-      navigate(filtered[cursor].slug);
+    } else if (e.key === "Enter" && displayList[cursor]) {
+      navigate(displayList[cursor].slug);
     }
   }
 
@@ -138,44 +155,91 @@ export function CommandPalette() {
               aria-label="Products"
               className="max-h-80 overflow-y-auto py-1.5"
             >
+              {showRecent && (
+                <>
+                  <li role="presentation" className="px-3 pb-1 pt-2">
+                    <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+                      Recently viewed
+                    </span>
+                  </li>
+                  {recentProducts.map((p, i) => (
+                    <li key={`recent-${p.slug}`} role="option" aria-selected={i === cursor}>
+                      <button
+                        ref={i === cursor ? activeItemRef : undefined}
+                        type="button"
+                        className={cn(
+                          "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
+                          i === cursor
+                            ? "bg-konjo-surface-2 text-konjo-fg"
+                            : "text-konjo-fg-muted hover:bg-konjo-surface/60 hover:text-konjo-fg",
+                        )}
+                        onMouseEnter={() => setCursor(i)}
+                        onClick={() => navigate(p.slug)}
+                      >
+                        <span
+                          className="text-konjo-mono w-7 shrink-0 text-center text-xl leading-none"
+                          style={{ color: "var(--color-konjo-brand-soft)" }}
+                          aria-hidden
+                        >
+                          {p.glyph}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-konjo-mono text-sm font-medium">{p.name}</p>
+                          <p className="truncate text-xs text-konjo-fg-faint">{p.tagline}</p>
+                        </div>
+                        <StatusBadge level={p.status} />
+                      </button>
+                    </li>
+                  ))}
+                  <li role="separator" className="mx-3 my-1.5 border-t border-konjo-line" aria-hidden />
+                  <li role="presentation" className="px-3 pb-1 pt-1">
+                    <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+                      All products
+                    </span>
+                  </li>
+                </>
+              )}
               {filtered.length === 0 ? (
                 <li className="px-4 py-8 text-center text-sm text-konjo-fg-faint">
-                  No products match "{query}"
+                  No products match &ldquo;{query}&rdquo;
                 </li>
               ) : (
-                filtered.map((p, i) => (
-                  <li key={p.slug} role="option" aria-selected={i === cursor}>
-                    <button
-                      ref={i === cursor ? activeItemRef : undefined}
-                      type="button"
-                      className={cn(
-                        "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
-                        i === cursor
-                          ? "bg-konjo-surface-2 text-konjo-fg"
-                          : "text-konjo-fg-muted hover:bg-konjo-surface/60 hover:text-konjo-fg",
-                      )}
-                      onMouseEnter={() => setCursor(i)}
-                      onClick={() => navigate(p.slug)}
-                    >
-                      <span
-                        className="text-konjo-mono w-7 shrink-0 text-center text-xl leading-none"
-                        style={{ color: "var(--color-konjo-brand-soft)" }}
-                        aria-hidden
+                filtered.map((p, i) => {
+                  const idx = showRecent ? recentProducts.length + i : i;
+                  return (
+                    <li key={p.slug} role="option" aria-selected={idx === cursor}>
+                      <button
+                        ref={idx === cursor ? activeItemRef : undefined}
+                        type="button"
+                        className={cn(
+                          "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
+                          idx === cursor
+                            ? "bg-konjo-surface-2 text-konjo-fg"
+                            : "text-konjo-fg-muted hover:bg-konjo-surface/60 hover:text-konjo-fg",
+                        )}
+                        onMouseEnter={() => setCursor(idx)}
+                        onClick={() => navigate(p.slug)}
                       >
-                        {p.glyph}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-konjo-mono text-sm font-medium">
-                          <Highlight text={p.name} query={query} />
-                        </p>
-                        <p className="truncate text-xs text-konjo-fg-faint">
-                          <Highlight text={p.tagline} query={query} />
-                        </p>
-                      </div>
-                      <StatusBadge level={p.status} />
-                    </button>
-                  </li>
-                ))
+                        <span
+                          className="text-konjo-mono w-7 shrink-0 text-center text-xl leading-none"
+                          style={{ color: "var(--color-konjo-brand-soft)" }}
+                          aria-hidden
+                        >
+                          {p.glyph}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-konjo-mono text-sm font-medium">
+                            <Highlight text={p.name} query={query} />
+                          </p>
+                          <p className="truncate text-xs text-konjo-fg-faint">
+                            <Highlight text={p.tagline} query={query} />
+                          </p>
+                        </div>
+                        <StatusBadge level={p.status} />
+                      </button>
+                    </li>
+                  );
+                })
               )}
             </ul>
 
