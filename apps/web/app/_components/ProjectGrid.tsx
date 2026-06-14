@@ -148,14 +148,42 @@ export function ProjectGrid() {
         </p>
       )}
 
-      <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((p, i) => (
-            <ProjectCard key={p.slug} project={p} index={i} />
-          ))}
-        </AnimatePresence>
-      </ul>
+      <GridSpotlight>
+        {filtered.map((p, i) => (
+          <ProjectCard key={p.slug} project={p} index={i} />
+        ))}
+      </GridSpotlight>
     </section>
+  );
+}
+
+/**
+ * Wraps the product grid with hover-spotlight behaviour: hovering any child
+ * dims the rest to 0.35 opacity, restoring to 1 on mouse leave.
+ */
+function GridSpotlight({ children }: { children: React.ReactNode }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <ul
+      role="list"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      data-hovered={hovered ? "true" : undefined}
+    >
+      <AnimatePresence mode="popLayout">{children}</AnimatePresence>
+      {/* Spotlight: when grid is hovered, darken all but the card being hovered */}
+      <style>{`
+        [data-hovered="true"] > li:not(:hover) {
+          opacity: 0.45;
+          transition: opacity 0.25s;
+        }
+        [data-hovered="true"] > li:hover {
+          opacity: 1;
+          transition: opacity 0.15s;
+        }
+      `}</style>
+    </ul>
   );
 }
 

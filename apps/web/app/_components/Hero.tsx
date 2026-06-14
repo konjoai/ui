@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, animate, useInView, useMotionValue, useSpring, useTransform, useReducedMotion, useScroll, AnimatePresence } from "motion/react";
-import type { MotionValue } from "motion/react";
+import type { MotionValue, HTMLMotionProps } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 import { HeroParticles } from "./HeroParticles";
@@ -133,6 +133,40 @@ function FloatingGlyphs({ normX, normY }: { normX: MotionValue<number>; normY: M
         <FloatingGlyph key={cfg.glyph} {...cfg} normX={normX} normY={normY} />
       ))}
     </div>
+  );
+}
+
+type MagneticButtonProps = HTMLMotionProps<"a"> & { children: React.ReactNode };
+
+/** Anchor that subtly drifts toward the cursor — premium magnetic CTA feel. */
+function MagneticButton({ children, ...props }: MagneticButtonProps) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const reduce = useReducedMotion();
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const x = useSpring(rawX, { stiffness: 250, damping: 22 });
+  const y = useSpring(rawY, { stiffness: 250, damping: 22 });
+
+  function onMove(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (reduce) return;
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    rawX.set((e.clientX - rect.left - rect.width / 2) * 0.28);
+    rawY.set((e.clientY - rect.top - rect.height / 2) * 0.28);
+  }
+
+  function onLeave() { rawX.set(0); rawY.set(0); }
+
+  return (
+    <motion.a
+      ref={ref}
+      style={{ x, y }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      {...props}
+    >
+      {children}
+    </motion.a>
   );
 }
 
@@ -273,21 +307,21 @@ export function Hero() {
         transition={{ duration: 0.6, ease: ease.kanjo, delay: 0.4 }}
         className="mt-10 flex flex-wrap items-center justify-center gap-3"
       >
-        <a
+        <MagneticButton
           href="#projects"
-          className="shadow-konjo-brand rounded-konjo-lg px-6 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
+          className="shadow-konjo-brand rounded-konjo-lg px-6 py-3 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
           style={{ background: "var(--color-konjo-brand)" }}
         >
           Explore the constellation
-        </a>
-        <a
+        </MagneticButton>
+        <MagneticButton
           href="https://github.com/konjoai"
           target="_blank"
           rel="noreferrer"
           className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-6 py-3 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:border-konjo-line/0 hover:bg-konjo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
         >
           GitHub →
-        </a>
+        </MagneticButton>
       </motion.div>
 
       <motion.dl
