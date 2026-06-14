@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { toast } from "@/lib/toast";
 import { ScrambleText } from "./ScrambleText";
 
 // Pre-defined responses keyed by prompt substring
@@ -38,6 +39,8 @@ const CHAR_DELAY = 28; // ms per token (simulates ~35 tok/s)
  * Interactive AI inference demo — type a prompt, see simulated token streaming
  * with live throughput and latency metrics. Powered (aesthetically) by squish.
  */
+type HistoryEntry = { prompt: string; response: string; model: string };
+
 export function LiveDemo() {
   const reduce = useReducedMotion();
   const [prompt, setPrompt] = useState("");
@@ -46,8 +49,11 @@ export function LiveDemo() {
   const [tokenIdx, setTokenIdx] = useState(0);
   const [model, setModel] = useState("squish · mlx-4");
   const [elapsed, setElapsed] = useState(0);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [copied, setCopied] = useState(false);
   const runRef = useRef(0);
   const startRef = useRef(0);
+  const lastPromptRef = useRef("");
 
   const run = useCallback(() => {
     if (streaming) return;
@@ -57,11 +63,13 @@ export function LiveDemo() {
     const toks = canned?.tokens ?? DEFAULT_TOKENS;
     const mdl = canned?.model ?? "squish · mlx-4";
 
+    lastPromptRef.current = p;
     setModel(mdl);
     setTokens(toks);
     setTokenIdx(0);
     setElapsed(0);
     setStreaming(true);
+    setCopied(false);
     startRef.current = Date.now();
     runRef.current++;
   }, [prompt, streaming]);
@@ -71,7 +79,12 @@ export function LiveDemo() {
     const run = runRef.current;
     if (tokenIdx >= tokens.length) {
       setStreaming(false);
-      setElapsed(Date.now() - startRef.current);
+      const finalElapsed = Date.now() - startRef.current;
+      setElapsed(finalElapsed);
+      const response = tokens.join(" ");
+      setHistory((prev) =>
+        [{ prompt: lastPromptRef.current, response, model }, ...prev].slice(0, 3),
+      );
       return;
     }
     const id = setTimeout(() => {
@@ -245,7 +258,64 @@ export function LiveDemo() {
               </>
             )}
           </div>
+
+          {/* Copy response button — appears when streaming is complete */}
+          <AnimatePresence>
+            {!streaming && tokenIdx > 0 && (
+              <motion.button
+                key="copy-response"
+                type="button"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => {
+                  navigator.clipboard.writeText(displayed).then(() => {
+                    setCopied(true);
+                    toast("Response copied to clipboard", "success");
+                    setTimeout(() => setCopied(false), 2000);
+                  }).catch(() => {/* clipboard blocked */});
+                }}
+                className="text-konjo-mono mt-3 flex items-center gap-1.5 rounded-konjo border border-konjo-line/40 px-2.5 py-1 text-[10px] text-konjo-fg-faint transition-colors hover:border-konjo-brand/40 hover:text-konjo-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+                aria-label="Copy model response to clipboard"
+              >
+                {copied ? "✓ Copied" : "⎘ Copy response"}
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
+
+        {/* Response history */}
+        <AnimatePresence>
+          {history.length > 0 && (
+            <motion.div
+              key="history"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: ease.nehan }}
+              className="overflow-hidden border-t border-konjo-line/20"
+            >
+              <div className="px-5 py-3">
+                <p className="text-konjo-mono mb-2 text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+                  Previous responses
+                </p>
+                <div className="flex flex-col gap-2">
+                  {history.map((h, i) => (
+                    <div key={i} className="text-konjo-mono flex items-start gap-2 text-[11px]">
+                      <span className="mt-0.5 shrink-0 text-konjo-brand">›</span>
+                      <span className="text-konjo-fg-faint line-clamp-1">
+                        <span className="text-konjo-fg-muted">{h.prompt}</span>
+                        <span className="mx-1 text-konjo-line">·</span>
+                        {h.response.slice(0, 60)}…
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Footer hint */}
         <div className="border-t border-konjo-line/30 px-5 py-2.5">
