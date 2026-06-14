@@ -30,6 +30,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeItemRef = useRef<HTMLButtonElement>(null);
   const reduce = useReducedMotion();
   const router = useRouter();
 
@@ -41,6 +42,7 @@ export function CommandPalette() {
   );
 
   useEffect(() => { setCursor(0); }, [query]);
+  useEffect(() => { activeItemRef.current?.scrollIntoView({ block: "nearest" }); }, [cursor]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -144,9 +146,10 @@ export function CommandPalette() {
                 filtered.map((p, i) => (
                   <li key={p.slug} role="option" aria-selected={i === cursor}>
                     <button
+                      ref={i === cursor ? activeItemRef : undefined}
                       type="button"
                       className={cn(
-                        "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors",
+                        "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
                         i === cursor
                           ? "bg-konjo-surface-2 text-konjo-fg"
                           : "text-konjo-fg-muted hover:bg-konjo-surface/60 hover:text-konjo-fg",

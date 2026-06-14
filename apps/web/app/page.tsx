@@ -4,6 +4,7 @@ import { ConstellationMap } from "./_components/ConstellationMap";
 import { ActivityFeed } from "./_components/ActivityFeed";
 import { PhilosophySection } from "./_components/PhilosophySection";
 import { TerminalSection } from "./_components/TerminalSection";
+import { BenchmarkSection } from "./_components/BenchmarkSection";
 import { DesignPreview } from "./_components/DesignPreview";
 import { ProjectGrid } from "./_components/ProjectGrid";
 import { Footer } from "./_components/Footer";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <ActivityFeed />
       <PhilosophySection />
       <TerminalSection />
+      <BenchmarkSection />
       <DesignPreview />
       <ProjectGrid />
       <Footer />
