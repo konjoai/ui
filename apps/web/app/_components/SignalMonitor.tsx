@@ -49,11 +49,13 @@ const WAVE_DATA = Object.fromEntries(
 function WaveRow({
   product,
   dim,
+  active,
   inView,
   index,
 }: {
   product: (typeof PRODUCTS)[number];
   dim: boolean;
+  active: boolean;
   inView: boolean;
   index: number;
 }) {
@@ -111,13 +113,26 @@ function WaveRow({
                 repeatCount="indefinite"
               />
             )}
+            {/* Glow halo on hover */}
+            {active && !reduce && (
+              <path
+                d={d}
+                fill="none"
+                stroke={col}
+                strokeWidth="5"
+                strokeLinecap="round"
+                opacity={0.1}
+                style={{ filter: "blur(3px)" }}
+              />
+            )}
             <path
               d={d}
               fill="none"
               stroke={col}
-              strokeWidth="1.2"
+              strokeWidth={active ? 1.8 : 1.2}
               strokeLinecap="round"
-              opacity={0.55}
+              opacity={active ? 0.88 : 0.5}
+              style={{ transition: "opacity 0.15s, stroke-width 0.15s" }}
             />
           </g>
         </svg>
@@ -218,6 +233,7 @@ export function SignalMonitor() {
               <WaveRow
                 product={p}
                 dim={activeSlug !== null && activeSlug !== p.slug}
+                active={activeSlug === p.slug}
                 inView={inView}
                 index={i}
               />

@@ -15,7 +15,20 @@ const STATUS_COLOR: Record<string, string> = {
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-konjo-line/60 bg-konjo-surface/30 backdrop-blur">
+    <footer className="relative border-t border-konjo-line/60 bg-konjo-surface/30 backdrop-blur">
+      {/* Subtle aurora behind the footer */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div
+          className="absolute -top-24 left-1/2 size-96 -translate-x-1/2 rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 65%)",
+          }}
+        />
+      </div>
       {/* Product health constellation strip */}
       <div className="border-b border-konjo-line/30 px-6 py-3">
         <div className="mx-auto flex max-w-6xl items-center gap-3 flex-wrap">
