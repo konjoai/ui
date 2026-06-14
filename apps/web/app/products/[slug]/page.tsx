@@ -5,6 +5,7 @@ import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { AnimatedSection } from "@/app/_components/AnimatedSection";
 import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
+import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -106,6 +107,8 @@ export default async function ProductPage({
       </AnimatedSection>
 
       <ProductDashboard slug={product.slug} />
+
+      <RelatedProducts currentSlug={product.slug} />
 
       <AnimatedSection className="mx-auto max-w-6xl px-6 pb-24" delay={0.05}>
         <div className="glass-konjo rounded-konjo-lg flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
