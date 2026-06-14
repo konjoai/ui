@@ -3,6 +3,13 @@
 import { motion } from "motion/react";
 import { ease } from "@konjoai/ui";
 
+const STATS = [
+  { value: "14", label: "components", color: "text-konjo-accent" },
+  { value: "9",  label: "products",   color: "text-konjo-violet" },
+  { value: "79", label: "tests",      color: "text-konjo-good"   },
+  { value: "v0.2", label: "current",  color: "text-konjo-warm"   },
+] as const;
+
 export function Hero() {
   return (
     <section className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28">
@@ -15,6 +22,7 @@ export function Hero() {
         <span
           className="konjo-pulse inline-block size-1.5 rounded-full"
           style={{ background: "var(--color-konjo-brand)" }}
+          aria-hidden
         />
         <span className="text-konjo-mono">v0.2 · Sprint 0.5 of the Konjo UI Initiative</span>
       </motion.div>
@@ -55,7 +63,7 @@ export function Hero() {
       >
         <a
           href="#projects"
-          className="shadow-konjo-brand rounded-konjo-lg px-6 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
+          className="shadow-konjo-brand rounded-konjo-lg px-6 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
           style={{ background: "var(--color-konjo-brand)" }}
         >
           Explore the constellation
@@ -64,11 +72,26 @@ export function Hero() {
           href="https://github.com/konjoai"
           target="_blank"
           rel="noreferrer"
-          className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-6 py-3 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:border-konjo-line/0 hover:bg-konjo-surface"
+          className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-6 py-3 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:border-konjo-line/0 hover:bg-konjo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
         >
           GitHub →
         </a>
       </motion.div>
+
+      <motion.dl
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.55 }}
+        className="text-konjo-mono mt-10 flex flex-wrap items-center justify-center gap-6 text-xs"
+        aria-label="Design system stats"
+      >
+        {STATS.map((s, i) => (
+          <div key={i} className="flex items-baseline gap-1">
+            <span className={`font-semibold tabular-nums ${s.color}`}>{s.value}</span>
+            <span className="text-konjo-fg-faint">{s.label}</span>
+          </div>
+        ))}
+      </motion.dl>
     </section>
   );
 }
