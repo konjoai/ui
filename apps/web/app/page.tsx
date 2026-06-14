@@ -20,6 +20,7 @@ import { SystemPulse } from "./_components/SystemPulse";
 import { PipelineTrace } from "./_components/PipelineTrace";
 import { ChangelogFeed } from "./_components/ChangelogFeed";
 import { DemoChat } from "./_components/DemoChat";
+import { StatCounters } from "./_components/StatCounters";
 
 export default function HomePage() {
   return (
@@ -45,6 +46,7 @@ export default function HomePage() {
       <ChangelogFeed />
       <DesignPreview />
       <ProjectGrid />
+      <StatCounters />
       <CTASection />
       <Footer />
     </main>
