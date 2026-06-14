@@ -5,6 +5,7 @@ import { CommandPalette } from "./_components/CommandPalette";
 import { FloatingDock } from "./_components/FloatingDock";
 import { KeyboardHelp } from "./_components/KeyboardHelp";
 import { ToastProvider } from "./_components/ToastProvider";
+import { CursorGlow } from "./_components/CursorGlow";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <CursorGlow />
         <ScrollProgressBar />
         <CommandPalette />
         <KeyboardHelp />
