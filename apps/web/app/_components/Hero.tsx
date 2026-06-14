@@ -1,18 +1,83 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, animate, useInView, useReducedMotion } from "motion/react";
+import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 
-const STATS = [
-  { value: "14", label: "components", color: "text-konjo-accent" },
-  { value: "9",  label: "products",   color: "text-konjo-violet" },
-  { value: "79", label: "tests",      color: "text-konjo-good"   },
-  { value: "v0.2", label: "current",  color: "text-konjo-warm"   },
+type Stat = { display: string; label: string; color: string; countTo?: number };
+
+const STATS: Stat[] = [
+  { display: "14",   countTo: 14, label: "components", color: "text-konjo-accent" },
+  { display: "9",    countTo: 9,  label: "products",   color: "text-konjo-violet" },
+  { display: "79",   countTo: 79, label: "tests",      color: "text-konjo-good"   },
+  { display: "v0.2",              label: "current",    color: "text-konjo-warm"   },
+];
+
+/** Positions, durations, and delays are fixed so SSR and client agree. */
+const GLYPH_CONFIG = [
+  { glyph: "◐", x: "6%",  top: "22%", dur: 3.8, delay: 0.0  },
+  { glyph: "◇", x: "89%", top: "14%", dur: 4.5, delay: 0.5  },
+  { glyph: "✸", x: "77%", top: "68%", dur: 4.2, delay: 0.9  },
+  { glyph: "▲", x: "12%", top: "74%", dur: 3.6, delay: 1.4  },
+  { glyph: "⬡", x: "48%", top: "88%", dur: 5.0, delay: 0.3  },
+  { glyph: "◈", x: "93%", top: "44%", dur: 4.0, delay: 1.0  },
 ] as const;
 
+/** Softly breathing product glyphs — constellation backdrop for the hero. */
+function FloatingGlyphs() {
+  const reduce = useReducedMotion();
+  if (reduce) return null;
+
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+      {GLYPH_CONFIG.map(({ glyph, x, top, dur, delay }) => (
+        <motion.span
+          key={glyph}
+          className="absolute text-2xl sm:text-3xl"
+          style={{ left: x, top, color: "var(--color-konjo-violet)" }}
+          initial={{ opacity: 0 }}
+          animate={{ y: [0, -14, 0], opacity: [0.07, 0.16, 0.07] }}
+          transition={{ duration: dur, delay, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {glyph}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
+/** Counts from 0 to `stat.countTo` once the element enters the viewport. */
+function AnimatedStat({ stat }: { stat: Stat }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const [display, setDisplay] = useState(stat.countTo !== undefined ? "0" : stat.display);
+
+  useEffect(() => {
+    if (!inView || stat.countTo === undefined) return;
+    const controls = animate(0, stat.countTo, {
+      duration: 1.2,
+      ease: "easeOut",
+      onUpdate: (v) => setDisplay(String(Math.round(v))),
+    });
+    return () => controls.stop();
+  }, [inView, stat.countTo]);
+
+  return (
+    <div className="flex items-baseline gap-1">
+      <span ref={ref} className={`font-semibold tabular-nums ${stat.color}`}>
+        {display}
+      </span>
+      <span className="text-konjo-fg-faint">{stat.label}</span>
+    </div>
+  );
+}
+
+/** Homepage hero — animated headline, count-up stats, floating glyph constellation. */
 export function Hero() {
   return (
     <section className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28">
+      <FloatingGlyphs />
+
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -85,11 +150,8 @@ export function Hero() {
         className="text-konjo-mono mt-10 flex flex-wrap items-center justify-center gap-6 text-xs"
         aria-label="Design system stats"
       >
-        {STATS.map((s, i) => (
-          <div key={i} className="flex items-baseline gap-1">
-            <span className={`font-semibold tabular-nums ${s.color}`}>{s.value}</span>
-            <span className="text-konjo-fg-faint">{s.label}</span>
-          </div>
+        {STATS.map((s) => (
+          <AnimatedStat key={s.label} stat={s} />
         ))}
       </motion.dl>
     </section>
