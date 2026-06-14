@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease, StatusBadge, severity as sevColor, cn } from "@konjoai/ui";
@@ -26,6 +26,19 @@ const STATUS_DOT: Record<StatusFilter, string> = {
 export function ProjectGrid() {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   const filtered = PRODUCTS.filter((p) => {
     const matchStatus = filter === "all" || p.status === filter;
@@ -71,14 +84,15 @@ export function ProjectGrid() {
         >
           {/* Text search */}
           <input
+            ref={searchRef}
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search…"
+            placeholder="Search…  /"
             autoComplete="off"
             spellCheck={false}
-            aria-label="Search products by name or description"
-            className="text-konjo-mono w-28 rounded-full border border-konjo-line/50 bg-konjo-surface/30 px-3 py-1 text-[11px] text-konjo-fg placeholder:text-konjo-fg-faint transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 focus-visible:w-40 focus-visible:border-konjo-brand/40"
+            aria-label="Search products by name or description (press / to focus)"
+            className="text-konjo-mono w-28 rounded-full border border-konjo-line/50 bg-konjo-surface/30 px-3 py-1 text-[11px] text-konjo-fg placeholder:text-konjo-fg-faint transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 focus-visible:w-40 focus-visible:border-konjo-brand/40"
           />
 
           {/* Status filter */}

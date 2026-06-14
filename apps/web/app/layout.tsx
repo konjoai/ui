@@ -4,6 +4,7 @@ import { ScrollProgressBar } from "./_components/ScrollProgressBar";
 import { CommandPalette } from "./_components/CommandPalette";
 import { FloatingDock } from "./_components/FloatingDock";
 import { KeyboardHelp } from "./_components/KeyboardHelp";
+import { ToastProvider } from "./_components/ToastProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ScrollProgressBar />
         <CommandPalette />
         <KeyboardHelp />
+        <ToastProvider />
         <FloatingDock />
         <SiteNav />
         <div id="main-content">{children}</div>

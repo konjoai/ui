@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { toast } from "@/lib/toast";
 
 type Span = { text: string; kind: "kw" | "str" | "cmt" | "fn" | "num" | "plain" };
 
@@ -213,6 +214,7 @@ export function ProductCodeSnippet({ slug }: { slug: string }) {
     try {
       await navigator.clipboard.writeText(snippet.code);
       setCopied(true);
+      toast("Copied to clipboard", "success");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // clipboard unavailable — silently skip

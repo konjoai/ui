@@ -14,6 +14,7 @@ type Shortcut = {
 const SHORTCUTS: Shortcut[] = [
   { keys: ["⌘", "K"],  label: "Command palette",     group: "Global"    },
   { keys: ["?"],        label: "Keyboard shortcuts",  group: "Global"    },
+  { keys: ["/"],        label: "Focus search",        group: "Global"    },
   { keys: ["Esc"],      label: "Dismiss / close",     group: "Global"    },
   { keys: ["g", "h"],   label: "Go to Home",          group: "Navigate"  },
   { keys: ["g", "s"],   label: "Go to Status",        group: "Navigate"  },
