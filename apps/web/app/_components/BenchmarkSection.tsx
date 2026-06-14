@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useInView, useReducedMotion, animate } from "motion/react";
 import { ease } from "@konjoai/ui";
 
 type BenchmarkRow = {
@@ -13,7 +13,9 @@ type BenchmarkRow = {
   kanjoPct: number;
   baselineDisplay: string;
   baselinePct: number;
-  gain: string;
+  gainValue: number;
+  gainSuffix: string;
+  gainPrefix: string;
   color: string;
 };
 
@@ -26,7 +28,7 @@ const ROWS: BenchmarkRow[] = [
     kanjoPct: 85,
     baselineDisplay: "8 tok/s · CPU baseline",
     baselinePct: 16,
-    gain: "5.3×",
+    gainValue: 5.3, gainSuffix: "×", gainPrefix: "",
     color: "var(--color-konjo-brand)",
   },
   {
@@ -37,7 +39,7 @@ const ROWS: BenchmarkRow[] = [
     kanjoPct: 80,
     baselineDisplay: "75% · vectorDB avg",
     baselinePct: 66,
-    gain: "+21%",
+    gainValue: 21, gainSuffix: "%", gainPrefix: "+",
     color: "var(--color-konjo-accent)",
   },
   {
@@ -48,7 +50,7 @@ const ROWS: BenchmarkRow[] = [
     kanjoPct: 78,
     baselineDisplay: "60% · naive KV",
     baselinePct: 52,
-    gain: "+48%",
+    gainValue: 48, gainSuffix: "%", gainPrefix: "+",
     color: "var(--color-konjo-good)",
   },
   {
@@ -59,7 +61,7 @@ const ROWS: BenchmarkRow[] = [
     kanjoPct: 83,
     baselineDisplay: "50% · manual orchestration",
     baselinePct: 44,
-    gain: "+88%",
+    gainValue: 88, gainSuffix: "%", gainPrefix: "+",
     color: "var(--color-konjo-warm)",
   },
 ];
@@ -76,6 +78,23 @@ function Bar({
   reduce: boolean | null;
 }) {
   const delay = index * 0.1;
+  const isFloat = !Number.isInteger(row.gainValue);
+  const [gainDisplay, setGainDisplay] = useState(reduce ? row.gainValue : 0);
+
+  useEffect(() => {
+    if (!inView) return;
+    if (reduce) { setGainDisplay(row.gainValue); return; }
+    const ctrl = animate(0, row.gainValue, {
+      duration: 1.0,
+      ease: "easeOut",
+      delay: delay + 0.2,
+      onUpdate: (v) => setGainDisplay(isFloat ? Math.round(v * 10) / 10 : Math.round(v)),
+    });
+    return () => ctrl.stop();
+  }, [inView, row.gainValue, reduce, delay, isFloat]);
+
+  const gainStr = `${row.gainPrefix}${gainDisplay}${row.gainSuffix}`;
+
   return (
     <Link
       href={`/products/${row.slug}`}
@@ -102,13 +121,14 @@ function Bar({
             {row.konjoDisplay}
           </span>
           <span
-            className="text-konjo-mono rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+            className="text-konjo-mono rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums"
             style={{
               background: `color-mix(in oklch, ${row.color} 15%, transparent)`,
               color: row.color,
             }}
+            aria-label={`${gainStr} vs baseline`}
           >
-            {row.gain}
+            {gainStr}
           </span>
         </div>
       </div>
