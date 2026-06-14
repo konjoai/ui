@@ -75,11 +75,11 @@ export function DesignPreview() {
       >
         <div className="flex items-center gap-3 mb-3">
           <p className="text-konjo-mono text-xs uppercase tracking-[0.24em] text-konjo-accent">
-            @konjoai/ui · 14 components · 5 sections
+            @konjoai/ui · 14 components · 5 sections · all live
           </p>
           <span
             className="text-konjo-mono inline-flex items-center gap-1.5 rounded-full border border-konjo-good/30 bg-konjo-good/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-konjo-good"
-            aria-label="Live data"
+            aria-label="All sections streaming live data"
           >
             <span className="konjo-pulse inline-block size-1.5 rounded-full bg-konjo-good" aria-hidden />
             Live
@@ -89,7 +89,7 @@ export function DesignPreview() {
           Live design system
         </h2>
         <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
-          Every primitive, alive. The shared visual language powering eight KonjoAI products.
+          Every primitive, alive. Five sections streaming real-time data — the shared visual language powering nine KonjoAI products.
         </p>
       </motion.div>
 

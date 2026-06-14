@@ -96,7 +96,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: ease.kanjo, delay: 0.05 }}
-        className="text-konjo-display text-konjo-gradient text-6xl font-semibold tracking-tight sm:text-8xl"
+        className="text-konjo-display text-konjo-gradient-flow text-6xl font-semibold tracking-tight sm:text-8xl"
       >
         KonjoAI
       </motion.h1>
