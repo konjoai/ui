@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ease, cn } from "@konjoai/ui";
 import { StreamSection }     from "./showcase/StreamSection";
@@ -66,6 +66,20 @@ export function DesignPreview() {
   const reduce = useReducedMotion();
   const [activeId, setActiveId] = useState("stream");
   const active = BLOCKS.find((b) => b.id === activeId) ?? BLOCKS[0];
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTabKeyDown = useCallback((e: React.KeyboardEvent, idx: number) => {
+    let nextIdx: number | null = null;
+    if (e.key === "ArrowRight") nextIdx = (idx + 1) % BLOCKS.length;
+    else if (e.key === "ArrowLeft") nextIdx = (idx - 1 + BLOCKS.length) % BLOCKS.length;
+    else if (e.key === "Home") nextIdx = 0;
+    else if (e.key === "End") nextIdx = BLOCKS.length - 1;
+    if (nextIdx !== null) {
+      e.preventDefault();
+      setActiveId(BLOCKS[nextIdx].id);
+      tabRefs.current[nextIdx]?.focus();
+    }
+  }, []);
 
   return (
     <section
@@ -109,17 +123,20 @@ export function DesignPreview() {
         role="tablist"
         aria-label="Design system sections"
       >
-        {BLOCKS.map((block) => {
+        {BLOCKS.map((block, idx) => {
           const isActive = block.id === activeId;
           return (
             <button
               key={block.id}
+              ref={(el) => { tabRefs.current[idx] = el; }}
               type="button"
               role="tab"
               aria-selected={isActive}
               aria-controls={`panel-${block.id}`}
               id={`tab-${block.id}`}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveId(block.id)}
+              onKeyDown={(e) => handleTabKeyDown(e, idx)}
               className={cn(
                 "text-konjo-mono relative inline-flex items-center gap-2 rounded-konjo border px-3.5 py-2 text-xs transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1",
                 isActive
