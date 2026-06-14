@@ -1,7 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { StatusBadge, FeatureCard, ProductHero } from "@konjoai/ui";
 import type { StatusLevel } from "@konjoai/ui";
+import { PRODUCTS } from "@/lib/products";
 
 const STATUS_LEVELS: StatusLevel[] = [
   "operational",
@@ -35,11 +38,23 @@ const FEATURE_CARDS = [
   },
 ] as const;
 
+const CYCLE_MS = 3200;
+
 /**
  * Showcase for shell & layout primitives: StatusBadge (all levels),
- * FeatureCard grid, and ProductHero preview.
+ * FeatureCard grid, and a ProductHero preview that cycles all nine products.
  */
 export function ShellSection() {
+  const reduce = useReducedMotion();
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setIdx((i) => (i + 1) % PRODUCTS.length), CYCLE_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  const product = PRODUCTS[idx];
+
   return (
     <div className="flex flex-col gap-10">
       {/* StatusBadge */}
@@ -74,33 +89,61 @@ export function ShellSection() {
         </div>
       </div>
 
-      {/* ProductHero preview */}
+      {/* ProductHero cycling preview */}
       <div>
-        <p className="text-konjo-mono mb-4 text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-          ProductHero · product page header
-        </p>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <p className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+            ProductHero · cycling all 9 products
+          </p>
+          <div className="flex gap-1" aria-label="Product indicator">
+            {PRODUCTS.map((_, i) => (
+              <button
+                key={i}
+                aria-label={`Show product ${i + 1}`}
+                onClick={() => setIdx(i)}
+                className="h-1 rounded-full transition-all duration-300"
+                style={{
+                  width: i === idx ? "20px" : "6px",
+                  background: i === idx
+                    ? "var(--color-konjo-brand)"
+                    : "var(--color-konjo-line)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
         <div className="relative overflow-hidden rounded-konjo-xl border border-konjo-line">
-          {/* Aurora bg for the preview */}
           <div className="aurora-konjo-bg" aria-hidden />
-          <ProductHero
-            name="kyro"
-            tagline="Production RAG with hybrid retrieval, ColBERT reranking, and end-to-end RAGAS evals."
-            glyph="✸"
-            eyebrow="Sprint 5 · RAG Observatory"
-            version="v1.2.0"
-            status={<StatusBadge level="operational" />}
-            actions={
-              <a
-                href="https://github.com/konjoai/kyro"
-                target="_blank"
-                rel="noreferrer"
-                className="text-konjo-mono rounded-konjo border border-konjo-line bg-konjo-surface-2/60 px-4 py-2 text-sm text-konjo-fg transition-colors hover:bg-konjo-surface-2"
-              >
-                github.com/konjoai/kyro ↗
-              </a>
-            }
-            className="pt-10 pb-8 sm:pt-12"
-          />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={product.slug}
+              initial={reduce ? { opacity: 1 } : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? { opacity: 1 } : { opacity: 0, y: -6 }}
+              transition={{ duration: 0.35 }}
+            >
+              <ProductHero
+                name={product.name}
+                tagline={product.tagline}
+                glyph={product.glyph}
+                eyebrow={product.eyebrow}
+                version={product.version}
+                status={<StatusBadge level={product.status} />}
+                actions={
+                  <a
+                    href={product.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-konjo-mono rounded-konjo border border-konjo-line bg-konjo-surface-2/60 px-4 py-2 text-sm text-konjo-fg transition-colors hover:bg-konjo-surface-2"
+                  >
+                    github.com/konjoai/{product.slug} ↗
+                  </a>
+                }
+                className="pt-10 pb-8 sm:pt-12"
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

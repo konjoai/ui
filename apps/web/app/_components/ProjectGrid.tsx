@@ -1,13 +1,21 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useRef } from "react";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease, StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
 
+/** Portfolio grid — nine animated product cards with 3-D tilt on hover. */
 export function ProjectGrid() {
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 pb-24">
-      <div className="mb-10 flex items-end justify-between gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.55, ease: ease.kanjo }}
+        className="mb-10 flex items-end justify-between gap-6"
+      >
         <div>
           <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
             The portfolio
@@ -19,7 +27,7 @@ export function ProjectGrid() {
         <div className="text-konjo-mono hidden text-xs text-konjo-fg-faint sm:block">
           {PRODUCTS.length.toString().padStart(2, "0")} / {PRODUCTS.length.toString().padStart(2, "0")}
         </div>
-      </div>
+      </motion.div>
 
       <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PRODUCTS.map((p, i) => (
@@ -30,24 +38,55 @@ export function ProjectGrid() {
   );
 }
 
+/** Single product card with entrance animation and 3-D perspective tilt on hover. */
 function ProjectCard({ project, index }: { project: Product; index: number }) {
+  const reduce = useReducedMotion();
+  const cardRef = useRef<HTMLLIElement>(null);
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const rotateX = useSpring(rawX, { stiffness: 300, damping: 25 });
+  const rotateY = useSpring(rawY, { stiffness: 300, damping: 25 });
+
   const metricColor = sevColor[project.metric.severity];
-  const metricDisplay =
-    Number.isInteger(project.metric.value)
-      ? String(project.metric.value)
-      : project.metric.value.toFixed(1);
+  const metricDisplay = Number.isInteger(project.metric.value)
+    ? String(project.metric.value)
+    : project.metric.value.toFixed(1);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLLIElement>) {
+    if (reduce) return;
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    rawY.set(x * 8);
+    rawX.set(-y * 6);
+  }
+
+  function handleMouseLeave() {
+    rawX.set(0);
+    rawY.set(0);
+  }
 
   return (
     <motion.li
+      ref={cardRef}
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={reduce ? undefined : {
+        y: -4,
+        boxShadow: "0 0 0 1px rgba(124,58,237,0.35), 0 0 40px -6px rgba(124,58,237,0.18)",
+        transition: { duration: 0.2, ease: ease.nehan },
+      }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{
         duration: 0.45,
         ease: ease.kanjo,
         delay: Math.min(index * 0.04, 0.32),
       }}
-      className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-0.5"
+      style={{ rotateX, rotateY, transformPerspective: 800 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-colors duration-300"
     >
       {/* Top shimmer on hover */}
       <div
@@ -89,7 +128,10 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       </p>
 
       {/* Headline metric */}
-      <div className="mt-4 flex items-baseline gap-1.5" aria-label={`${project.metric.label}: ${metricDisplay}${project.metric.unit}`}>
+      <div
+        className="mt-4 flex items-baseline gap-1.5"
+        aria-label={`${project.metric.label}: ${metricDisplay}${project.metric.unit}`}
+      >
         <span
           className="text-konjo-display text-2xl font-semibold tabular-nums leading-none"
           style={{ color: metricColor }}

@@ -20,6 +20,34 @@
   color: transparent;
 }
 
+/* Slow flowing gradient — for the hero headline. Reduced-motion: freeze. */
+@utility text-konjo-gradient-flow {
+  background: linear-gradient(120deg,
+    var(--color-konjo-brand-soft) 0%,
+    var(--color-konjo-brand)      30%,
+    var(--color-konjo-accent)     55%,
+    var(--color-konjo-brand)      80%,
+    var(--color-konjo-brand-soft) 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: konjo-gradient-flow 6s linear infinite;
+}
+
+@keyframes konjo-gradient-flow {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 220% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-konjo-gradient-flow {
+    animation: none;
+    background-position: 0% center;
+  }
+}
+
 @utility shadow-konjo-brand {
   box-shadow:
     0 0 0 1px var(--color-konjo-line),
