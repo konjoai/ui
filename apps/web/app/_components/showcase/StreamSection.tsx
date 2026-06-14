@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { StagePipeline, TokenStream, color } from "@konjoai/ui";
 import type { Stage, StreamToken } from "@konjoai/ui";
+import { useStreamTokens, usePipelineTick } from "@/lib/hooks";
 
 const TOKENS: StreamToken[] = [
   { text: "Analyzing query",              color: color.fgMuted },
@@ -34,33 +34,6 @@ const RAG_BASE: StageDef[] = [
   { id: "rerank",  label: "Rerank",   durationMs: 64, detail: "ColBERT · 0.947"   },
   { id: "gen",     label: "Generate"                            },
 ];
-
-function useStreamTokens(all: StreamToken[], ms: number): StreamToken[] {
-  const [tokens, setTokens] = useState<StreamToken[]>([]);
-  const i = useRef(0);
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (i.current < all.length) {
-        i.current += 1;
-        setTokens(all.slice(0, i.current));
-      } else {
-        i.current = 0;
-        setTokens([]);
-      }
-    }, ms);
-    return () => clearInterval(id);
-  }, [all, ms]);
-  return tokens;
-}
-
-function usePipelineTick(n: number, ms: number): number {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTick((t) => (t + 1) % (n + 1)), ms);
-    return () => clearInterval(id);
-  }, [n, ms]);
-  return tick;
-}
 
 /** Live RAG pipeline + attention-weighted token stream showcase. */
 export function StreamSection() {

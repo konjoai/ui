@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FeatureCard, ProductHero, StatusBadge } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
+import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -102,6 +103,8 @@ export default async function ProductPage({
           ))}
         </div>
       </section>
+
+      <ProductDashboard slug={product.slug} />
 
       <section className="mx-auto max-w-6xl px-6 pb-24">
         <div className="glass-konjo rounded-konjo-lg flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
