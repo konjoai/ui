@@ -9,6 +9,7 @@ import { ProductMetricStrip } from "@/app/products/_components/ProductMetricStri
 import { AnimatedFeatureGrid } from "@/app/products/_components/AnimatedFeatureGrid";
 import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
 import { ProductSectionNav } from "@/app/products/_components/ProductSectionNav";
+import { ProductCodeSnippet } from "@/app/products/_components/ProductCodeSnippet";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -105,6 +106,8 @@ export default async function ProductPage({
         </h2>
         <AnimatedFeatureGrid features={product.features} />
       </AnimatedSection>
+
+      <ProductCodeSnippet slug={product.slug} />
 
       <div id="product-dashboard">
         <ProductDashboard slug={product.slug} />
