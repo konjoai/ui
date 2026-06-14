@@ -17,6 +17,7 @@ import { CTASection } from "./_components/CTASection";
 import { Footer } from "./_components/Footer";
 import { WelcomeBack } from "./_components/WelcomeBack";
 import { SystemPulse } from "./_components/SystemPulse";
+import { PipelineTrace } from "./_components/PipelineTrace";
 
 export default function HomePage() {
   return (
@@ -31,6 +32,7 @@ export default function HomePage() {
       <ProductMarquee />
       <PhilosophySection />
       <TerminalSection />
+      <PipelineTrace />
       <LiveDemo />
       <BenchmarkSection />
       <InferenceHeatmap />

@@ -86,6 +86,16 @@ const GLOBAL_ACTIONS: PaletteAction[] = [
     },
   },
   {
+    id: "trace",
+    icon: "→",
+    label: "Pipeline trace",
+    description: "Live request flowing through 5 products",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("trace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
     id: "github",
     icon: "↗",
     label: "KonjoAI on GitHub",
