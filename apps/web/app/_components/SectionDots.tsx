@@ -11,6 +11,7 @@ const SECTIONS: SectionDef[] = [
   { id: "activity",      label: "Live activity"  },
   { id: "philosophy",    label: "Philosophy"     },
   { id: "terminal",      label: "CLI"            },
+  { id: "demo",          label: "Live demo"      },
   { id: "benchmarks",    label: "Benchmarks"     },
   { id: "design",        label: "Design system"  },
   { id: "projects",      label: "Portfolio"      },
