@@ -3,6 +3,7 @@ import { StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { StatusDashboard } from "@/app/status/_components/StatusDashboard";
+import { RecentEvents } from "@/app/status/_components/RecentEvents";
 import { PRODUCTS } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -66,6 +67,8 @@ export default function StatusPage() {
       </section>
 
       <StatusDashboard />
+
+      <RecentEvents />
 
       <section className="mx-auto max-w-6xl px-6 pb-24">
         <p className="text-konjo-mono mb-4 text-[10px] uppercase tracking-widest text-konjo-fg-faint">
