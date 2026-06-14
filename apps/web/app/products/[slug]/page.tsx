@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FeatureCard, ProductHero, StatusBadge } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
+import { AnimatedSection } from "@/app/_components/AnimatedSection";
 import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
@@ -82,13 +83,13 @@ export default async function ProductPage({
         }
       />
 
-      <section className="mx-auto max-w-6xl px-6 pb-12">
+      <AnimatedSection className="mx-auto max-w-6xl px-6 pb-12">
         <p className="max-w-3xl text-base leading-relaxed text-konjo-fg-muted sm:text-lg">
           {product.about}
         </p>
-      </section>
+      </AnimatedSection>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16">
+      <AnimatedSection className="mx-auto max-w-6xl px-6 pb-16" delay={0.08}>
         <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
           What it does
         </h2>
@@ -102,11 +103,11 @@ export default async function ProductPage({
             />
           ))}
         </div>
-      </section>
+      </AnimatedSection>
 
       <ProductDashboard slug={product.slug} />
 
-      <section className="mx-auto max-w-6xl px-6 pb-24">
+      <AnimatedSection className="mx-auto max-w-6xl px-6 pb-24" delay={0.05}>
         <div className="glass-konjo rounded-konjo-lg flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
           <div>
             <p className="text-konjo-mono text-xs uppercase tracking-widest text-konjo-fg-faint">
@@ -125,7 +126,7 @@ export default async function ProductPage({
             github.com/konjoai/{product.slug} ↗
           </a>
         </div>
-      </section>
+      </AnimatedSection>
 
       <Footer />
     </main>

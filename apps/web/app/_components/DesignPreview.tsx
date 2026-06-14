@@ -37,9 +37,9 @@ const BLOCKS: Block[] = [
   {
     id: "compliance",
     title: "Compliance Monitor",
-    description: "EU AI Act article grid, concentric risk arcs, score vs. threshold.",
+    description: "EU AI Act article grid, cycling RiskRing re-assessments, score vs. threshold.",
     tag: "squash",
-    live: false,
+    live: true,
     Section: ComplianceSection,
   },
   {
