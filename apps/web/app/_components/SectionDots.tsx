@@ -13,6 +13,7 @@ const SECTIONS: SectionDef[] = [
   { id: "terminal",      label: "CLI"            },
   { id: "demo",          label: "Live demo"      },
   { id: "benchmarks",    label: "Benchmarks"     },
+  { id: "heatmap",       label: "Inference grid" },
   { id: "signals",       label: "Signal monitor" },
   { id: "design",        label: "Design system"  },
   { id: "projects",      label: "Portfolio"      },

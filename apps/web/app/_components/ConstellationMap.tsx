@@ -69,6 +69,10 @@ export function ConstellationMap() {
   const displaySlug = active ?? autoSlug;
 
   const activeIdx = displaySlug ? SLUG_ORDER.indexOf(displaySlug) : -1;
+  // Use the active product's severity color for edges + particles
+  const activeCol = displaySlug
+    ? sevColor[PRODUCT_MAP[displaySlug].metric.severity]
+    : "rgba(124,58,237,0.6)";
   const connectedIdx = new Set<number>(
     activeIdx >= 0
       ? EDGES.filter(([a, b]) => a === activeIdx || b === activeIdx).flatMap(([a, b]) => [a, b])
@@ -127,18 +131,31 @@ export function ConstellationMap() {
           {EDGES.map(([a, b], i) => {
             const na = NODES[a];
             const nb = NODES[b];
-            const lit =
-              activeIdx >= 0 && (a === activeIdx || b === activeIdx);
+            const lit = activeIdx >= 0 && (a === activeIdx || b === activeIdx);
+            const edgePath = `M${na.x.toFixed(1)},${na.y.toFixed(1)}L${nb.x.toFixed(1)},${nb.y.toFixed(1)}`;
             return (
-              <line
-                key={i}
-                x1={na.x} y1={na.y}
-                x2={nb.x} y2={nb.y}
-                stroke={lit ? "rgba(124,58,237,0.6)" : "rgba(124,58,237,0.12)"}
-                strokeWidth={lit ? 1.5 : 1}
-                className={lit && !reduce ? "konjo-edge-flow" : undefined}
-                style={{ transition: "stroke 0.2s, stroke-width 0.2s" }}
-              />
+              <g key={i}>
+                <line
+                  x1={na.x} y1={na.y}
+                  x2={nb.x} y2={nb.y}
+                  stroke={lit ? activeCol : "rgba(124,58,237,0.12)"}
+                  strokeWidth={lit ? 1.5 : 1}
+                  className={lit && !reduce ? "konjo-edge-flow" : undefined}
+                  style={{ transition: "stroke 0.2s, stroke-width 0.2s" }}
+                />
+                {/* Data-packet particles race along each lit edge */}
+                {lit && !reduce && [0, 0.38, 0.72].map((offset) => (
+                  <circle key={offset} r={2.2} fill={activeCol} opacity={0.82}>
+                    <animateMotion
+                      path={edgePath}
+                      dur="1.5s"
+                      begin={`${-(offset * 1.5).toFixed(2)}s`}
+                      repeatCount="indefinite"
+                      calcMode="linear"
+                    />
+                  </circle>
+                ))}
+              </g>
             );
           })}
 

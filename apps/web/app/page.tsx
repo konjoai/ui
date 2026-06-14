@@ -7,6 +7,7 @@ import { PhilosophySection } from "./_components/PhilosophySection";
 import { TerminalSection } from "./_components/TerminalSection";
 import { LiveDemo } from "./_components/LiveDemo";
 import { BenchmarkSection } from "./_components/BenchmarkSection";
+import { InferenceHeatmap } from "./_components/InferenceHeatmap";
 import { SignalMonitor } from "./_components/SignalMonitor";
 import { DesignPreview } from "./_components/DesignPreview";
 import { ProjectGrid } from "./_components/ProjectGrid";
@@ -28,6 +29,7 @@ export default function HomePage() {
       <TerminalSection />
       <LiveDemo />
       <BenchmarkSection />
+      <InferenceHeatmap />
       <SignalMonitor />
       <DesignPreview />
       <ProjectGrid />
