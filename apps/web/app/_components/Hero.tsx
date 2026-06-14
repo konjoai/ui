@@ -4,6 +4,7 @@ import { motion, animate, useInView, useMotionValue, useSpring, useTransform, us
 import type { MotionValue } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
+import { HeroParticles } from "./HeroParticles";
 
 const PHRASES = [
   "High-performance AI infrastructure, built in the Konjo way.",
@@ -218,6 +219,7 @@ export function Hero() {
         />
       )}
 
+      <HeroParticles />
       <FloatingGlyphs normX={normX} normY={normY} />
 
       {/* Scroll parallax wrapper — content rises slightly faster than the page scrolls */}
