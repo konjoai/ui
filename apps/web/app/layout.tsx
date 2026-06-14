@@ -8,6 +8,7 @@ import { ToastProvider } from "./_components/ToastProvider";
 import { CursorGlow } from "./_components/CursorGlow";
 import { PageTitleEffect } from "./_components/PageTitleEffect";
 import { SectionDots } from "./_components/SectionDots";
+import { StatusRibbon } from "./_components/StatusRibbon";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <FloatingDock />
         <SectionDots />
         <SiteNav />
+        <StatusRibbon />
         <div id="main-content">{children}</div>
       </body>
     </html>

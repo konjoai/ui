@@ -5,6 +5,7 @@ import type { MotionValue, HTMLMotionProps } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 import { HeroParticles } from "./HeroParticles";
+import { OnlineCount } from "./OnlineCount";
 
 const PHRASES = [
   "High-performance AI infrastructure, built in the Konjo way.",
@@ -271,6 +272,8 @@ export function Hero() {
           aria-hidden
         />
         <span className="text-konjo-mono">v0.2 · Sprint 0.5 of the Konjo UI Initiative</span>
+        <span className="text-konjo-line mx-1" aria-hidden>·</span>
+        <OnlineCount />
       </motion.div>
 
       <motion.h1
