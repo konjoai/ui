@@ -1,3 +1,8 @@
+import { PRODUCTS } from "@/lib/products";
+
+const operational = PRODUCTS.filter((p) => p.status === "operational").length;
+
+/** Site footer with portfolio stat and navigation links. */
 export function Footer() {
   const year = new Date().getFullYear();
   return (
@@ -10,9 +15,19 @@ export function Footer() {
           <p className="text-konjo-mono mt-1 text-xs text-konjo-fg-faint">
             ቆንጆ · 根性 · 康宙 · 건조
           </p>
+          <p className="text-konjo-mono mt-2 text-[11px] text-konjo-fg-faint">
+            <span className="text-konjo-good">{operational}</span>
+            <span className="text-konjo-fg-faint"> / {PRODUCTS.length} systems operational</span>
+          </p>
         </div>
 
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          <a
+            href="/#projects"
+            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
+          >
+            Products
+          </a>
           <a
             href="/status"
             className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"

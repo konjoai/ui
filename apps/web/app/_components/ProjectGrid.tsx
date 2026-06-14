@@ -9,7 +9,13 @@ import { PRODUCTS, type Product } from "@/lib/products";
 export function ProjectGrid() {
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 pb-24">
-      <div className="mb-10 flex items-end justify-between gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.55, ease: ease.kanjo }}
+        className="mb-10 flex items-end justify-between gap-6"
+      >
         <div>
           <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
             The portfolio
@@ -21,7 +27,7 @@ export function ProjectGrid() {
         <div className="text-konjo-mono hidden text-xs text-konjo-fg-faint sm:block">
           {PRODUCTS.length.toString().padStart(2, "0")} / {PRODUCTS.length.toString().padStart(2, "0")}
         </div>
-      </div>
+      </motion.div>
 
       <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PRODUCTS.map((p, i) => (
