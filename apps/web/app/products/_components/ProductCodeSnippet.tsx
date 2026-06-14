@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
 import { toast } from "@/lib/toast";
+import { ScrambleText } from "@/app/_components/ScrambleText";
 
 type Span = { text: string; kind: "kw" | "str" | "cmt" | "fn" | "num" | "plain" };
 
@@ -207,6 +208,7 @@ function HighlightedCode({ code }: { code: string }) {
 /** Per-product quick-start code snippet with syntax highlighting and a copy button. */
 export function ProductCodeSnippet({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
+  const reduce = useReducedMotion();
   const snippet = SNIPPETS[slug];
   if (!snippet) return null;
 
@@ -223,9 +225,12 @@ export function ProductCodeSnippet({ slug }: { slug: string }) {
 
   return (
     <section id="product-code" className="mx-auto max-w-6xl px-6 pb-12">
-      <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
-        Quick start
-      </h2>
+      <ScrambleText
+        as="h2"
+        text="Quick start"
+        className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl"
+        delay={80}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}

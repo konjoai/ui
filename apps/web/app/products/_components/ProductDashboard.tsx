@@ -9,6 +9,7 @@ import type {
   TimeSeriesPoint, StatusMatrixRow,
 } from "@konjoai/ui";
 import { useStreamTokens, usePipelineTick, useLiveTimeSeries } from "@/lib/hooks";
+import { ScrambleText } from "@/app/_components/ScrambleText";
 
 // ─── shared data ────────────────────────────────────────────────────────────
 
@@ -227,9 +228,21 @@ export function ProductDashboard({ slug }: { slug: string }) {
   if (!Dashboard) return null;
   return (
     <section className="mx-auto max-w-6xl px-6 pb-12">
-      <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
-        Live dashboard
-      </h2>
+      <div className="mb-6 flex items-center gap-3">
+        <ScrambleText
+          as="h2"
+          text="Live dashboard"
+          className="text-konjo-display text-2xl font-semibold tracking-tight sm:text-3xl"
+          delay={80}
+        />
+        <span
+          className="text-konjo-mono inline-flex items-center gap-1.5 rounded-full border border-konjo-good/30 bg-konjo-good/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-konjo-good"
+          aria-label="Live data"
+        >
+          <span className="konjo-pulse inline-block size-1.5 rounded-full bg-konjo-good" aria-hidden />
+          Live
+        </span>
+      </div>
       <div className="glass-konjo rounded-konjo-xl p-6 sm:p-8">
         <Dashboard />
       </div>

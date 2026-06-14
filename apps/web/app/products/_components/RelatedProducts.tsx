@@ -4,6 +4,8 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { StatusBadge, severity as sevColor, ease } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
+import { ScrambleText } from "@/app/_components/ScrambleText";
+import { MiniSparkline } from "@/app/_components/MiniSparkline";
 
 interface RelatedProductsProps {
   currentSlug: string;
@@ -21,15 +23,12 @@ export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
 
   return (
     <section className="mx-auto max-w-6xl px-6 pb-24">
-      <motion.h2
-        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 8 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45, ease: ease.kanjo }}
+      <ScrambleText
+        as="h2"
+        text="More from KonjoAI"
         className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl"
-      >
-        More from KonjoAI
-      </motion.h2>
+        delay={80}
+      />
 
       <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {related.map((p, i) => {
@@ -74,19 +73,22 @@ export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
                   </p>
                 </div>
                 <div
-                  className="flex items-baseline gap-1"
+                  className="flex items-center gap-2"
                   aria-label={`${p.metric.label}: ${metricDisplay}${p.metric.unit}`}
                 >
-                  <span
-                    className="text-konjo-mono text-xl font-semibold tabular-nums"
-                    style={{ color: metricColor }}
-                  >
-                    {metricDisplay}
-                    <span className="ml-0.5 text-xs text-konjo-fg-muted">{p.metric.unit}</span>
-                  </span>
-                  <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-                    {p.metric.label}
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className="text-konjo-mono text-xl font-semibold tabular-nums"
+                      style={{ color: metricColor }}
+                    >
+                      {metricDisplay}
+                      <span className="ml-0.5 text-xs text-konjo-fg-muted">{p.metric.unit}</span>
+                    </span>
+                    <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+                      {p.metric.label}
+                    </span>
+                  </div>
+                  <MiniSparkline slug={p.slug} width={48} height={18} />
                 </div>
               </Link>
             </motion.li>

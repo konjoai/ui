@@ -4,6 +4,7 @@ import { ProductHero, StatusBadge } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { AnimatedSection } from "@/app/_components/AnimatedSection";
+import { ScrambleText } from "@/app/_components/ScrambleText";
 import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
 import { ProductMetricStrip } from "@/app/products/_components/ProductMetricStrip";
 import { AnimatedFeatureGrid } from "@/app/products/_components/AnimatedFeatureGrid";
@@ -13,6 +14,7 @@ import { ProductCodeSnippet } from "@/app/products/_components/ProductCodeSnippe
 import { TrackVisit } from "@/app/products/_components/TrackVisit";
 import { ShareButton } from "@/app/products/_components/ShareButton";
 import { ProductKeyboardNav } from "@/app/products/_components/ProductKeyboardNav";
+import { ProductNavHint } from "@/app/products/_components/ProductNavHint";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -54,6 +56,7 @@ export default async function ProductPage({
       <ProductSectionNav />
       <TrackVisit slug={product.slug} />
       <ProductKeyboardNav currentSlug={product.slug} />
+      <ProductNavHint currentSlug={product.slug} />
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
         <Breadcrumbs
@@ -107,9 +110,12 @@ export default async function ProductPage({
       </AnimatedSection>
 
       <AnimatedSection id="product-features" className="mx-auto max-w-6xl px-6 pb-16" delay={0.08}>
-        <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
-          What it does
-        </h2>
+        <ScrambleText
+          as="h2"
+          text="What it does"
+          className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl"
+          delay={80}
+        />
         <AnimatedFeatureGrid features={product.features} />
       </AnimatedSection>
 
