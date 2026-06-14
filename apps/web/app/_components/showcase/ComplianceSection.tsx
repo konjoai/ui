@@ -6,35 +6,35 @@ import type { StatusMatrixRow, ComparisonBarItem, RiskRingItem } from "@konjoai/
 
 const MATRIX_ROWS: StatusMatrixRow[] = [
   {
-    label: "Article 9 — Risk",
+    label: "Article 10 — Data",
     cells: [
-      { status: "pass",    detail: "Risk classification documented" },
-      { status: "pass",    detail: "Mitigation measures in place"   },
-      { status: "warn",    detail: "Review pending Q3"              },
+      { status: "pass",    detail: "Training data catalogue complete" },
+      { status: "warn",    detail: "Bias audit scheduled Aug 2026"    },
+      { status: "pending", detail: "Validation set under review"      },
     ],
   },
   {
-    label: "Article 13 — Trans.",
+    label: "Article 11 — Tech Docs",
     cells: [
-      { status: "pass" },
-      { status: "fail",    detail: "Missing user disclosure"        },
-      { status: "pass" },
+      { status: "pass",    detail: "Architecture diagram v2 approved" },
+      { status: "pass",    detail: "Capability statement signed off"  },
+      { status: "fail",    detail: "Change log gap: Apr–May 2026"     },
     ],
   },
   {
-    label: "Article 17 — QMS",
+    label: "Article 14 — Oversight",
     cells: [
-      { status: "warn",    detail: "Partial implementation"         },
-      { status: "pass" },
-      { status: "pending"                                            },
+      { status: "pass",    detail: "Human-in-loop gate deployed"      },
+      { status: "warn",    detail: "Override audit trail incomplete"  },
+      { status: "pass",    detail: "Stop mechanism tested"            },
     ],
   },
   {
-    label: "Annex IV — Docs",
+    label: "Article 15 — Accuracy",
     cells: [
-      { status: "pass" },
-      { status: "pass" },
-      { status: "pass" },
+      { status: "pass",    detail: "Benchmark suite locked"           },
+      { status: "pass",    detail: "Robustness tests green"           },
+      { status: "pending", detail: "Adversarial eval in progress"     },
     ],
   },
 ];
