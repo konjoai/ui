@@ -96,6 +96,16 @@ const GLOBAL_ACTIONS: PaletteAction[] = [
     },
   },
   {
+    id: "chat",
+    icon: "❖",
+    label: "Chat demo",
+    description: "Multi-turn conversation with memory + retrieval",
+    onRun: ({ close }) => {
+      close();
+      document.getElementById("chat")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  },
+  {
     id: "changelog",
     icon: "◎",
     label: "Changelog",

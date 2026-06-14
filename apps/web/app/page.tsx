@@ -19,6 +19,7 @@ import { WelcomeBack } from "./_components/WelcomeBack";
 import { SystemPulse } from "./_components/SystemPulse";
 import { PipelineTrace } from "./_components/PipelineTrace";
 import { ChangelogFeed } from "./_components/ChangelogFeed";
+import { DemoChat } from "./_components/DemoChat";
 
 export default function HomePage() {
   return (
@@ -35,6 +36,7 @@ export default function HomePage() {
       <TerminalSection />
       <PipelineTrace />
       <LiveDemo />
+      <DemoChat />
       <BenchmarkSection />
       <InferenceHeatmap />
       <TokenVelocity />
