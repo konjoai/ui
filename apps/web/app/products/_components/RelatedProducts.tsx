@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
@@ -27,7 +28,7 @@ export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
 
           return (
             <li key={p.slug}>
-              <a
+              <Link
                 href={`/products/${p.slug}`}
                 className="glass-konjo rounded-konjo-lg group flex flex-col gap-3 p-5 transition-colors hover:bg-konjo-surface/60"
               >
@@ -64,7 +65,7 @@ export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
                     {p.metric.label}
                   </span>
                 </div>
-              </a>
+              </Link>
             </li>
           );
         })}

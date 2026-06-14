@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
 
@@ -23,12 +24,12 @@ export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
               transition={{ duration: 0.3, ease: ease.kanjo, delay: i * 0.07 }}
             >
               {c.href && !last ? (
-                <a
+                <Link
                   href={c.href}
                   className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
                 >
                   {c.label}
-                </a>
+                </Link>
               ) : (
                 <span className={last ? "text-konjo-fg" : undefined}>{c.label}</span>
               )}

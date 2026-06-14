@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
@@ -23,7 +24,7 @@ export function Footer() {
           </span>
           <div className="flex flex-wrap items-center gap-2" aria-label="Product health overview">
             {PRODUCTS.map((p) => (
-              <a
+              <Link
                 key={p.slug}
                 href={`/products/${p.slug}`}
                 title={`${p.name} — ${p.status}`}
@@ -35,7 +36,7 @@ export function Footer() {
                   aria-hidden
                 />
                 {p.slug}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -56,18 +57,18 @@ export function Footer() {
         </div>
 
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-          <a
+          <Link
             href="/#projects"
             className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
           >
             Products
-          </a>
-          <a
+          </Link>
+          <Link
             href="/status"
             className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
           >
             Status
-          </a>
+          </Link>
           <a
             href="https://github.com/konjoai"
             target="_blank"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease, StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
@@ -115,14 +116,14 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
 
       {/* Header: glyph + number + status */}
       <div className="flex items-start justify-between gap-4">
-        <a
+        <Link
           href={`/products/${project.slug}`}
           aria-label={`Open ${project.name} product page`}
           className="text-konjo-mono text-3xl leading-none transition-colors"
           style={{ color: "var(--color-konjo-brand-soft)" }}
         >
           <span aria-hidden>{project.glyph}</span>
-        </a>
+        </Link>
         <div className="flex flex-col items-end gap-1.5">
           <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
             {String(index + 1).padStart(2, "0")}
@@ -132,12 +133,12 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       </div>
 
       {/* Name + tagline */}
-      <a
+      <Link
         href={`/products/${project.slug}`}
         className="text-konjo-display mt-5 inline-block text-2xl font-semibold tracking-tight transition-colors hover:text-konjo-violet"
       >
         {project.name}
-      </a>
+      </Link>
       <p className="mt-2 text-sm leading-relaxed text-konjo-fg-muted">
         {project.tagline}
       </p>
@@ -161,13 +162,13 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
 
       {/* CTAs */}
       <div className="mt-5 flex items-center gap-3 text-xs">
-        <a
+        <Link
           href={`/products/${project.slug}`}
           className="text-konjo-mono inline-flex items-center gap-1.5 rounded-konjo border border-konjo-line bg-konjo-surface-2/60 px-3 py-1.5 text-konjo-fg transition-colors hover:bg-konjo-surface-2"
         >
           Details
           <span aria-hidden>→</span>
-        </a>
+        </Link>
         <a
           href={project.github}
           target="_blank"
