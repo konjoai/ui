@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { PRODUCTS } from "@/lib/products";
 
 /**
  * Floating action dock — appears after 400 px of scroll.
@@ -12,6 +14,7 @@ import { ease } from "@konjoai/ui";
 export function FloatingDock() {
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handler = () => setVisible(window.scrollY > 400);
@@ -26,6 +29,11 @@ export function FloatingDock() {
 
   function openPalette() {
     document.dispatchEvent(new CustomEvent("konjo:open-palette"));
+  }
+
+  function randomProduct() {
+    const idx = Math.floor(Math.random() * PRODUCTS.length);
+    router.push(`/products/${PRODUCTS[idx].slug}`);
   }
 
   return (
@@ -47,6 +55,15 @@ export function FloatingDock() {
             className="text-konjo-mono flex size-10 items-center justify-center rounded-full border border-konjo-line/60 bg-konjo-surface/80 text-xs text-konjo-fg-muted shadow-lg backdrop-blur transition-all hover:border-konjo-brand/40 hover:bg-konjo-surface hover:text-konjo-fg hover:shadow-[0_0_20px_-4px_rgba(124,58,237,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
           >
             ⌘
+          </button>
+          <button
+            type="button"
+            onClick={randomProduct}
+            aria-label="Open a random product page"
+            title="Surprise me"
+            className="text-konjo-mono flex size-10 items-center justify-center rounded-full border border-konjo-line/60 bg-konjo-surface/80 text-xs text-konjo-fg-muted shadow-lg backdrop-blur transition-all hover:border-konjo-brand/40 hover:bg-konjo-surface hover:text-konjo-fg hover:shadow-[0_0_20px_-4px_rgba(124,58,237,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
+          >
+            ⚄
           </button>
           <button
             type="button"

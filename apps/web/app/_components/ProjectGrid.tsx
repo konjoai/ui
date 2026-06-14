@@ -22,10 +22,20 @@ const STATUS_DOT: Record<StatusFilter, string> = {
   research:    "var(--color-konjo-violet)",
 };
 
-/** Portfolio grid — nine animated product cards with 3-D tilt and status filter. */
+/** Portfolio grid — nine animated product cards with 3-D tilt, status filter, and text search. */
 export function ProjectGrid() {
   const [filter, setFilter] = useState<StatusFilter>("all");
-  const filtered = filter === "all" ? PRODUCTS : PRODUCTS.filter((p) => p.status === filter);
+  const [search, setSearch] = useState("");
+
+  const filtered = PRODUCTS.filter((p) => {
+    const matchStatus = filter === "all" || p.status === filter;
+    const q = search.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      p.tagline.toLowerCase().includes(q);
+    return matchStatus && matchSearch;
+  });
 
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 pb-24">
@@ -57,10 +67,22 @@ export function ProjectGrid() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2, ease: ease.kanjo }}
-          className="flex flex-wrap items-center gap-1.5"
-          role="group"
-          aria-label="Filter by status"
+          className="flex flex-wrap items-center gap-2"
         >
+          {/* Text search */}
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search…"
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="Search products by name or description"
+            className="text-konjo-mono w-28 rounded-full border border-konjo-line/50 bg-konjo-surface/30 px-3 py-1 text-[11px] text-konjo-fg placeholder:text-konjo-fg-faint transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 focus-visible:w-40 focus-visible:border-konjo-brand/40"
+          />
+
+          {/* Status filter */}
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by status">
           {FILTER_OPTS.map(({ label, value }) => {
             const count = value === "all" ? PRODUCTS.length : PRODUCTS.filter((p) => p.status === value).length;
             const active = filter === value;
@@ -87,8 +109,15 @@ export function ProjectGrid() {
               </button>
             );
           })}
+          </div>
         </motion.div>
       </motion.div>
+
+      {filtered.length === 0 && (
+        <p className="text-konjo-mono py-16 text-center text-sm text-konjo-fg-faint">
+          No products match <span className="text-konjo-fg">&ldquo;{search}&rdquo;</span>
+        </p>
+      )}
 
       <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
