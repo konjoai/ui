@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { StatusBadge, severity as sevColor } from "@konjoai/ui";
+import { motion, useReducedMotion } from "motion/react";
+import { StatusBadge, severity as sevColor, ease } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
 interface RelatedProductsProps {
@@ -9,32 +12,52 @@ interface RelatedProductsProps {
 /**
  * Shows the next three products after the current one (wrapping),
  * giving visitors a natural path through the portfolio.
+ * Cards animate in on scroll with staggered entrance.
  */
 export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
+  const reduce = useReducedMotion();
   const idx = PRODUCTS.findIndex((p) => p.slug === currentSlug);
   const related = [1, 2, 3].map((offset) => PRODUCTS[(idx + offset) % PRODUCTS.length]);
 
   return (
     <section className="mx-auto max-w-6xl px-6 pb-24">
-      <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
+      <motion.h2
+        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 8 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, ease: ease.kanjo }}
+        className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl"
+      >
         More from KonjoAI
-      </h2>
+      </motion.h2>
+
       <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {related.map((p) => {
+        {related.map((p, i) => {
           const metricColor = sevColor[p.metric.severity];
           const metricDisplay = Number.isInteger(p.metric.value)
             ? String(p.metric.value)
             : p.metric.value.toFixed(1);
 
           return (
-            <li key={p.slug}>
+            <motion.li
+              key={p.slug}
+              initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.45, ease: ease.kanjo, delay: i * 0.1 }}
+              whileHover={reduce ? undefined : {
+                y: -4,
+                boxShadow: "0 0 0 1px rgba(124,58,237,0.3), 0 0 32px -8px rgba(124,58,237,0.15)",
+                transition: { duration: 0.2, ease: ease.nehan },
+              }}
+            >
               <Link
                 href={`/products/${p.slug}`}
-                className="glass-konjo rounded-konjo-lg group flex flex-col gap-3 p-5 transition-colors hover:bg-konjo-surface/60"
+                className="glass-konjo rounded-konjo-lg group flex h-full flex-col gap-3 p-5 transition-colors hover:bg-konjo-surface/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
               >
                 <div className="flex items-start justify-between gap-2">
                   <span
-                    className="text-konjo-mono text-2xl leading-none"
+                    className="text-konjo-mono text-2xl leading-none transition-transform duration-300 group-hover:scale-110"
                     style={{ color: "var(--color-konjo-brand-soft)" }}
                     aria-hidden
                   >
@@ -42,11 +65,11 @@ export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
                   </span>
                   <StatusBadge level={p.status} />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-konjo-display font-semibold tracking-tight transition-colors group-hover:text-konjo-violet">
                     {p.name}
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-konjo-fg-muted line-clamp-2">
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-konjo-fg-muted">
                     {p.tagline}
                   </p>
                 </div>
@@ -66,7 +89,7 @@ export function RelatedProducts({ currentSlug }: RelatedProductsProps) {
                   </span>
                 </div>
               </Link>
-            </li>
+            </motion.li>
           );
         })}
       </ul>

@@ -10,6 +10,8 @@ import { AnimatedFeatureGrid } from "@/app/products/_components/AnimatedFeatureG
 import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
 import { ProductSectionNav } from "@/app/products/_components/ProductSectionNav";
 import { ProductCodeSnippet } from "@/app/products/_components/ProductCodeSnippet";
+import { TrackVisit } from "@/app/products/_components/TrackVisit";
+import { ShareButton } from "@/app/products/_components/ShareButton";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -49,6 +51,7 @@ export default async function ProductPage({
       <div className="aurora-konjo-bg" aria-hidden />
 
       <ProductSectionNav />
+      <TrackVisit slug={product.slug} />
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
         <Breadcrumbs
@@ -89,6 +92,7 @@ export default async function ProductPage({
               >
                 Open demo ↗
               </a>
+              <ShareButton slug={product.slug} />
             </>
           }
         />

@@ -50,16 +50,25 @@ export function ProductMetricStrip({ metric, productName }: ProductMetricStripPr
       className="mx-auto max-w-6xl border-b border-konjo-line/40 px-6 py-5"
       aria-label={`${productName} headline metric: ${metric.label} ${metric.value}${metric.unit}`}
     >
-      <div className="flex items-baseline gap-2.5">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-baseline gap-2.5">
+          <span
+            className="text-konjo-display text-5xl font-semibold tabular-nums leading-none sm:text-6xl"
+            style={{ color }}
+          >
+            {display}
+            <span className="ml-1.5 text-2xl text-konjo-fg-muted">{metric.unit}</span>
+          </span>
+          <span className="text-konjo-mono text-xs uppercase tracking-widest text-konjo-fg-faint">
+            {metric.label}
+          </span>
+        </div>
         <span
-          className="text-konjo-display text-5xl font-semibold tabular-nums leading-none sm:text-6xl"
-          style={{ color }}
+          className="text-konjo-mono inline-flex items-center gap-1.5 rounded-full border border-konjo-good/30 bg-konjo-good/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-konjo-good"
+          aria-label="Live metric"
         >
-          {display}
-          <span className="ml-1.5 text-2xl text-konjo-fg-muted">{metric.unit}</span>
-        </span>
-        <span className="text-konjo-mono text-xs uppercase tracking-widest text-konjo-fg-faint">
-          {metric.label}
+          <span className="konjo-pulse inline-block size-1.5 rounded-full bg-konjo-good" aria-hidden />
+          Live
         </span>
       </div>
 

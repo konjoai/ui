@@ -222,7 +222,7 @@ export function ProductCodeSnippet({ slug }: { slug: string }) {
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-12">
+    <section id="product-code" className="mx-auto max-w-6xl px-6 pb-12">
       <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
         Quick start
       </h2>
