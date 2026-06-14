@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FeatureCard, ProductHero, StatusBadge } from "@konjoai/ui";
+import { ProductHero, StatusBadge } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { AnimatedSection } from "@/app/_components/AnimatedSection";
 import { ProductDashboard } from "@/app/products/_components/ProductDashboard";
+import { ProductMetricStrip } from "@/app/products/_components/ProductMetricStrip";
+import { AnimatedFeatureGrid } from "@/app/products/_components/AnimatedFeatureGrid";
 import { RelatedProducts } from "@/app/products/_components/RelatedProducts";
 import { PRODUCTS, PRODUCT_BY_SLUG } from "@/lib/products";
 
@@ -54,35 +56,39 @@ export default async function ProductPage({
         />
       </div>
 
-      <ProductHero
-        name={product.name}
-        tagline={product.tagline}
-        glyph={product.glyph}
-        eyebrow={product.eyebrow}
-        version={product.version}
-        status={<StatusBadge level={product.status} />}
-        actions={
-          <>
-            <a
-              href={product.github}
-              target="_blank"
-              rel="noreferrer"
-              className="shadow-konjo-brand rounded-konjo-lg px-5 py-2.5 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
-              style={{ background: "var(--color-konjo-brand)" }}
-            >
-              View on GitHub ↗
-            </a>
-            <a
-              href={product.demo}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-5 py-2.5 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:bg-konjo-surface"
-            >
-              Open demo ↗
-            </a>
-          </>
-        }
-      />
+      <ProductMetricStrip metric={product.metric} productName={product.name} />
+
+      <AnimatedSection as="div" delay={0.05}>
+        <ProductHero
+          name={product.name}
+          tagline={product.tagline}
+          glyph={product.glyph}
+          eyebrow={product.eyebrow}
+          version={product.version}
+          status={<StatusBadge level={product.status} />}
+          actions={
+            <>
+              <a
+                href={product.github}
+                target="_blank"
+                rel="noreferrer"
+                className="shadow-konjo-brand rounded-konjo-lg px-5 py-2.5 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
+                style={{ background: "var(--color-konjo-brand)" }}
+              >
+                View on GitHub ↗
+              </a>
+              <a
+                href={product.demo}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-5 py-2.5 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:bg-konjo-surface"
+              >
+                Open demo ↗
+              </a>
+            </>
+          }
+        />
+      </AnimatedSection>
 
       <AnimatedSection className="mx-auto max-w-6xl px-6 pb-12">
         <p className="max-w-3xl text-base leading-relaxed text-konjo-fg-muted sm:text-lg">
@@ -94,16 +100,7 @@ export default async function ProductPage({
         <h2 className="text-konjo-display mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
           What it does
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {product.features.map((f) => (
-            <FeatureCard
-              key={f.title}
-              glyph={f.glyph}
-              title={f.title}
-              description={f.description}
-            />
-          ))}
-        </div>
+        <AnimatedFeatureGrid features={product.features} />
       </AnimatedSection>
 
       <ProductDashboard slug={product.slug} />

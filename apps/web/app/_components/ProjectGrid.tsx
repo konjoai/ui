@@ -38,10 +38,11 @@ export function ProjectGrid() {
   );
 }
 
-/** Single product card with entrance animation and 3-D perspective tilt on hover. */
+/** Single product card with entrance animation, 3-D tilt, and mouse-follow spotlight. */
 function ProjectCard({ project, index }: { project: Product; index: number }) {
   const reduce = useReducedMotion();
   const cardRef = useRef<HTMLLIElement>(null);
+  const spotRef = useRef<HTMLDivElement>(null);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
   const rotateX = useSpring(rawX, { stiffness: 300, damping: 25 });
@@ -60,6 +61,12 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
     const y = (e.clientY - rect.top) / rect.height - 0.5;
     rawY.set(x * 8);
     rawX.set(-y * 6);
+    // Direct DOM update avoids re-renders for the spotlight position
+    if (spotRef.current) {
+      const sx = ((e.clientX - rect.left) / rect.width) * 100;
+      const sy = ((e.clientY - rect.top) / rect.height) * 100;
+      spotRef.current.style.background = `radial-gradient(circle at ${sx}% ${sy}%, rgba(124,58,237,0.11) 0%, transparent 58%)`;
+    }
   }
 
   function handleMouseLeave() {
@@ -88,6 +95,14 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       onMouseLeave={handleMouseLeave}
       className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-colors duration-300"
     >
+      {/* Mouse-following spotlight overlay */}
+      {!reduce && (
+        <div
+          ref={spotRef}
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        />
+      )}
       {/* Top shimmer on hover */}
       <div
         className="pointer-events-none absolute inset-x-0 -top-px h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"

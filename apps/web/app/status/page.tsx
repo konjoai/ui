@@ -4,6 +4,7 @@ import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { StatusDashboard } from "@/app/status/_components/StatusDashboard";
 import { RecentEvents } from "@/app/status/_components/RecentEvents";
+import { MiniSparkline } from "@/app/status/_components/MiniSparkline";
 import { PRODUCTS } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -97,6 +98,9 @@ export default function StatusPage() {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-4">
+                  {/* 7-day uptime mini-sparkline */}
+                  <MiniSparkline slug={p.slug} />
+
                   {/* Live headline metric */}
                   <div
                     className="text-konjo-mono hidden flex-col items-end sm:flex"
