@@ -31,7 +31,23 @@ const SCRIPT: TermLine[] = [
 
 const CHAR_MS = 36;
 const OUT_MS  = 100;
-const END_MS  = 2800;
+
+/** Applies inline color spans to terminal output lines for a richer ANSI-like appearance. */
+function ColoredOutput({ text }: { text: string }) {
+  // Split into segments: numbers+units get accent color, ▶ gets brand color, quoted strings get warm
+  const segments = text.split(/(\d+\.?\d*(?:\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?))\b|\▶|\[[^\]]+\]|"[^"]*")/g);
+  return (
+    <>
+      {segments.map((seg, i) => {
+        if (seg === "▶") return <span key={i} style={{ color: "var(--color-konjo-brand)" }}>{seg}</span>;
+        if (/^\d+\.?\d*\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?)/.test(seg)) return <span key={i} style={{ color: "var(--color-konjo-accent)" }}>{seg}</span>;
+        if (/^\[[^\]]+\]$/.test(seg)) return <span key={i} style={{ color: "var(--color-konjo-violet)" }}>{seg}</span>;
+        if (/^"[^"]*"$/.test(seg)) return <span key={i} style={{ color: "var(--color-konjo-warm)" }}>{seg}</span>;
+        return <span key={i}>{seg}</span>;
+      })}
+    </>
+  );
+}
 
 const CLI_FEATURES: { icon: string; title: string; desc: string }[] = [
   { icon: "→", title: "Streaming",   desc: "Token-by-token output with backpressure. Pipe anywhere." },
@@ -222,7 +238,7 @@ export function TerminalSection() {
               ) : line.kind === "gap" ? (
                 <div key={i} className="h-2" />
               ) : (
-                <p key={i} className="text-konjo-fg-muted">{line.text}</p>
+                <p key={i} className="text-konjo-fg-muted"><ColoredOutput text={line.text} /></p>
               )
             )}
             {!isTypingCmd && (
