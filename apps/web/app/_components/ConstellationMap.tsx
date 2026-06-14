@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ease, severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
@@ -48,9 +48,26 @@ const EDGES: [number, number][] = [
 /** Network graph of the nine KonjoAI products — hover to highlight connections. */
 export function ConstellationMap() {
   const [active, setActive] = useState<SlugKey | null>(null);
+  const [autoSlug, setAutoSlug] = useState<SlugKey | null>(null);
   const reduce = useReducedMotion();
 
-  const activeIdx = active ? SLUG_ORDER.indexOf(active) : -1;
+  // Auto-cycle through products when no node is being hovered
+  useEffect(() => {
+    if (reduce) return;
+    let i = 0;
+    const id = setInterval(() => {
+      if (!active) {
+        setAutoSlug(SLUG_ORDER[i % SLUG_ORDER.length]);
+        i++;
+      }
+    }, 2600);
+    return () => clearInterval(id);
+  }, [active, reduce]);
+
+  // The "display" active node — user hover takes priority over auto-cycle
+  const displaySlug = active ?? autoSlug;
+
+  const activeIdx = displaySlug ? SLUG_ORDER.indexOf(displaySlug) : -1;
   const connectedIdx = new Set<number>(
     activeIdx >= 0
       ? EDGES.filter(([a, b]) => a === activeIdx || b === activeIdx).flatMap(([a, b]) => [a, b])
@@ -142,16 +159,16 @@ export function ConstellationMap() {
             )}
             <circle cx={CX} cy={CY} r={38} fill="rgba(10,8,18,0.92)" stroke="rgba(124,58,237,0.4)" strokeWidth="1" />
             <circle cx={CX} cy={CY} r={34} fill="none" stroke="rgba(124,58,237,0.12)" strokeWidth="0.5" />
-            {active ? (
+            {displaySlug ? (
               <>
-                <text x={CX} y={CY - 10} textAnchor="middle" dominantBaseline="middle" fontSize="15" fill="rgba(167,139,250,0.95)" style={{ fontFamily: "monospace", transition: "opacity 0.2s" }}>
-                  {PRODUCT_MAP[active].glyph}
+                <text x={CX} y={CY - 10} textAnchor="middle" dominantBaseline="middle" fontSize="15" fill="rgba(167,139,250,0.95)" style={{ fontFamily: "monospace", transition: "opacity 0.25s" }}>
+                  {PRODUCT_MAP[displaySlug].glyph}
                 </text>
-                <text x={CX} y={CY + 6} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fontWeight="600" fill={sevColor[PRODUCT_MAP[active].metric.severity]} style={{ fontFamily: "monospace", letterSpacing: "0.03em" }}>
-                  {PRODUCT_MAP[active].metric.value}{PRODUCT_MAP[active].metric.unit}
+                <text x={CX} y={CY + 6} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fontWeight="600" fill={sevColor[PRODUCT_MAP[displaySlug].metric.severity]} style={{ fontFamily: "monospace", letterSpacing: "0.03em", transition: "fill 0.25s" }}>
+                  {PRODUCT_MAP[displaySlug].metric.value}{PRODUCT_MAP[displaySlug].metric.unit}
                 </text>
                 <text x={CX} y={CY + 19} textAnchor="middle" dominantBaseline="middle" fontSize="7" fill="rgba(110,100,150,0.75)" style={{ fontFamily: "monospace", letterSpacing: "0.06em" }}>
-                  {PRODUCT_MAP[active].metric.label.toUpperCase()}
+                  {PRODUCT_MAP[displaySlug].metric.label.toUpperCase()}
                 </text>
               </>
             ) : (
@@ -169,9 +186,10 @@ export function ConstellationMap() {
           {/* Nodes */}
           {NODES.map(({ slug, x, y, product }, i) => {
             const col = sevColor[product.metric.severity];
-            const isActive = slug === active;
+            const isActive = slug === displaySlug;
             const isConnected = connectedIdx.has(i);
-            const dim = activeIdx >= 0 && !isActive && !isConnected;
+            // Only dim when the user is actively hovering (not during auto-cycle)
+            const dim = !!active && !isActive && !isConnected;
 
             return (
               <motion.g
