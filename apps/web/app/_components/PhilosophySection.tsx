@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { useRef } from "react";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
 
 const PILLARS = [
@@ -38,6 +39,77 @@ const PILLARS = [
   },
 ] as const;
 
+type Pillar = (typeof PILLARS)[number];
+
+/**
+ * Single pillar card — the large CJK word shifts via inner parallax on mouse move,
+ * creating a tactile depth effect without rotating the whole card.
+ */
+function PillarCard({ pillar, index }: { pillar: Pillar; index: number }) {
+  const reduce = useReducedMotion();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const wordX = useSpring(rawX, { stiffness: 180, damping: 28 });
+  const wordY = useSpring(rawY, { stiffness: 180, damping: 28 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (reduce) return;
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    rawX.set(((e.clientX - rect.left) / rect.width - 0.5) * 14);
+    rawY.set(((e.clientY - rect.top) / rect.height - 0.5) * 9);
+  }
+
+  function handleMouseLeave() {
+    rawX.set(0);
+    rawY.set(0);
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={reduce ? { opacity: 1 } : { opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: ease.kanjo, delay: index * 0.09 }}
+      whileHover={reduce ? undefined : {
+        boxShadow: `0 0 0 1px color-mix(in oklch, ${pillar.color} 30%, transparent), 0 0 40px -12px color-mix(in oklch, ${pillar.color} 20%, transparent)`,
+        transition: { duration: 0.25 },
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="glass-konjo rounded-konjo-xl overflow-hidden p-6"
+    >
+      <div className="flex items-start justify-between gap-4">
+        {/* Large CJK word with inner parallax — moves independently of the card */}
+        <motion.span
+          style={{ x: wordX, y: wordY, color: pillar.color }}
+          className="text-konjo-display text-5xl font-semibold leading-none select-none"
+          aria-label={`${pillar.word} (${pillar.lang})`}
+        >
+          {pillar.word}
+        </motion.span>
+        <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint shrink-0">
+          {pillar.lang}
+        </span>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-konjo-mono text-base font-medium" style={{ color: pillar.color }}>
+          {pillar.roman}
+        </p>
+        <p className="text-konjo-display mt-0.5 text-xl font-semibold tracking-tight">
+          {pillar.meaning}
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-konjo-fg-muted">
+          {pillar.detail}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 /** Typographic section showcasing the four Konjo values with animated entrance. */
 export function PhilosophySection() {
   const reduce = useReducedMotion();
@@ -66,44 +138,8 @@ export function PhilosophySection() {
       </motion.div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {PILLARS.map(({ word, roman, lang, meaning, detail, color }, i) => (
-          <motion.div
-            key={roman}
-            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.5, ease: ease.kanjo, delay: i * 0.09 }}
-            whileHover={reduce ? undefined : {
-              boxShadow: `0 0 0 1px color-mix(in oklch, ${color} 30%, transparent), 0 0 40px -12px color-mix(in oklch, ${color} 20%, transparent)`,
-              transition: { duration: 0.25 },
-            }}
-            className="glass-konjo rounded-konjo-xl p-6"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <span
-                className="text-konjo-display text-5xl font-semibold leading-none"
-                style={{ color }}
-                aria-label={`${word} (${lang})`}
-              >
-                {word}
-              </span>
-              <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-                {lang}
-              </span>
-            </div>
-
-            <div className="mt-4">
-              <p className="text-konjo-mono text-base font-medium" style={{ color }}>
-                {roman}
-              </p>
-              <p className="text-konjo-display mt-0.5 text-xl font-semibold tracking-tight">
-                {meaning}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-konjo-fg-muted">
-                {detail}
-              </p>
-            </div>
-          </motion.div>
+        {PILLARS.map((pillar, i) => (
+          <PillarCard key={pillar.roman} pillar={pillar} index={i} />
         ))}
       </div>
     </section>
