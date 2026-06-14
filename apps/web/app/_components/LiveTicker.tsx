@@ -16,12 +16,19 @@ const TICKER_ITEMS = [...PRODUCTS, ...PRODUCTS];
  * Full-width scrolling strip showing live headline metrics for all nine products.
  * Animation is CSS-driven so this component is fully server-renderable.
  * Hover pauses; prefers-reduced-motion freezes it.
+ * Edge masks produce a smooth fade in/out on both sides.
  */
 export function LiveTicker() {
   return (
     <div
-      className="overflow-hidden border-y border-konjo-line/40 bg-konjo-surface/20 py-2.5"
+      className="relative overflow-hidden border-y border-konjo-line/40 bg-konjo-surface/20 py-2.5"
       aria-label="Live product metrics"
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
+      }}
     >
       <div className="konjo-ticker flex w-max">
         {TICKER_ITEMS.map((p, i) => {

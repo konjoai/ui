@@ -13,6 +13,12 @@ export function ProductMarquee() {
     <div
       aria-hidden
       className="overflow-hidden border-y border-konjo-line/20 py-2.5 select-none"
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+      }}
     >
       {/* Row 1 — scrolls left (LTR) */}
       <div className="konjo-marquee-ltr flex shrink-0 gap-x-10 pr-10 mb-1.5">
