@@ -126,6 +126,19 @@ export function ConstellationMap() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.4 }}
           >
+            {/* Slow rotating outer ring */}
+            {!reduce && (
+              <motion.circle
+                cx={CX} cy={CY} r={44}
+                fill="none"
+                stroke="rgba(124,58,237,0.18)"
+                strokeWidth="1"
+                strokeDasharray="6 10"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+                style={{ transformOrigin: `${CX}px ${CY}px` }}
+              />
+            )}
             <circle cx={CX} cy={CY} r={38} fill="rgba(10,8,18,0.92)" stroke="rgba(124,58,237,0.4)" strokeWidth="1" />
             <circle cx={CX} cy={CY} r={34} fill="none" stroke="rgba(124,58,237,0.12)" strokeWidth="0.5" />
             {active ? (

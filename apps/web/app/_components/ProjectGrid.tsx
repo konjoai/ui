@@ -88,7 +88,7 @@ export function ProjectGrid() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search…  /"
+            placeholder="Search… /"
             autoComplete="off"
             spellCheck={false}
             aria-label="Search products by name or description (press / to focus)"

@@ -30,7 +30,7 @@ export function Footer() {
                   key={p.slug}
                   href={`/products/${p.slug}`}
                   aria-label={`${p.name} — ${p.status}`}
-                  className="group text-konjo-mono relative flex items-center gap-1.5 rounded-konjo border border-konjo-line/40 bg-konjo-surface/40 px-2 py-0.5 text-[10px] text-konjo-fg-faint transition-colors hover:border-konjo-line hover:text-konjo-fg"
+                  className="group text-konjo-mono relative flex items-center gap-1.5 rounded-konjo border border-konjo-line/40 bg-konjo-surface/40 px-2 py-0.5 text-[10px] text-konjo-fg-faint transition-colors hover:border-konjo-line hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1"
                 >
                   <span
                     className="inline-block size-1.5 rounded-full"
@@ -76,13 +76,13 @@ export function Footer() {
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <Link
             href="/#projects"
-            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
+            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent rounded-sm"
           >
             Products
           </Link>
           <Link
             href="/status"
-            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
+            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent rounded-sm"
           >
             Status
           </Link>
@@ -90,7 +90,7 @@ export function Footer() {
             href="https://github.com/konjoai"
             target="_blank"
             rel="noreferrer"
-            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
+            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent rounded-sm"
           >
             GitHub
           </a>
@@ -98,7 +98,7 @@ export function Footer() {
             href="https://github.com/konjoai/ui"
             target="_blank"
             rel="noreferrer"
-            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg"
+            className="text-konjo-fg-muted transition-colors hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent rounded-sm"
           >
             Design system
           </a>
