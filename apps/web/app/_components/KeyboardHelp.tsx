@@ -18,6 +18,7 @@ const SHORTCUTS: Shortcut[] = [
   { keys: ["Esc"],      label: "Dismiss / close",     group: "Global"    },
   { keys: ["g", "h"],   label: "Go to Home",          group: "Navigate"  },
   { keys: ["g", "s"],   label: "Go to Status",        group: "Navigate"  },
+  { keys: ["1–9"],      label: "Go to product by #",  group: "Navigate"  },
   { keys: ["["],        label: "Previous product",    group: "Navigate"  },
   { keys: ["]"],        label: "Next product",        group: "Navigate"  },
   { keys: ["↑", "↓"],  label: "Move selection",      group: "Palette"   },
@@ -73,9 +74,12 @@ export function KeyboardHelp() {
       }
     }
 
+    function onOpenEvent() { setOpen(true); }
     document.addEventListener("keydown", onKey);
+    document.addEventListener("konjo:open-keyboard", onOpenEvent);
     return () => {
       document.removeEventListener("keydown", onKey);
+      document.removeEventListener("konjo:open-keyboard", onOpenEvent);
       if (gTimer) clearTimeout(gTimer);
     };
   }, [gMode, isInputFocused, router]);

@@ -12,11 +12,13 @@ interface Toast {
   tone: ToastTone;
 }
 
-const TONE: Record<ToastTone, { border: string; dot: string }> = {
-  success: { border: "border-konjo-good/40",   dot: "bg-konjo-good"   },
-  info:    { border: "border-konjo-accent/40", dot: "bg-konjo-accent" },
-  warn:    { border: "border-konjo-warm/40",   dot: "bg-konjo-warm"   },
+const TONE: Record<ToastTone, { border: string; dot: string; bar: string }> = {
+  success: { border: "border-konjo-good/40",   dot: "bg-konjo-good",   bar: "bg-konjo-good"   },
+  info:    { border: "border-konjo-accent/40", dot: "bg-konjo-accent", bar: "bg-konjo-accent" },
+  warn:    { border: "border-konjo-warm/40",   dot: "bg-konjo-warm",   bar: "bg-konjo-warm"   },
 };
+
+const AUTO_DISMISS_MS = 3200;
 
 let nextId = 0;
 
@@ -36,7 +38,7 @@ export function ToastProvider() {
       ).detail;
       const id = nextId++;
       setToasts((prev) => [{ id, message, tone }, ...prev].slice(0, 3));
-      setTimeout(() => dismiss(id), 3200);
+      setTimeout(() => dismiss(id), AUTO_DISMISS_MS);
     }
     document.addEventListener("konjo:toast", onToast);
     return () => document.removeEventListener("konjo:toast", onToast);
@@ -59,7 +61,7 @@ export function ToastProvider() {
             exit={reduce ? { opacity: 0 } : { opacity: 0, x: -20, scale: 0.95 }}
             transition={{ duration: 0.28, ease: ease.nehan }}
             className={cn(
-              "glass-konjo rounded-konjo flex items-center gap-3 border px-4 py-2.5 shadow-lg",
+              "glass-konjo rounded-konjo relative flex items-center gap-3 overflow-hidden border px-4 py-2.5 shadow-lg",
               TONE[t.tone].border,
             )}
             role="status"
@@ -74,6 +76,16 @@ export function ToastProvider() {
             >
               ×
             </button>
+            {/* Auto-dismiss progress bar */}
+            {!reduce && (
+              <motion.div
+                aria-hidden
+                className={cn("absolute bottom-0 left-0 h-[2px] rounded-b-konjo origin-left", TONE[t.tone].bar)}
+                initial={{ scaleX: 1, opacity: 0.5 }}
+                animate={{ scaleX: 0, opacity: 0.3 }}
+                transition={{ duration: AUTO_DISMISS_MS / 1000, ease: "linear" }}
+              />
+            )}
           </motion.div>
         ))}
       </AnimatePresence>

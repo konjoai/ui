@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease, StatusBadge, severity as sevColor, cn } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
@@ -27,18 +28,32 @@ export function ProjectGrid() {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
       const tag = (e.target as HTMLElement).tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-      e.preventDefault();
-      searchRef.current?.focus();
+      const inInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+      // / → focus search
+      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey && !inInput) {
+        e.preventDefault();
+        searchRef.current?.focus();
+        return;
+      }
+
+      // 1-9 → navigate to product by index (only when not in an input)
+      if (!inInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const num = parseInt(e.key, 10);
+        if (num >= 1 && num <= 9 && PRODUCTS[num - 1]) {
+          e.preventDefault();
+          router.push(`/products/${PRODUCTS[num - 1].slug}`);
+        }
+      }
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, []);
+  }, [router]);
 
   const filtered = PRODUCTS.filter((p) => {
     const matchStatus = filter === "all" || p.status === filter;
