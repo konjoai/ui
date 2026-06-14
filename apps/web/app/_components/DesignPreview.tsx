@@ -8,6 +8,7 @@ import { MetricsSection }    from "./showcase/MetricsSection";
 import { ComplianceSection } from "./showcase/ComplianceSection";
 import { RankingsSection }   from "./showcase/RankingsSection";
 import { ShellSection }      from "./showcase/ShellSection";
+import { ScrambleText }      from "./ScrambleText";
 
 type Block = {
   id: string;
@@ -106,9 +107,12 @@ export function DesignPreview() {
             Live
           </span>
         </div>
-        <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          Live design system
-        </h2>
+        <ScrambleText
+          as="h2"
+          text="Live design system"
+          className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl"
+          delay={100}
+        />
         <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
           Every primitive, alive. Five sections streaming real-time data — the shared visual language powering all nine products.
         </p>

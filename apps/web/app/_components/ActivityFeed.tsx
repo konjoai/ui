@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
@@ -43,6 +43,10 @@ export function ActivityFeed() {
   const [events, setEvents] = useState<FeedEvent[]>([]);
   const [poolIdx, setPoolIdx] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
 
   const pushEvent = useCallback(() => {
     setEvents((prev) => {
@@ -54,10 +58,11 @@ export function ActivityFeed() {
     setTotalCount((n) => n + 1);
   }, [poolIdx]);
 
-  // Initial batch + recurring trickle
+  // Initial batch + recurring trickle — pauses when hovering
   useEffect(() => {
     pushEvent();
     const id = setInterval(() => {
+      if (pausedRef.current) return;
       setEvents((prev) => prev.map((e) => ({ ...e, age: e.age + 1 })));
       if (Math.random() > 0.3) pushEvent();
     }, 2600);
@@ -87,6 +92,11 @@ export function ActivityFeed() {
           <span className="konjo-pulse inline-block size-1.5 rounded-full bg-konjo-good" aria-hidden />
           Stream
         </span>
+        {paused && (
+          <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+            paused
+          </span>
+        )}
         {totalCount > 0 && (
           <span
             className="text-konjo-mono ml-auto text-[10px] tabular-nums text-konjo-fg-faint"
@@ -104,6 +114,8 @@ export function ActivityFeed() {
         aria-live="polite"
         aria-atomic="false"
         aria-relevant="additions"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
       >
         <AnimatePresence initial={false}>
           {events.map((ev) => (

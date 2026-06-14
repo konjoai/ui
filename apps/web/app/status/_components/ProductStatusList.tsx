@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { StatusBadge, severity as sevColor } from "@konjoai/ui";
 import { ease } from "@konjoai/ui";
-import { MiniSparkline } from "@/app/status/_components/MiniSparkline";
+import { MiniSparkline } from "@/app/_components/MiniSparkline";
 import { PRODUCTS } from "@/lib/products";
 
 const BUILD_TIME = new Date().toISOString();

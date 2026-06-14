@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useReducedMotion } 
 import { ease, StatusBadge, severity as sevColor, cn } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
 import { ScrambleText } from "./ScrambleText";
+import { AnimatedMiniSparkline } from "./AnimatedMiniSparkline";
 
 type StatusFilter = "all" | "operational" | "degraded" | "research";
 
@@ -196,6 +197,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
   const reduce = useReducedMotion();
   const cardRef = useRef<HTMLLIElement>(null);
   const spotRef = useRef<HTMLDivElement>(null);
+  const [cardHovered, setCardHovered] = useState(false);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
   const rotateX = useSpring(rawX, { stiffness: 300, damping: 25 });
@@ -225,6 +227,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
   function handleMouseLeave() {
     rawX.set(0);
     rawY.set(0);
+    setCardHovered(false);
   }
 
   return (
@@ -247,6 +250,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
       style={{ rotateX, rotateY, transformPerspective: 800 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setCardHovered(true)}
       className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-colors duration-300"
     >
       {/* Mouse-following spotlight overlay */}
@@ -313,11 +317,20 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
             {project.metric.label}
           </span>
         </div>
-        <span
-          className="konjo-pulse ml-auto size-1.5 shrink-0 rounded-full"
-          style={{ background: metricColor }}
-          aria-label="Live metric"
-        />
+        <div className="ml-auto flex items-center gap-2">
+          <AnimatedMiniSparkline
+            slug={project.slug}
+            width={56}
+            height={22}
+            color={metricColor}
+            hovered={cardHovered}
+          />
+          <span
+            className="konjo-pulse size-1.5 shrink-0 rounded-full"
+            style={{ background: metricColor }}
+            aria-label="Live metric"
+          />
+        </div>
       </div>
 
       {/* CTAs */}

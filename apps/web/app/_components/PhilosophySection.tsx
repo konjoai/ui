@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
+import { ScrambleText } from "./ScrambleText";
 
 const PILLARS = [
   {
@@ -130,9 +131,12 @@ export function PhilosophySection() {
         <p className="text-konjo-mono text-xs uppercase tracking-[0.24em] text-konjo-accent">
           Four words · one way
         </p>
-        <h2 className="text-konjo-display mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          The Konjo philosophy
-        </h2>
+        <ScrambleText
+          as="h2"
+          text="The Konjo philosophy"
+          className="text-konjo-display mt-1 text-3xl font-semibold tracking-tight sm:text-4xl"
+          delay={100}
+        />
         <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
           Each product, each component, each commit — measured against all four.
         </p>

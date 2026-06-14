@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, useReducedMotion, useInView } from "motion/react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion, useInView } from "motion/react";
 import { ease } from "@konjoai/ui";
 import { ScrambleText } from "./ScrambleText";
 
@@ -47,8 +47,19 @@ export function TerminalSection() {
   const inView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [lines, setLines] = useState<DisplayLine[]>([]);
   const [replayCount, setReplayCount] = useState(0);
+  const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runRef = useRef(0);
+
+  const copyCmd = useCallback((text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedCmd(text);
+      document.dispatchEvent(new CustomEvent("konjo:toast", {
+        detail: { message: "Command copied to clipboard", tone: "success" },
+      }));
+      setTimeout(() => setCopiedCmd(null), 2000);
+    }).catch(() => {/* clipboard blocked */});
+  }, []);
 
   useEffect(() => {
     if (!inView) return;
@@ -180,17 +191,34 @@ export function TerminalSection() {
           >
             {lines.map((line, i) =>
               line.kind === "cmd" ? (
-                <p key={i}>
-                  <span style={{ color: "var(--color-konjo-brand)" }}>❯ </span>
-                  <span className="text-konjo-fg">{line.text.slice(0, line.chars)}</span>
-                  {line.chars < line.text.length && (
-                    <span
-                      className="konjo-pulse ml-px inline-block h-[0.9em] w-[1.5px] -mb-[1px] align-middle rounded-[1px]"
-                      style={{ background: "var(--color-konjo-brand)" }}
-                      aria-hidden
-                    />
+                <div key={i} className="group/line relative flex items-start justify-between gap-2">
+                  <p className="flex-1">
+                    <span style={{ color: "var(--color-konjo-brand)" }}>❯ </span>
+                    <span className="text-konjo-fg">{line.text.slice(0, line.chars)}</span>
+                    {line.chars < line.text.length && (
+                      <span
+                        className="konjo-pulse ml-px inline-block h-[0.9em] w-[1.5px] -mb-[1px] align-middle rounded-[1px]"
+                        style={{ background: "var(--color-konjo-brand)" }}
+                        aria-hidden
+                      />
+                    )}
+                  </p>
+                  {line.chars === line.text.length && (
+                    <AnimatePresence>
+                      <motion.button
+                        key="copy"
+                        type="button"
+                        onClick={() => copyCmd(line.text)}
+                        aria-label={`Copy command: ${line.text}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="shrink-0 rounded border border-konjo-line/30 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-konjo-fg-faint opacity-0 transition-all group-hover/line:opacity-100 hover:border-konjo-brand/40 hover:text-konjo-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+                      >
+                        {copiedCmd === line.text ? "✓" : "copy"}
+                      </motion.button>
+                    </AnimatePresence>
                   )}
-                </p>
+                </div>
               ) : line.kind === "gap" ? (
                 <div key={i} className="h-2" />
               ) : (
