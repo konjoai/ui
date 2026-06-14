@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, animate, useInView, useMotionValue, useSpring, useReducedMotion } from "motion/react";
+import { motion, animate, useInView, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 
@@ -195,6 +195,42 @@ export function Hero() {
           <AnimatedStat key={s.label} stat={s} />
         ))}
       </motion.dl>
+
+      <ScrollHint />
     </section>
+  );
+}
+
+/** Bouncing down-arrow that fades out once the user starts scrolling. */
+function ScrollHint() {
+  const [visible, setVisible] = useState(true);
+  const reduce = useReducedMotion();
+
+  useEffect(() => {
+    const handler = () => setVisible(window.scrollY < 60);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          key="scroll-hint"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0, y: -4 }}
+          animate={
+            reduce
+              ? { opacity: 0.35 }
+              : { opacity: [0.25, 0.6, 0.25], y: [0, 7, 0] }
+          }
+          exit={{ opacity: 0, y: 10, transition: { duration: 0.3 } }}
+          transition={reduce ? {} : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden
+        >
+          <span className="text-konjo-fg-faint text-lg select-none">↓</span>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
