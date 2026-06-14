@@ -6,6 +6,7 @@ import { StreamSection }     from "./showcase/StreamSection";
 import { MetricsSection }    from "./showcase/MetricsSection";
 import { ComplianceSection } from "./showcase/ComplianceSection";
 import { RankingsSection }   from "./showcase/RankingsSection";
+import { ShellSection }      from "./showcase/ShellSection";
 
 type Block = {
   id: string;
@@ -49,6 +50,14 @@ const BLOCKS: Block[] = [
     live: true,
     Section: RankingsSection,
   },
+  {
+    id: "shell",
+    title: "Shell & Layout",
+    description: "Status indicators, feature tiles, and product hero — used across all nine product pages.",
+    tag: "all products",
+    live: false,
+    Section: ShellSection,
+  },
 ];
 
 export function DesignPreview() {
@@ -66,7 +75,7 @@ export function DesignPreview() {
       >
         <div className="flex items-center gap-3 mb-3">
           <p className="text-konjo-mono text-xs uppercase tracking-[0.24em] text-konjo-accent">
-            @konjoai/ui · 14 components
+            @konjoai/ui · 14 components · 5 sections
           </p>
           <span
             className="text-konjo-mono inline-flex items-center gap-1.5 rounded-full border border-konjo-good/30 bg-konjo-good/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-konjo-good"
