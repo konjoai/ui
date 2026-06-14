@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, animate, useInView, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence } from "motion/react";
+import { motion, animate, useInView, useMotionValue, useSpring, useTransform, useReducedMotion, useScroll, AnimatePresence } from "motion/react";
 import type { MotionValue } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
@@ -165,6 +165,9 @@ function AnimatedStat({ stat }: { stat: Stat }) {
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  // Scroll-based parallax — content rises slightly faster than the page scrolls
+  const { scrollY } = useScroll();
+  const contentY = useTransform(scrollY, [0, 500], [0, reduce ? 0 : -60]);
   // Pixel-space mouse position — drives the cursor glow (off-screen = -600)
   const mouseX = useMotionValue(-600);
   const mouseY = useMotionValue(-600);
@@ -215,6 +218,9 @@ export function Hero() {
       )}
 
       <FloatingGlyphs normX={normX} normY={normY} />
+
+      {/* Scroll parallax wrapper — content rises slightly faster than the page scrolls */}
+      <motion.div style={{ y: contentY }} className="flex w-full flex-col items-center">
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -294,6 +300,7 @@ export function Hero() {
       </motion.dl>
 
       <ScrollHint />
+      </motion.div>{/* end scroll parallax wrapper */}
     </section>
   );
 }

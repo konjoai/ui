@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ease } from "@konjoai/ui";
 
@@ -101,35 +102,48 @@ export function ActivityFeed() {
               animate={{ opacity: 1, x: 0, height: "auto" }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, x: 16, height: 0 }}
               transition={{ duration: 0.35, ease: ease.nehan }}
-              className="glass-konjo rounded-konjo flex items-center gap-4 px-4 py-3"
+              className="glass-konjo rounded-konjo group relative overflow-hidden"
             >
-              <span
-                className="text-konjo-mono shrink-0 text-xl leading-none"
-                style={{ color: ev.dotColor }}
-                aria-hidden
+              <Link
+                href={`/products/${ev.slug}`}
+                className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-konjo-surface/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-inset"
+                aria-label={`${ev.slug}: ${ev.message}`}
               >
-                {ev.glyph}
-              </span>
+                <span
+                  className="text-konjo-mono shrink-0 text-xl leading-none"
+                  style={{ color: ev.dotColor }}
+                  aria-hidden
+                >
+                  {ev.glyph}
+                </span>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="text-konjo-mono text-[11px] font-medium text-konjo-fg">
-                    {ev.slug}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <span className="text-konjo-mono text-[11px] font-medium text-konjo-fg">
+                      {ev.slug}
+                    </span>
+                    <span className={`text-konjo-mono text-xs tabular-nums ${ev.toneClass}`}>
+                      {ev.message}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-konjo-mono shrink-0 text-right">
+                  <span className="block text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+                    {ev.label}
                   </span>
-                  <span className={`text-konjo-mono text-xs tabular-nums ${ev.toneClass}`}>
-                    {ev.message}
+                  <span className="block text-[10px] text-konjo-fg-faint tabular-nums">
+                    {ev.age === 0 ? "now" : `${ev.age}s ago`}
                   </span>
                 </div>
-              </div>
 
-              <div className="text-konjo-mono shrink-0 text-right">
-                <span className="block text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-                  {ev.label}
+                <span
+                  className="text-konjo-mono shrink-0 text-[11px] text-konjo-fg-faint opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                >
+                  →
                 </span>
-                <span className="block text-[10px] text-konjo-fg-faint tabular-nums">
-                  {ev.age === 0 ? "now" : `${ev.age}s ago`}
-                </span>
-              </div>
+              </Link>
             </motion.li>
           ))}
         </AnimatePresence>
