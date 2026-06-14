@@ -1,10 +1,11 @@
-import { ProjectGrid } from "./_components/ProjectGrid";
 import { Hero } from "./_components/Hero";
 import { LiveTicker } from "./_components/LiveTicker";
 import { ConstellationMap } from "./_components/ConstellationMap";
 import { ActivityFeed } from "./_components/ActivityFeed";
 import { PhilosophySection } from "./_components/PhilosophySection";
+import { TerminalSection } from "./_components/TerminalSection";
 import { DesignPreview } from "./_components/DesignPreview";
+import { ProjectGrid } from "./_components/ProjectGrid";
 import { Footer } from "./_components/Footer";
 
 export default function HomePage() {
@@ -16,6 +17,7 @@ export default function HomePage() {
       <ConstellationMap />
       <ActivityFeed />
       <PhilosophySection />
+      <TerminalSection />
       <DesignPreview />
       <ProjectGrid />
       <Footer />

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, animate, useInView, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from "motion/react";
+import { motion, animate, useInView, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence } from "motion/react";
+import type { MotionValue } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
 
@@ -84,34 +85,51 @@ const STATS: Stat[] = [
   { display: "v0.2",              label: "current",    color: "text-konjo-warm"   },
 ];
 
-/** Positions, durations, and delays are fixed so SSR and client agree. */
+/** Positions, durations, delays, and parallax depths are fixed so SSR and client agree. */
 const GLYPH_CONFIG = [
-  { glyph: "◐", x: "6%",  top: "22%", dur: 3.8, delay: 0.0  },
-  { glyph: "◇", x: "89%", top: "14%", dur: 4.5, delay: 0.5  },
-  { glyph: "✸", x: "77%", top: "68%", dur: 4.2, delay: 0.9  },
-  { glyph: "▲", x: "12%", top: "74%", dur: 3.6, delay: 1.4  },
-  { glyph: "⬡", x: "48%", top: "88%", dur: 5.0, delay: 0.3  },
-  { glyph: "◈", x: "93%", top: "44%", dur: 4.0, delay: 1.0  },
+  { glyph: "◐", x: "6%",  top: "22%", dur: 3.8, delay: 0.0, depth: 1.4 },
+  { glyph: "◇", x: "89%", top: "14%", dur: 4.5, delay: 0.5, depth: 0.7 },
+  { glyph: "✸", x: "77%", top: "68%", dur: 4.2, delay: 0.9, depth: 1.1 },
+  { glyph: "▲", x: "12%", top: "74%", dur: 3.6, delay: 1.4, depth: 1.9 },
+  { glyph: "⬡", x: "48%", top: "88%", dur: 5.0, delay: 0.3, depth: 0.5 },
+  { glyph: "◈", x: "93%", top: "44%", dur: 4.0, delay: 1.0, depth: 1.6 },
 ] as const;
 
-/** Softly breathing product glyphs — constellation backdrop for the hero. */
-function FloatingGlyphs() {
+type GlyphCfg = (typeof GLYPH_CONFIG)[number];
+
+/** Single floating glyph: outer layer tracks mouse parallax, inner layer breathes. */
+function FloatingGlyph({
+  glyph, x, top, dur, delay, depth, normX, normY,
+}: GlyphCfg & { normX: MotionValue<number>; normY: MotionValue<number> }) {
+  const px = useTransform(normX, [-0.5, 0.5], [-depth * 14, depth * 14]);
+  const py = useTransform(normY, [-0.5, 0.5], [-depth * 9, depth * 9]);
+  const sx = useSpring(px, { stiffness: 45, damping: 22 });
+  const sy = useSpring(py, { stiffness: 45, damping: 22 });
+
+  return (
+    <motion.div className="pointer-events-none absolute" style={{ left: x, top, x: sx, y: sy }}>
+      <motion.span
+        className="block select-none text-2xl sm:text-3xl"
+        style={{ color: "var(--color-konjo-violet)" }}
+        initial={{ opacity: 0 }}
+        animate={{ y: [0, -14, 0], opacity: [0.07, 0.16, 0.07] }}
+        transition={{ duration: dur, delay, repeat: Infinity, ease: "easeInOut" }}
+      >
+        {glyph}
+      </motion.span>
+    </motion.div>
+  );
+}
+
+/** Softly breathing product glyphs — constellation backdrop with mouse parallax depth. */
+function FloatingGlyphs({ normX, normY }: { normX: MotionValue<number>; normY: MotionValue<number> }) {
   const reduce = useReducedMotion();
   if (reduce) return null;
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 select-none overflow-hidden">
-      {GLYPH_CONFIG.map(({ glyph, x, top, dur, delay }) => (
-        <motion.span
-          key={glyph}
-          className="absolute text-2xl sm:text-3xl"
-          style={{ left: x, top, color: "var(--color-konjo-violet)" }}
-          initial={{ opacity: 0 }}
-          animate={{ y: [0, -14, 0], opacity: [0.07, 0.16, 0.07] }}
-          transition={{ duration: dur, delay, repeat: Infinity, ease: "easeInOut" }}
-        >
-          {glyph}
-        </motion.span>
+      {GLYPH_CONFIG.map((cfg) => (
+        <FloatingGlyph key={cfg.glyph} {...cfg} normX={normX} normY={normY} />
       ))}
     </div>
   );
@@ -147,10 +165,14 @@ function AnimatedStat({ stat }: { stat: Stat }) {
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  // Pixel-space mouse position — drives the cursor glow (off-screen = -600)
   const mouseX = useMotionValue(-600);
   const mouseY = useMotionValue(-600);
   const glowX = useSpring(mouseX, { stiffness: 70, damping: 18 });
   const glowY = useSpring(mouseY, { stiffness: 70, damping: 18 });
+  // Normalized [-0.5, 0.5] — drives glyph parallax (0 = center = at rest)
+  const normX = useMotionValue(0);
+  const normY = useMotionValue(0);
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
     if (reduce) return;
@@ -158,11 +180,15 @@ export function Hero() {
     if (!rect) return;
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
+    normX.set((e.clientX - rect.left) / rect.width - 0.5);
+    normY.set((e.clientY - rect.top) / rect.height - 0.5);
   }
 
   function handleMouseLeave() {
     mouseX.set(-600);
     mouseY.set(-600);
+    normX.set(0);
+    normY.set(0);
   }
 
   return (
@@ -188,7 +214,7 @@ export function Hero() {
         />
       )}
 
-      <FloatingGlyphs />
+      <FloatingGlyphs normX={normX} normY={normY} />
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
