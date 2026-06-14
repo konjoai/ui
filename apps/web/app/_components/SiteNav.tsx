@@ -69,7 +69,7 @@ export function SiteNav() {
               type="button"
               onClick={openPalette}
               aria-label="Open command palette (⌘K)"
-              className="text-konjo-mono hidden items-center gap-1.5 rounded-konjo border border-konjo-line bg-konjo-surface/60 px-2.5 py-1.5 text-[11px] text-konjo-fg-faint transition-colors hover:border-konjo-line/80 hover:bg-konjo-surface hover:text-konjo-fg sm:inline-flex"
+              className="text-konjo-mono hidden items-center gap-1.5 rounded-konjo border border-konjo-line bg-konjo-surface/60 px-2.5 py-1.5 text-[11px] text-konjo-fg-faint transition-colors hover:border-konjo-line/80 hover:bg-konjo-surface hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 sm:inline-flex"
             >
               ⌘K
             </button>

@@ -121,7 +121,7 @@ export function DesignPreview() {
               id={`tab-${block.id}`}
               onClick={() => setActiveId(block.id)}
               className={cn(
-                "text-konjo-mono relative inline-flex items-center gap-2 rounded-konjo border px-3.5 py-2 text-xs transition-all duration-200",
+                "text-konjo-mono relative inline-flex items-center gap-2 rounded-konjo border px-3.5 py-2 text-xs transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1",
                 isActive
                   ? "border-konjo-brand/50 bg-konjo-brand/10 text-konjo-fg"
                   : "border-konjo-line/40 bg-konjo-surface/20 text-konjo-fg-muted hover:border-konjo-line hover:text-konjo-fg",

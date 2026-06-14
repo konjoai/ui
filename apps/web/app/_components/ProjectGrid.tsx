@@ -71,7 +71,7 @@ export function ProjectGrid() {
                 onClick={() => setFilter(value)}
                 aria-pressed={active}
                 className={cn(
-                  "text-konjo-mono inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] transition-all duration-200",
+                  "text-konjo-mono inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1",
                   active
                     ? "border-konjo-brand/40 bg-konjo-brand/10 text-konjo-fg"
                     : "border-konjo-line/50 bg-konjo-surface/30 text-konjo-fg-muted hover:border-konjo-line hover:text-konjo-fg",

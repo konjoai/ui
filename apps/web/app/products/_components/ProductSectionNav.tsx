@@ -73,7 +73,7 @@ export function ProductSectionNav() {
                     type="button"
                     onClick={() => scrollTo(id)}
                     aria-current={isActive ? "location" : undefined}
-                    className="group flex items-center gap-2.5 text-left"
+                    className="group flex items-center gap-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 rounded-sm"
                   >
                     <span
                       className={cn(

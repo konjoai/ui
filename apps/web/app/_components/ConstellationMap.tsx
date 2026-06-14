@@ -172,7 +172,7 @@ export function ConstellationMap() {
                 onMouseEnter={() => setActive(slug as SlugKey)}
                 onMouseLeave={() => setActive(null)}
               >
-                <a href={`/products/${slug}`} aria-label={`${product.name} — ${product.status}`}>
+                <a href={`/products/${slug}`} aria-label={`${product.name} — ${product.status}`} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-konjo-accent rounded-full">
                   {/* Outer glow ring when active */}
                   {isActive && (
                     <motion.circle
