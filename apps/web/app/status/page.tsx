@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { severity as sevColor } from "@konjoai/ui";
 import { Footer } from "@/app/_components/Footer";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
+import { ScrambleText } from "@/app/_components/ScrambleText";
 import { StatusDashboard } from "@/app/status/_components/StatusDashboard";
 import { RecentEvents } from "@/app/status/_components/RecentEvents";
 import { LastUpdated } from "@/app/status/_components/LastUpdated";
 import { ProductStatusList } from "@/app/status/_components/ProductStatusList";
 import { UptimeCalendar } from "@/app/status/_components/UptimeCalendar";
+import { AnimatedStatusStat } from "@/app/status/_components/AnimatedStatusStat";
 import { PRODUCTS } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -54,18 +56,21 @@ export default function StatusPage() {
             Portfolio health
           </p>
         </div>
-        <h1 className="text-konjo-display text-konjo-gradient text-5xl font-semibold tracking-tight sm:text-6xl">
-          {OVERALL_COPY[overall]}
-        </h1>
+        <ScrambleText
+          as="h1"
+          text={OVERALL_COPY[overall]}
+          className="text-konjo-display text-konjo-gradient text-5xl font-semibold tracking-tight sm:text-6xl"
+          delay={80}
+        />
         <p className="mt-4 max-w-2xl text-base text-konjo-fg-muted sm:text-lg">
           Live indicators for every KonjoAI product subdomain. Each entry links
           to the upstream repo for incident reports and changelog.
         </p>
 
         <dl className="text-konjo-mono mt-8 grid grid-cols-3 gap-3 text-xs sm:max-w-md">
-          <Stat label="Operational" value={operational} tone="good" />
-          <Stat label="Degraded" value={degraded} tone="warm" />
-          <Stat label="Research" value={research} tone="violet" />
+          <AnimatedStatusStat label="Operational" value={operational} tone="good" />
+          <AnimatedStatusStat label="Degraded" value={degraded} tone="warm" />
+          <AnimatedStatusStat label="Research" value={research} tone="violet" />
         </dl>
       </section>
 
@@ -90,27 +95,3 @@ export default function StatusPage() {
   );
 }
 
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: "good" | "warm" | "violet";
-}) {
-  const toneCls =
-    tone === "good"
-      ? "text-konjo-good"
-      : tone === "warm"
-        ? "text-konjo-warm"
-        : "text-konjo-violet";
-  return (
-    <div className="glass-konjo rounded-konjo p-3">
-      <p className="text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-        {label}
-      </p>
-      <p className={`mt-1 text-2xl font-semibold ${toneCls}`}>{value}</p>
-    </div>
-  );
-}
