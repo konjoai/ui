@@ -5,6 +5,51 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.3.0] — 2026-06-22
+
+### Added — Sprint 0.6: Portfolio Shell
+
+Five components extracted from the `apps/web` build-out. Each clears the
+shared-use bar — used by the marketing site and reusable across consumer
+dashboards — so they live in `@konjoai/ui` rather than the app.
+
+**`Nav`** — top navigation bar for the marketing site.
+- Brand wordmark + inline links + optional grouped product menu + right-side actions
+- Native `<details>`/`<summary>` for the product menu and mobile drawer — fully server-renderable, works without JavaScript (no `useState`, no `"use client"`)
+- `aria-label="Primary"` nav landmark; product and mobile menus expose labelled summaries
+- Responsive: inline links collapse into a mobile drawer below `sm`
+
+**`ProductHero`** — top-of-page header for every product page.
+- Oversized brand glyph, gradient title, tagline, optional version + status pills, and a CTA row
+- Server-renderable (no hooks); designed to sit inside the `aurora-konjo` shell so the background lights through
+- Consumers: every product page on konjo.ai
+
+**`FeatureCard`** — one tile in a 2–3 column feature grid.
+- Brand-accent glyph + optional eyebrow + title + description
+- Subtle hover lift with a violet top-edge glow, mirroring the homepage project card treatment
+- Server-renderable (no hooks)
+
+**`MetricCard`** — single-value stat card for any scalar metric.
+- Severity-tinted value, optional unit suffix, signed delta with arrow and context label
+- `kanjo` entrance animation, honoring `useReducedMotion()`
+- `role="status"` with a composed `aria-label` (label, value, delta)
+- Consumers: squash (compliance %), kairu (latency / tok/s), squish (TTFT), kyro (NDCG/MRR), vectro (recall@k), miru (attention)
+
+**`StatusBadge`** — small pill summarizing a service's health.
+- Five levels: operational / degraded / outage / research / checking
+- Optional last-checked timestamp (formatted UTC) and a pulsing dot for live checks
+- `role="status"` with a descriptive `aria-label`; pulse honors `prefers-reduced-motion` via CSS (`motion-reduce:animate-none`)
+- Consumers: the `/status` page and inline "live" indicators
+
+### Changed
+
+- `packages/ui/package.json`: version → 0.3.0
+- `src/components/index.ts`: all five components and their types exported
+- `src/App.tsx`: showcase status badge → v0.3.0, label → sprint 0.6
+- `packages/ui/CLAUDE.md`: File Map updated with the five components; version label → v0.3.0
+
+---
+
 ## [0.2.0] — 2026-05-19
 
 ### Added — Sprint 0.5: Design System Completion
