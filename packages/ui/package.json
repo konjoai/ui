@@ -1,6 +1,6 @@
 {
   "name": "@konjoai/ui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The Konjo design system — shared visual language for the KonjoAI portfolio (vectro, squish, kyro, miru, kohaku, kairu, toki, squash).",
   "private": true,
   "type": "module",

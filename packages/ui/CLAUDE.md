@@ -2,7 +2,7 @@
 
 The shared design system for the KonjoAI portfolio. Lives at `packages/ui/` in the `konjoai/ui` monorepo (alongside `apps/web/` — the konjo.ai homepage). Five primitives, three motion curves, one brand shell — consumed by `vectro`, `squish`, `kyro`, `miru`, `kohaku`, `kairu`, `toki`, `squash`.
 
-**v0.1.0** — Sprint 0 of the Konjo UI Initiative.
+**v0.3.0** — Sprint 0.6 of the Konjo UI Initiative.
 
 ## Stack
 React 19 · TypeScript ~6.0 · Vite 8 · Tailwind CSS v4 (`@theme` config) · motion (framer-motion successor) · Vitest 4
@@ -38,6 +38,15 @@ npm run typecheck    # tsc -b --noEmit
 | `src/components/TokenStream.tsx` | Streaming text with attention halos |
 | `src/components/StagePipeline.tsx` | Multi-step process as a flowing river |
 | `src/components/RiskRing.tsx` | Concentric arcs for nested risk |
+| `src/components/StatusMatrix.tsx` | Pass/fail/warn grid for compliance & quality |
+| `src/components/TimeSeriesChart.tsx` | Rolling sparkline for live metric streams |
+| `src/components/ComparisonBar.tsx` | Horizontal benchmark bars with baseline marker |
+| `src/components/RankList.tsx` | Scored, ranked list with relevance bars |
+| `src/components/MetricCard.tsx` | Single-value stat card with delta |
+| `src/components/Nav.tsx` | Marketing-site top navigation bar |
+| `src/components/ProductHero.tsx` | Product-page header — glyph, title, pills, CTAs |
+| `src/components/FeatureCard.tsx` | One tile in a feature grid |
+| `src/components/StatusBadge.tsx` | Health pill — operational / degraded / outage / … |
 | `src/components/KonjoApp.tsx` | Brand shell — wordmark, tagline, status, aurora |
 | `src/App.tsx` | Showcase demo wiring all components |
 

@@ -168,12 +168,12 @@ function App() {
     <KonjoApp
       product="ui"
       tagline="The Konjo design system — beauty, honesty, motion."
-      status={{ label: "v0.2.0", severity: "info" }}
+      status={{ label: "v0.3.0", severity: "info" }}
     >
       {/* Hero */}
       <section className="mb-14 text-center">
         <p className="text-konjo-mono uppercase tracking-[0.32em] text-konjo-accent" style={{ fontSize: 11 }}>
-          @konjoai/ui · sprint 0.5
+          @konjoai/ui · sprint 0.6
         </p>
         <h1
           className="text-konjo-display text-konjo-fg mt-4 mx-auto"
