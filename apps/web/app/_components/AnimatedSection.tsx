@@ -6,6 +6,8 @@ import { ease } from "@konjoai/ui";
 interface AnimatedSectionProps {
   children: React.ReactNode;
   className?: string;
+  /** HTML id for anchor / scroll-spy targets. */
+  id?: string;
   /** Extra entrance delay in seconds. */
   delay?: number;
   /** Render as a div instead of section — use when already inside a section. */
@@ -19,6 +21,7 @@ interface AnimatedSectionProps {
 export function AnimatedSection({
   children,
   className,
+  id,
   delay = 0,
   as = "section",
 }: AnimatedSectionProps) {
@@ -27,6 +30,7 @@ export function AnimatedSection({
 
   return (
     <Tag
+      id={id}
       initial={reduce ? { opacity: 1 } : { opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}

@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Nav, cn } from "@konjoai/ui";
-import { PRODUCT_NAV_GROUP } from "@/lib/products";
+import { PRODUCT_NAV_GROUP, PRODUCTS } from "@/lib/products";
+
+const ISSUE_COUNT = PRODUCTS.filter(
+  (p) => p.status === "degraded" || p.status === "outage",
+).length;
 
 /** Sticky nav — scroll-aware glow, ⌘K trigger, active-link underline from pathname. */
 export function SiteNav() {
@@ -50,14 +54,26 @@ export function SiteNav() {
           scrolled && "shadow-[0_4px_24px_-8px_rgba(124,58,237,0.28)]",
         )}
         actions={
-          <button
-            type="button"
-            onClick={openPalette}
-            aria-label="Open command palette (⌘K)"
-            className="text-konjo-mono hidden items-center gap-1.5 rounded-konjo border border-konjo-line bg-konjo-surface/60 px-2.5 py-1.5 text-[11px] text-konjo-fg-faint transition-colors hover:border-konjo-line/80 hover:bg-konjo-surface hover:text-konjo-fg sm:inline-flex"
-          >
-            ⌘K
-          </button>
+          <div className="flex items-center gap-2">
+            {ISSUE_COUNT > 0 && (
+              <a
+                href="/status"
+                aria-label={`${ISSUE_COUNT} system${ISSUE_COUNT > 1 ? "s" : ""} degraded — view status`}
+                className="text-konjo-mono inline-flex items-center gap-1.5 rounded-full border border-konjo-warm/40 bg-konjo-warm/10 px-2 py-1 text-[10px] text-konjo-warm transition-colors hover:bg-konjo-warm/20"
+              >
+                <span className="inline-block size-1.5 rounded-full bg-konjo-warm animate-pulse" aria-hidden />
+                {ISSUE_COUNT} degraded
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={openPalette}
+              aria-label="Open command palette (⌘K)"
+              className="text-konjo-mono hidden items-center gap-1.5 rounded-konjo border border-konjo-line bg-konjo-surface/60 px-2.5 py-1.5 text-[11px] text-konjo-fg-faint transition-colors hover:border-konjo-line/80 hover:bg-konjo-surface hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 sm:inline-flex"
+            >
+              ⌘K
+            </button>
+          </div>
         }
       />
     </>

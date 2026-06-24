@@ -1,0 +1,382 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion, useInView } from "motion/react";
+import { ease } from "@konjoai/ui";
+import { ScrambleText } from "./ScrambleText";
+
+type TermKind = "cmd" | "out" | "gap";
+
+type TermLine = {
+  kind: TermKind;
+  text: string;
+  pauseAfter?: number;
+  product?: string;
+  promptColor?: string;
+};
+
+type DisplayLine = TermLine & { chars: number };
+
+const PRODUCTS_ORDER = [
+  { slug: "squish", glyph: "◐", color: "var(--color-konjo-brand)"  },
+  { slug: "kyro",   glyph: "✸", color: "var(--color-konjo-accent)" },
+  { slug: "vectro", glyph: "◇", color: "var(--color-konjo-violet)" },
+  { slug: "kairu",  glyph: "▲", color: "var(--color-konjo-warm)"   },
+  { slug: "kohaku", glyph: "❖", color: "var(--color-konjo-good)"   },
+  { slug: "lopi",   glyph: "⌬", color: "var(--color-konjo-cool)"   },
+] as const;
+
+type ProductSlug = (typeof PRODUCTS_ORDER)[number]["slug"];
+
+const SCRIPT: TermLine[] = [
+  // squish
+  { kind: "cmd", product: "squish", promptColor: "var(--color-konjo-brand)",
+    text: "squish generate --model mlx-4 --stream",                pauseAfter: 420 },
+  { kind: "out", text: "  ▶  MLX path · 847 tok/s · p50 12ms · p99 28ms",     pauseAfter: 80  },
+  { kind: "out", text: '  "The attention mechanism enables arbitrary scale..."' },
+  { kind: "gap", text: "" },
+  // kyro
+  { kind: "cmd", product: "kyro", promptColor: "var(--color-konjo-accent)",
+    text: 'kyro search "attention is all you need" --top-k 5',      pauseAfter: 360 },
+  { kind: "out", text: "  ▶  5 chunks · confidence 0.94 · 18ms",               pauseAfter: 80  },
+  { kind: "out", text: "  [1] Vaswani 2017 §3.2  score 0.97" },
+  { kind: "gap", text: "" },
+  // vectro
+  { kind: "cmd", product: "vectro", promptColor: "var(--color-konjo-violet)",
+    text: "vectro compress vecs.npy --codec VQZ --ratio 4x",        pauseAfter: 360 },
+  { kind: "out", text: "  ▶  2048-dim → 512-dim · 12.4 MB → 3.1 MB · 99.2%", pauseAfter: 80  },
+  { kind: "out", text: "  Mojo SIMD backend · 2.4 s · fidelity preserved"       },
+  { kind: "gap", text: "" },
+  // kairu
+  { kind: "cmd", product: "kairu", promptColor: "var(--color-konjo-warm)",
+    text: "kairu bench --window 1h --slo p99=12ms",                 pauseAfter: 360 },
+  { kind: "out", text: "  ▶  p50 4.1ms · p95 8.7ms · p99 11.2ms  ✓ SLO met", pauseAfter: 80  },
+  { kind: "out", text: "  speculative accept 0.74 · draft 210 tok/s" },
+  { kind: "gap", text: "" },
+  // kohaku
+  { kind: "cmd", product: "kohaku", promptColor: "var(--color-konjo-good)",
+    text: 'kohaku recall --query "last week context" --k 3',        pauseAfter: 360 },
+  { kind: "out", text: "  ▶  3 memories · HDC recall 89% · decay 0.94",        pauseAfter: 80  },
+  { kind: "out", text: '  [1] "attention paper discussion"  sim 0.96' },
+  { kind: "gap", text: "" },
+  // lopi
+  { kind: "cmd", product: "lopi", promptColor: "var(--color-konjo-cool)",
+    text: "lopi run task.yaml --agents 4 --branch-per-task",        pauseAfter: 360 },
+  { kind: "out", text: "  ▶  4 agents spawned · branches: feat/task-{1..4}",   pauseAfter: 80  },
+  { kind: "out", text: "  success 94% · 3.2 tasks/min · SQLite persisted"       },
+];
+
+const SPEED = { normal: 36, fast: 10 } as const;
+type Speed = keyof typeof SPEED;
+const OUT_MS = 100;
+
+/** Applies inline color spans to terminal output for a richer ANSI-like appearance. */
+function ColoredOutput({ text }: { text: string }) {
+  const segments = text.split(/(▶|✓[^·\n]*|\[[^\]]+\]|"[^"]*"|\d+\.?\d*\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?))/g);
+  return (
+    <>
+      {segments.map((seg, i) => {
+        if (seg === "▶")                            return <span key={i} style={{ color: "var(--color-konjo-brand)" }}>{seg}</span>;
+        if (/^✓/.test(seg))                         return <span key={i} style={{ color: "var(--color-konjo-good)" }}>{seg}</span>;
+        if (/^\[[^\]]+\]$/.test(seg))               return <span key={i} style={{ color: "var(--color-konjo-violet)" }}>{seg}</span>;
+        if (/^"[^"]*"$/.test(seg))                  return <span key={i} style={{ color: "var(--color-konjo-warm)" }}>{seg}</span>;
+        if (/^\d+\.?\d*\s*(?:tok\/s|ms|MB|GB|dim|s|x|%|chunks?)/.test(seg))
+                                                    return <span key={i} style={{ color: "var(--color-konjo-accent)" }}>{seg}</span>;
+        return <span key={i}>{seg}</span>;
+      })}
+    </>
+  );
+}
+
+const CLI_FEATURES: { icon: string; title: string; desc: string }[] = [
+  { icon: "→", title: "Streaming",   desc: "Token-by-token output with backpressure. Pipe anywhere." },
+  { icon: "◈", title: "Composable",  desc: "Unix-style. Chain squish | kyro | vectro in one step."  },
+  { icon: "◐", title: "Metrics",     desc: "Every command reports throughput, latency, and memory."  },
+  { icon: "◇", title: "Auth-aware",  desc: "konjo-auth handles keys, scopes, and rotation."          },
+];
+
+/** Animated CLI showcase — types out six product commands in sequence. */
+export function TerminalSection() {
+  const reduce = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
+  const [lines, setLines] = useState<DisplayLine[]>([]);
+  const [replayCount, setReplayCount] = useState(0);
+  const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
+  const [speed, setSpeed] = useState<Speed>("normal");
+  const [activeProduct, setActiveProduct] = useState<ProductSlug | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runRef = useRef(0);
+  const speedRef = useRef<Speed>("normal");
+
+  useEffect(() => { speedRef.current = speed; }, [speed]);
+
+  const copyCmd = useCallback((text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedCmd(text);
+      document.dispatchEvent(new CustomEvent("konjo:toast", {
+        detail: { message: "Command copied to clipboard", tone: "success" },
+      }));
+      setTimeout(() => setCopiedCmd(null), 2000);
+    }).catch(() => {/* clipboard blocked */});
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return;
+
+    if (reduce) {
+      setLines(SCRIPT.map((l) => ({ ...l, chars: l.text.length })));
+      const lastCmd = [...SCRIPT].reverse().find((l) => l.kind === "cmd");
+      if (lastCmd?.product) setActiveProduct(lastCmd.product as ProductSlug);
+      return;
+    }
+
+    const run = ++runRef.current;
+    setLines([]);
+    setActiveProduct(null);
+
+    function clear() { if (timerRef.current) clearTimeout(timerRef.current); }
+
+    function schedule(fn: () => void, ms: number) {
+      clear();
+      timerRef.current = setTimeout(() => { if (runRef.current === run) fn(); }, ms);
+    }
+
+    function step(lineIdx: number, charIdx: number): void {
+      if (lineIdx >= SCRIPT.length) return;
+      const line = SCRIPT[lineIdx];
+      const charMs = SPEED[speedRef.current];
+
+      if (line.kind === "cmd") {
+        if (charIdx === 0) {
+          if (line.product) setActiveProduct(line.product as ProductSlug);
+          setLines((prev) => [...prev, { ...line, chars: 0 }]);
+          schedule(() => step(lineIdx, 1), line.pauseAfter ?? 0);
+        } else if (charIdx <= line.text.length) {
+          setLines((prev) => {
+            const next = [...prev];
+            next[next.length - 1] = { ...next[next.length - 1], chars: charIdx };
+            return next;
+          });
+          schedule(() => step(lineIdx, charIdx + 1), charMs);
+        } else {
+          step(lineIdx + 1, 0);
+        }
+      } else {
+        schedule(() => {
+          setLines((prev) => [...prev, { ...line, chars: line.text.length }]);
+          schedule(() => step(lineIdx + 1, 0), line.pauseAfter ?? OUT_MS);
+        }, OUT_MS);
+      }
+    }
+
+    schedule(() => step(0, 0), replayCount === 0 ? 600 : 120);
+
+    return () => { clear(); ++runRef.current; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, reduce, replayCount]);
+
+  const lastLine = lines[lines.length - 1];
+  const isTypingCmd = lastLine?.kind === "cmd" && lastLine.chars < lastLine.text.length;
+  const cursorColor = activeProduct
+    ? (PRODUCTS_ORDER.find((p) => p.slug === activeProduct)?.color ?? "var(--color-konjo-brand)")
+    : "var(--color-konjo-brand)";
+
+  const activeIdx = activeProduct ? PRODUCTS_ORDER.findIndex((p) => p.slug === activeProduct) : -1;
+
+  return (
+    <section
+      id="terminal"
+      ref={sectionRef}
+      aria-label="Product CLI showcase"
+      className="mx-auto max-w-6xl px-6 pb-24"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.55, ease: ease.kanjo }}
+        className="mb-8"
+      >
+        <p className="text-konjo-mono mb-3 text-xs uppercase tracking-[0.24em] text-konjo-accent">
+          konjo-cli · open-source toolchain
+        </p>
+        <ScrambleText
+          as="h2"
+          text="Ship from the terminal"
+          className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl"
+          delay={120}
+        />
+        <p className="mt-2 max-w-xl text-sm text-konjo-fg-muted">
+          Every product ships a first-class CLI. Inference, retrieval,
+          compression — composable and scriptable.
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
+        {/* Terminal window */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: ease.kanjo, delay: 0.1 }}
+          className="glass-konjo rounded-konjo-xl overflow-hidden border border-konjo-line/50"
+        >
+          {/* Title bar */}
+          <div className="flex items-center gap-2 border-b border-konjo-line/40 bg-konjo-surface/60 px-4 py-3">
+            <span className="size-3 rounded-full" style={{ background: "#ff5f57" }} aria-hidden />
+            <span className="size-3 rounded-full" style={{ background: "#febc2e" }} aria-hidden />
+            <span className="size-3 rounded-full" style={{ background: "#28c840" }} aria-hidden />
+            <span className="text-konjo-mono ml-2 flex-1 text-center text-[11px] text-konjo-fg-faint">
+              konjo — bash
+            </span>
+            {/* Speed toggle */}
+            <div
+              role="group"
+              aria-label="Animation speed"
+              className="flex items-center gap-0.5 rounded border border-konjo-line/40 p-0.5"
+            >
+              {(["normal", "fast"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpeed(s)}
+                  aria-pressed={speed === s}
+                  className="text-konjo-mono rounded px-1.5 py-0.5 text-[9px] uppercase tracking-widest transition-colors"
+                  style={speed === s ? {
+                    background: "color-mix(in oklch, var(--color-konjo-brand) 20%, transparent)",
+                    color: "var(--color-konjo-brand-soft)",
+                  } : { color: "var(--color-konjo-fg-faint)" }}
+                >
+                  {s === "fast" ? "⚡" : "1×"}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setReplayCount((n) => n + 1)}
+              aria-label="Replay terminal demo"
+              className="text-konjo-mono flex items-center gap-1 rounded border border-konjo-line/40 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-konjo-fg-faint transition-colors hover:border-konjo-line hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+            >
+              <span aria-hidden>↺</span> replay
+            </button>
+          </div>
+
+          {/* Product progress strip */}
+          <div
+            className="flex items-center gap-1 border-b border-konjo-line/30 bg-konjo-bg/40 px-3 py-1.5"
+            role="status"
+            aria-label="CLI demo progress"
+          >
+            {PRODUCTS_ORDER.map(({ slug, glyph, color }, idx) => {
+              const isActive = activeProduct === slug;
+              const isDone   = activeIdx > idx;
+              return (
+                <div
+                  key={slug}
+                  className="text-konjo-mono flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] transition-all duration-300"
+                  style={{
+                    background: isActive
+                      ? `color-mix(in oklch, ${color} 18%, transparent)`
+                      : "transparent",
+                    color: isActive ? color : isDone ? "var(--color-konjo-fg-muted)" : "var(--color-konjo-fg-faint)",
+                  }}
+                  aria-current={isActive ? "step" : undefined}
+                >
+                  <span aria-hidden>{glyph}</span>
+                  <span className="hidden sm:inline">{slug}</span>
+                  {isDone && (
+                    <span aria-hidden style={{ color: "var(--color-konjo-good)" }}>✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Terminal body */}
+          <div
+            className="text-konjo-mono min-h-[300px] px-5 py-4 text-[13px] leading-6"
+            aria-live="polite"
+            aria-atomic="false"
+            aria-label="CLI output"
+          >
+            {lines.map((line, i) =>
+              line.kind === "cmd" ? (
+                <div key={i} className="group/line relative flex items-start justify-between gap-2">
+                  <p className="flex-1">
+                    <span style={{ color: line.promptColor ?? "var(--color-konjo-brand)" }}>❯ </span>
+                    <span className="text-konjo-fg">{line.text.slice(0, line.chars)}</span>
+                    {line.chars < line.text.length && (
+                      <span
+                        className="konjo-pulse ml-px inline-block h-[0.9em] w-[1.5px] -mb-[1px] align-middle rounded-[1px]"
+                        style={{ background: line.promptColor ?? "var(--color-konjo-brand)" }}
+                        aria-hidden
+                      />
+                    )}
+                  </p>
+                  {line.chars === line.text.length && (
+                    <AnimatePresence>
+                      <motion.button
+                        key="copy"
+                        type="button"
+                        onClick={() => copyCmd(line.text)}
+                        aria-label={`Copy command: ${line.text}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="shrink-0 rounded border border-konjo-line/30 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-konjo-fg-faint opacity-0 transition-all group-hover/line:opacity-100 hover:border-konjo-brand/40 hover:text-konjo-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+                      >
+                        {copiedCmd === line.text ? "✓" : "copy"}
+                      </motion.button>
+                    </AnimatePresence>
+                  )}
+                </div>
+              ) : line.kind === "gap" ? (
+                <div key={i} className="h-2" />
+              ) : (
+                <p key={i} className="text-konjo-fg-muted">
+                  <ColoredOutput text={line.text} />
+                </p>
+              )
+            )}
+            {!isTypingCmd && (
+              <p>
+                <span style={{ color: cursorColor }}>❯ </span>
+                <span
+                  className="konjo-pulse inline-block h-[0.9em] w-[1.5px] -mb-[1px] align-middle rounded-[1px]"
+                  style={{ background: cursorColor }}
+                  aria-hidden
+                />
+              </p>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Feature list */}
+        <ul role="list" className="flex flex-col gap-3 self-start">
+          {CLI_FEATURES.map(({ icon, title, desc }, i) => (
+            <motion.li
+              key={title}
+              initial={{ opacity: 0, x: 10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, ease: ease.kanjo, delay: 0.2 + i * 0.07 }}
+              className="glass-konjo rounded-konjo p-4 text-sm"
+            >
+              <div className="mb-1 flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="text-konjo-mono font-semibold"
+                  style={{ color: "var(--color-konjo-brand-soft)" }}
+                >
+                  {icon}
+                </span>
+                <span className="font-medium text-konjo-fg">{title}</span>
+              </div>
+              <p className="text-konjo-fg-muted leading-relaxed">{desc}</p>
+            </motion.li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}

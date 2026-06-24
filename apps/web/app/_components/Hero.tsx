@@ -1,8 +1,82 @@
 "use client";
 
-import { motion, animate, useInView, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from "motion/react";
+import { motion, animate, useInView, useMotionValue, useSpring, useTransform, useReducedMotion, useScroll, AnimatePresence } from "motion/react";
+import type { MotionValue, HTMLMotionProps } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 import { ease } from "@konjoai/ui";
+import { HeroParticles } from "./HeroParticles";
+import { OnlineCount } from "./OnlineCount";
+
+const PHRASES = [
+  "High-performance AI infrastructure, built in the Konjo way.",
+  "Nine products. One design system. Zero compromises.",
+  "Open-source. Benchmarked. Shipped with 根性.",
+  "Speed. Memory. Vision. Safety. One constellation.",
+];
+
+/**
+ * Cycles through PHRASES with a typing/deleting animation and a blinking cursor.
+ * Starts fully typed (SSR-safe) then enters the delete→type loop after 2.2 s.
+ */
+function Typewriter() {
+  const reduce = useReducedMotion();
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(PHRASES[0].length);
+  const [deleting, setDeleting] = useState(false);
+  const [displayed, setDisplayed] = useState(PHRASES[0]);
+  const [cursorOn, setCursorOn] = useState(true);
+
+  useEffect(() => {
+    if (reduce) return;
+    const phrase = PHRASES[phraseIdx];
+
+    if (!deleting && charIdx < phrase.length) {
+      const id = setTimeout(() => {
+        setCharIdx((c) => c + 1);
+        setDisplayed(phrase.slice(0, charIdx + 1));
+      }, 38);
+      return () => clearTimeout(id);
+    }
+    if (!deleting && charIdx === phrase.length) {
+      const id = setTimeout(() => setDeleting(true), 2400);
+      return () => clearTimeout(id);
+    }
+    if (deleting && charIdx > 0) {
+      const id = setTimeout(() => {
+        setCharIdx((c) => c - 1);
+        setDisplayed(phrase.slice(0, charIdx - 1));
+      }, 20);
+      return () => clearTimeout(id);
+    }
+    if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setPhraseIdx((i) => (i + 1) % PHRASES.length);
+    }
+  }, [charIdx, deleting, phraseIdx, reduce]);
+
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => setCursorOn((v) => !v), 530);
+    return () => clearInterval(id);
+  }, [reduce]);
+
+  if (reduce) return <span>{PHRASES[0]}</span>;
+
+  return (
+    <span>
+      {displayed}
+      <span
+        aria-hidden
+        className="ml-0.5 inline-block h-[1em] w-[2px] -mb-[2px] align-middle rounded-sm"
+        style={{
+          background: "var(--color-konjo-brand)",
+          opacity: cursorOn ? 1 : 0,
+          transition: "opacity 0.1s",
+        }}
+      />
+    </span>
+  );
+}
 
 type Stat = { display: string; label: string; color: string; countTo?: number };
 
@@ -13,36 +87,87 @@ const STATS: Stat[] = [
   { display: "v0.2",              label: "current",    color: "text-konjo-warm"   },
 ];
 
-/** Positions, durations, and delays are fixed so SSR and client agree. */
+/** Positions, durations, delays, and parallax depths are fixed so SSR and client agree. */
 const GLYPH_CONFIG = [
-  { glyph: "◐", x: "6%",  top: "22%", dur: 3.8, delay: 0.0  },
-  { glyph: "◇", x: "89%", top: "14%", dur: 4.5, delay: 0.5  },
-  { glyph: "✸", x: "77%", top: "68%", dur: 4.2, delay: 0.9  },
-  { glyph: "▲", x: "12%", top: "74%", dur: 3.6, delay: 1.4  },
-  { glyph: "⬡", x: "48%", top: "88%", dur: 5.0, delay: 0.3  },
-  { glyph: "◈", x: "93%", top: "44%", dur: 4.0, delay: 1.0  },
+  { glyph: "◐", x: "6%",  top: "22%", dur: 3.8, delay: 0.0, depth: 1.4 },
+  { glyph: "◇", x: "89%", top: "14%", dur: 4.5, delay: 0.5, depth: 0.7 },
+  { glyph: "✸", x: "77%", top: "68%", dur: 4.2, delay: 0.9, depth: 1.1 },
+  { glyph: "▲", x: "12%", top: "74%", dur: 3.6, delay: 1.4, depth: 1.9 },
+  { glyph: "⬡", x: "48%", top: "88%", dur: 5.0, delay: 0.3, depth: 0.5 },
+  { glyph: "◈", x: "93%", top: "44%", dur: 4.0, delay: 1.0, depth: 1.6 },
 ] as const;
 
-/** Softly breathing product glyphs — constellation backdrop for the hero. */
-function FloatingGlyphs() {
+type GlyphCfg = (typeof GLYPH_CONFIG)[number];
+
+/** Single floating glyph: outer layer tracks mouse parallax, inner layer breathes. */
+function FloatingGlyph({
+  glyph, x, top, dur, delay, depth, normX, normY,
+}: GlyphCfg & { normX: MotionValue<number>; normY: MotionValue<number> }) {
+  const px = useTransform(normX, [-0.5, 0.5], [-depth * 14, depth * 14]);
+  const py = useTransform(normY, [-0.5, 0.5], [-depth * 9, depth * 9]);
+  const sx = useSpring(px, { stiffness: 45, damping: 22 });
+  const sy = useSpring(py, { stiffness: 45, damping: 22 });
+
+  return (
+    <motion.div className="pointer-events-none absolute" style={{ left: x, top, x: sx, y: sy }}>
+      <motion.span
+        className="block select-none text-2xl sm:text-3xl"
+        style={{ color: "var(--color-konjo-violet)" }}
+        initial={{ opacity: 0 }}
+        animate={{ y: [0, -14, 0], opacity: [0.07, 0.16, 0.07] }}
+        transition={{ duration: dur, delay, repeat: Infinity, ease: "easeInOut" }}
+      >
+        {glyph}
+      </motion.span>
+    </motion.div>
+  );
+}
+
+/** Softly breathing product glyphs — constellation backdrop with mouse parallax depth. */
+function FloatingGlyphs({ normX, normY }: { normX: MotionValue<number>; normY: MotionValue<number> }) {
   const reduce = useReducedMotion();
   if (reduce) return null;
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 select-none overflow-hidden">
-      {GLYPH_CONFIG.map(({ glyph, x, top, dur, delay }) => (
-        <motion.span
-          key={glyph}
-          className="absolute text-2xl sm:text-3xl"
-          style={{ left: x, top, color: "var(--color-konjo-violet)" }}
-          initial={{ opacity: 0 }}
-          animate={{ y: [0, -14, 0], opacity: [0.07, 0.16, 0.07] }}
-          transition={{ duration: dur, delay, repeat: Infinity, ease: "easeInOut" }}
-        >
-          {glyph}
-        </motion.span>
+      {GLYPH_CONFIG.map((cfg) => (
+        <FloatingGlyph key={cfg.glyph} {...cfg} normX={normX} normY={normY} />
       ))}
     </div>
+  );
+}
+
+type MagneticButtonProps = HTMLMotionProps<"a"> & { children: React.ReactNode };
+
+/** Anchor that subtly drifts toward the cursor — premium magnetic CTA feel. */
+function MagneticButton({ children, ...props }: MagneticButtonProps) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const reduce = useReducedMotion();
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const x = useSpring(rawX, { stiffness: 250, damping: 22 });
+  const y = useSpring(rawY, { stiffness: 250, damping: 22 });
+
+  function onMove(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (reduce) return;
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    rawX.set((e.clientX - rect.left - rect.width / 2) * 0.28);
+    rawY.set((e.clientY - rect.top - rect.height / 2) * 0.28);
+  }
+
+  function onLeave() { rawX.set(0); rawY.set(0); }
+
+  return (
+    <motion.a
+      ref={ref}
+      style={{ x, y }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      {...props}
+    >
+      {children}
+    </motion.a>
   );
 }
 
@@ -76,10 +201,17 @@ function AnimatedStat({ stat }: { stat: Stat }) {
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  // Scroll-based parallax — content rises slightly faster than the page scrolls
+  const { scrollY } = useScroll();
+  const contentY = useTransform(scrollY, [0, 500], [0, reduce ? 0 : -60]);
+  // Pixel-space mouse position — drives the cursor glow (off-screen = -600)
   const mouseX = useMotionValue(-600);
   const mouseY = useMotionValue(-600);
   const glowX = useSpring(mouseX, { stiffness: 70, damping: 18 });
   const glowY = useSpring(mouseY, { stiffness: 70, damping: 18 });
+  // Normalized [-0.5, 0.5] — drives glyph parallax (0 = center = at rest)
+  const normX = useMotionValue(0);
+  const normY = useMotionValue(0);
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
     if (reduce) return;
@@ -87,15 +219,20 @@ export function Hero() {
     if (!rect) return;
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
+    normX.set((e.clientX - rect.left) / rect.width - 0.5);
+    normY.set((e.clientY - rect.top) / rect.height - 0.5);
   }
 
   function handleMouseLeave() {
     mouseX.set(-600);
     mouseY.set(-600);
+    normX.set(0);
+    normY.set(0);
   }
 
   return (
     <section
+      id="hero"
       ref={sectionRef}
       className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28"
       onMouseMove={handleMouseMove}
@@ -117,7 +254,11 @@ export function Hero() {
         />
       )}
 
-      <FloatingGlyphs />
+      <HeroParticles />
+      <FloatingGlyphs normX={normX} normY={normY} />
+
+      {/* Scroll parallax wrapper — content rises slightly faster than the page scrolls */}
+      <motion.div style={{ y: contentY }} className="flex w-full flex-col items-center">
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -131,6 +272,8 @@ export function Hero() {
           aria-hidden
         />
         <span className="text-konjo-mono">v0.2 · Sprint 0.5 of the Konjo UI Initiative</span>
+        <span className="text-konjo-line mx-1" aria-hidden>·</span>
+        <OnlineCount />
       </motion.div>
 
       <motion.h1
@@ -147,9 +290,9 @@ export function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: ease.kanjo, delay: 0.15 }}
         className="mt-6 max-w-2xl text-balance text-lg text-konjo-fg-muted sm:text-xl"
+        aria-label="KonjoAI tagline"
       >
-        High-performance AI infrastructure, built in the{" "}
-        <span className="text-konjo-fg">Konjo</span> way.
+        <Typewriter />
       </motion.p>
 
       <motion.p
@@ -167,21 +310,21 @@ export function Hero() {
         transition={{ duration: 0.6, ease: ease.kanjo, delay: 0.4 }}
         className="mt-10 flex flex-wrap items-center justify-center gap-3"
       >
-        <a
+        <MagneticButton
           href="#projects"
-          className="shadow-konjo-brand rounded-konjo-lg px-6 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
+          className="shadow-konjo-brand rounded-konjo-lg px-6 py-3 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
           style={{ background: "var(--color-konjo-brand)" }}
         >
           Explore the constellation
-        </a>
-        <a
+        </MagneticButton>
+        <MagneticButton
           href="https://github.com/konjoai"
           target="_blank"
           rel="noreferrer"
           className="rounded-konjo-lg border border-konjo-line bg-konjo-surface/60 px-6 py-3 text-sm font-medium text-konjo-fg backdrop-blur transition-colors hover:border-konjo-line/0 hover:bg-konjo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent"
         >
           GitHub →
-        </a>
+        </MagneticButton>
       </motion.div>
 
       <motion.dl
@@ -197,6 +340,7 @@ export function Hero() {
       </motion.dl>
 
       <ScrollHint />
+      </motion.div>{/* end scroll parallax wrapper */}
     </section>
   );
 }

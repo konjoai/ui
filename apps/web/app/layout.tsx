@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { SiteNav } from "./_components/SiteNav";
 import { ScrollProgressBar } from "./_components/ScrollProgressBar";
 import { CommandPalette } from "./_components/CommandPalette";
+import { FloatingDock } from "./_components/FloatingDock";
+import { KeyboardHelp } from "./_components/KeyboardHelp";
+import { ToastProvider } from "./_components/ToastProvider";
+import { CursorGlow } from "./_components/CursorGlow";
+import { Grain } from "./_components/Grain";
+import { PageTitleEffect } from "./_components/PageTitleEffect";
+import { SectionDots } from "./_components/SectionDots";
+import { StatusRibbon } from "./_components/StatusRibbon";
+import { KonamiKonjo } from "./_components/KonamiKonjo";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,9 +43,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <CursorGlow />
+        <Grain />
+        <PageTitleEffect />
         <ScrollProgressBar />
         <CommandPalette />
+        <KeyboardHelp />
+        <ToastProvider />
+        <FloatingDock />
+        <SectionDots />
         <SiteNav />
+        <StatusRibbon />
+        <KonamiKonjo />
         <div id="main-content">{children}</div>
       </body>
     </html>

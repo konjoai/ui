@@ -1,13 +1,75 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
-import { ease, StatusBadge, severity as sevColor } from "@konjoai/ui";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from "motion/react";
+import { ease, StatusBadge, severity as sevColor, cn } from "@konjoai/ui";
 import { PRODUCTS, type Product } from "@/lib/products";
+import { ScrambleText } from "./ScrambleText";
+import { AnimatedMiniSparkline } from "./AnimatedMiniSparkline";
 
-/** Portfolio grid — nine animated product cards with 3-D tilt on hover. */
+type StatusFilter = "all" | "operational" | "degraded" | "research";
+
+const FILTER_OPTS: { label: string; value: StatusFilter }[] = [
+  { label: "All",         value: "all"         },
+  { label: "Operational", value: "operational" },
+  { label: "Degraded",    value: "degraded"    },
+  { label: "Research",    value: "research"    },
+];
+
+const STATUS_DOT: Record<StatusFilter, string> = {
+  all:         "var(--color-konjo-accent)",
+  operational: "var(--color-konjo-good)",
+  degraded:    "var(--color-konjo-warm)",
+  research:    "var(--color-konjo-violet)",
+};
+
+type ViewMode = "grid" | "table";
+
+/** Portfolio grid — nine animated product cards with 3-D tilt, status filter, and text search. */
 export function ProjectGrid() {
+  const [filter, setFilter] = useState<StatusFilter>("all");
+  const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement).tagName;
+      const inInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+      // / → focus search
+      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey && !inInput) {
+        e.preventDefault();
+        searchRef.current?.focus();
+        return;
+      }
+
+      // 1-9 → navigate to product by index (only when not in an input)
+      if (!inInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const num = parseInt(e.key, 10);
+        if (num >= 1 && num <= 9 && PRODUCTS[num - 1]) {
+          e.preventDefault();
+          router.push(`/products/${PRODUCTS[num - 1].slug}`);
+        }
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [router]);
+
+  const filtered = PRODUCTS.filter((p) => {
+    const matchStatus = filter === "all" || p.status === filter;
+    const q = search.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      p.tagline.toLowerCase().includes(q);
+    return matchStatus && matchSearch;
+  });
+
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 pb-24">
       <motion.div
@@ -15,27 +77,168 @@ export function ProjectGrid() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.55, ease: ease.kanjo }}
-        className="mb-10 flex items-end justify-between gap-6"
+        className="mb-8 flex flex-wrap items-end justify-between gap-6"
       >
         <div>
-          <h2 className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            The portfolio
-          </h2>
+          <ScrambleText
+            as="h2"
+            text="The portfolio"
+            className="text-konjo-display text-3xl font-semibold tracking-tight sm:text-4xl"
+            delay={100}
+          />
           <p className="text-konjo-mono mt-2 text-sm text-konjo-fg-muted">
-            Nine projects · one design system · one Konjo
+            <span
+              className="tabular-nums"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={`Showing ${filtered.length} of ${PRODUCTS.length} projects`}
+            >
+              {String(filtered.length).padStart(2, "0")}&thinsp;/&thinsp;{String(PRODUCTS.length).padStart(2, "0")}
+            </span>
+            {" "}projects · one design system · one Konjo
           </p>
         </div>
-        <div className="text-konjo-mono hidden text-xs text-konjo-fg-faint sm:block">
-          {PRODUCTS.length.toString().padStart(2, "0")} / {PRODUCTS.length.toString().padStart(2, "0")}
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.2, ease: ease.kanjo }}
+          className="flex flex-wrap items-center gap-2"
+        >
+          {/* View mode toggle */}
+          <div
+            className="flex items-center gap-0.5 rounded-konjo border border-konjo-line/50 bg-konjo-surface/30 p-0.5"
+            role="group"
+            aria-label="Switch between grid and table view"
+          >
+            {(["grid", "table"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setViewMode(mode)}
+                aria-pressed={viewMode === mode}
+                className={cn(
+                  "text-konjo-mono rounded px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent",
+                  viewMode === mode
+                    ? "bg-konjo-brand/15 text-konjo-fg"
+                    : "text-konjo-fg-faint hover:text-konjo-fg",
+                )}
+                aria-label={mode === "grid" ? "Grid view" : "Table view"}
+              >
+                {mode === "grid" ? "⊞" : "☰"}
+              </button>
+            ))}
+          </div>
+
+          {/* Text search */}
+          <input
+            ref={searchRef}
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search… /"
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="Search products by name or description (press / to focus)"
+            className="text-konjo-mono w-28 rounded-full border border-konjo-line/50 bg-konjo-surface/30 px-3 py-1 text-[11px] text-konjo-fg placeholder:text-konjo-fg-faint transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1 focus-visible:w-40 focus-visible:border-konjo-brand/40"
+          />
+
+          {/* Status filter */}
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by status">
+          {FILTER_OPTS.map(({ label, value }) => {
+            const count = value === "all" ? PRODUCTS.length : PRODUCTS.filter((p) => p.status === value).length;
+            const active = filter === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setFilter(value)}
+                aria-pressed={active}
+                className={cn(
+                  "text-konjo-mono inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-konjo-accent focus-visible:ring-offset-1",
+                  active
+                    ? "border-konjo-brand/40 bg-konjo-brand/10 text-konjo-fg"
+                    : "border-konjo-line/50 bg-konjo-surface/30 text-konjo-fg-muted hover:border-konjo-line hover:text-konjo-fg",
+                )}
+              >
+                <span
+                  className="inline-block size-1.5 rounded-full"
+                  style={{ background: STATUS_DOT[value] }}
+                  aria-hidden
+                />
+                {label}
+                <span className="tabular-nums text-konjo-fg-faint">{String(count).padStart(2, "0")}</span>
+              </button>
+            );
+          })}
+          </div>
+        </motion.div>
       </motion.div>
 
-      <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {PRODUCTS.map((p, i) => (
-          <ProjectCard key={p.slug} project={p} index={i} />
-        ))}
-      </ul>
+      {filtered.length === 0 && (
+        <p className="text-konjo-mono py-16 text-center text-sm text-konjo-fg-faint">
+          No products match <span className="text-konjo-fg">&ldquo;{search}&rdquo;</span>
+        </p>
+      )}
+
+      <AnimatePresence mode="wait" initial={false}>
+        {viewMode === "grid" ? (
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <GridSpotlight>
+              {filtered.map((p, i) => (
+                <ProjectCard key={p.slug} project={p} index={i} />
+              ))}
+            </GridSpotlight>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="table"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ProductTable products={filtered} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
+  );
+}
+
+/**
+ * Wraps the product grid with hover-spotlight behaviour: hovering any child
+ * dims the rest to 0.35 opacity, restoring to 1 on mouse leave.
+ */
+function GridSpotlight({ children }: { children: React.ReactNode }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <ul
+      role="list"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      data-hovered={hovered ? "true" : undefined}
+    >
+      <AnimatePresence mode="popLayout">{children}</AnimatePresence>
+      {/* Spotlight: when grid is hovered, darken all but the card being hovered */}
+      <style>{`
+        [data-hovered="true"] > li:not(:hover) {
+          opacity: 0.45;
+          transition: opacity 0.25s;
+        }
+        [data-hovered="true"] > li:hover {
+          opacity: 1;
+          transition: opacity 0.15s;
+        }
+      `}</style>
+    </ul>
   );
 }
 
@@ -44,6 +247,7 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
   const reduce = useReducedMotion();
   const cardRef = useRef<HTMLLIElement>(null);
   const spotRef = useRef<HTMLDivElement>(null);
+  const [cardHovered, setCardHovered] = useState(false);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
   const rotateX = useSpring(rawX, { stiffness: 300, damping: 25 });
@@ -73,27 +277,30 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
   function handleMouseLeave() {
     rawX.set(0);
     rawY.set(0);
+    setCardHovered(false);
   }
 
   return (
     <motion.li
       ref={cardRef}
+      layout
       initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18 } }}
       whileHover={reduce ? undefined : {
         y: -4,
-        boxShadow: "0 0 0 1px rgba(124,58,237,0.35), 0 0 40px -6px rgba(124,58,237,0.18)",
+        boxShadow: `0 0 0 1px color-mix(in oklch, ${metricColor} 35%, transparent), 0 0 40px -6px color-mix(in oklch, ${metricColor} 18%, transparent)`,
         transition: { duration: 0.2, ease: ease.nehan },
       }}
-      viewport={{ once: true, margin: "-60px" }}
       transition={{
-        duration: 0.45,
+        duration: 0.38,
         ease: ease.kanjo,
-        delay: Math.min(index * 0.04, 0.32),
+        delay: Math.min(index * 0.04, 0.24),
       }}
       style={{ rotateX, rotateY, transformPerspective: 800 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setCardHovered(true)}
       className="group glass-konjo rounded-konjo-lg relative overflow-hidden p-6 transition-colors duration-300"
     >
       {/* Mouse-following spotlight overlay */}
@@ -104,12 +311,11 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         />
       )}
-      {/* Top shimmer on hover */}
+      {/* Top shimmer on hover — product-specific color */}
       <div
         className="pointer-events-none absolute inset-x-0 -top-px h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background:
-            "linear-gradient(90deg, transparent, var(--color-konjo-brand), transparent)",
+          background: `linear-gradient(90deg, transparent, ${metricColor}, transparent)`,
         }}
         aria-hidden
       />
@@ -145,19 +351,35 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
 
       {/* Headline metric */}
       <div
-        className="mt-4 flex items-baseline gap-1.5"
+        className="mt-4 flex items-center gap-2"
         aria-label={`${project.metric.label}: ${metricDisplay}${project.metric.unit}`}
       >
-        <span
-          className="text-konjo-display text-2xl font-semibold tabular-nums leading-none"
-          style={{ color: metricColor }}
-        >
-          {metricDisplay}
-          <span className="ml-0.5 text-base text-konjo-fg-muted">{project.metric.unit}</span>
-        </span>
-        <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
-          {project.metric.label}
-        </span>
+        <div className="flex items-baseline gap-1.5">
+          <span
+            className="text-konjo-display text-2xl font-semibold tabular-nums leading-none"
+            style={{ color: metricColor }}
+          >
+            {metricDisplay}
+            <span className="ml-0.5 text-base text-konjo-fg-muted">{project.metric.unit}</span>
+          </span>
+          <span className="text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint">
+            {project.metric.label}
+          </span>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <AnimatedMiniSparkline
+            slug={project.slug}
+            width={56}
+            height={22}
+            color={metricColor}
+            hovered={cardHovered}
+          />
+          <span
+            className="konjo-pulse size-1.5 shrink-0 rounded-full"
+            style={{ background: metricColor }}
+            aria-label="Live metric"
+          />
+        </div>
       </div>
 
       {/* CTAs */}
@@ -180,5 +402,87 @@ function ProjectCard({ project, index }: { project: Product; index: number }) {
         </a>
       </div>
     </motion.li>
+  );
+}
+
+/** Compact table view — one product per row. Alternative to the card grid. */
+function ProductTable({ products }: { products: Product[] }) {
+  return (
+    <div
+      className="glass-konjo rounded-konjo-xl divide-y divide-konjo-line/20 overflow-hidden"
+      role="table"
+      aria-label="Product list"
+    >
+      {/* Header */}
+      <div
+        role="row"
+        className="flex items-center gap-4 bg-konjo-surface/40 px-5 py-2.5"
+      >
+        {["#", "Product", "Status", "Metric", ""].map((h, i) => (
+          <span
+            key={i}
+            role="columnheader"
+            className={cn(
+              "text-konjo-mono text-[10px] uppercase tracking-widest text-konjo-fg-faint",
+              i === 0 && "w-7 shrink-0 text-right",
+              i === 1 && "flex-1",
+              i === 2 && "w-24 shrink-0",
+              i === 3 && "w-28 shrink-0",
+              i === 4 && "w-20 shrink-0 text-right",
+            )}
+          >
+            {h}
+          </span>
+        ))}
+      </div>
+
+      {products.map((p, i) => {
+        const col = sevColor[p.metric.severity];
+        const metricDisplay = Number.isInteger(p.metric.value)
+          ? String(p.metric.value)
+          : p.metric.value.toFixed(1);
+        return (
+          <motion.div
+            key={p.slug}
+            role="row"
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.28, ease: ease.kanjo, delay: i * 0.04 }}
+            className="group flex items-center gap-4 px-5 py-3 transition-colors hover:bg-konjo-surface/30"
+          >
+            <span role="cell" className="text-konjo-mono w-7 shrink-0 text-right text-[11px] text-konjo-fg-faint tabular-nums">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div role="cell" className="flex flex-1 items-center gap-3 min-w-0">
+              <span className="text-xl leading-none" style={{ color: col }} aria-hidden>{p.glyph}</span>
+              <Link
+                href={`/products/${p.slug}`}
+                className="text-konjo-mono text-sm font-medium text-konjo-fg hover:text-konjo-violet transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent rounded"
+              >
+                {p.name}
+              </Link>
+              <span className="text-konjo-mono hidden text-[11px] text-konjo-fg-faint sm:block truncate">{p.tagline}</span>
+            </div>
+            <div role="cell" className="w-24 shrink-0">
+              <StatusBadge level={p.status} />
+            </div>
+            <div role="cell" className="w-28 shrink-0">
+              <span className="text-konjo-mono text-sm font-semibold tabular-nums" style={{ color: col }}>
+                {metricDisplay}<span className="ml-0.5 text-xs font-normal text-konjo-fg-faint">{p.metric.unit}</span>
+              </span>
+              <span className="text-konjo-mono ml-2 text-[10px] text-konjo-fg-faint">{p.metric.label}</span>
+            </div>
+            <div role="cell" className="flex w-20 shrink-0 items-center justify-end gap-1.5">
+              <Link
+                href={`/products/${p.slug}`}
+                className="text-konjo-mono rounded border border-konjo-line/50 px-2 py-0.5 text-[10px] text-konjo-fg-muted transition-colors hover:border-konjo-line hover:text-konjo-fg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-konjo-accent"
+              >
+                Details →
+              </Link>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
   );
 }

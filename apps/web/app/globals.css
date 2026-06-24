@@ -71,3 +71,50 @@ body { background: var(--color-konjo-bg); color: var(--color-konjo-fg); }
 @media (prefers-reduced-motion: reduce) {
   .konjo-ticker { animation: none; }
 }
+
+/* Subtle noise grain — SVG feTurbulence tiled at 200px, animated in steps for film-grain feel */
+.konjo-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.045;
+  animation: konjo-grain-shift 0.9s steps(2) infinite;
+}
+@keyframes konjo-grain-shift {
+  0%   { transform: translate(0%,  0%);  }
+  25%  { transform: translate(-4%, -6%); }
+  50%  { transform: translate(4%,  -3%); }
+  75%  { transform: translate(-3%, 4%);  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .konjo-grain { animation: none; }
+}
+
+/* Dual-row product marquee — one row scrolls left, one right */
+@keyframes konjo-marquee-ltr {
+  from { transform: translateX(0%);   }
+  to   { transform: translateX(-50%); }
+}
+@keyframes konjo-marquee-rtl {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%);   }
+}
+.konjo-marquee-ltr { animation: konjo-marquee-ltr 45s linear infinite; }
+.konjo-marquee-rtl { animation: konjo-marquee-rtl 45s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .konjo-marquee-ltr,
+  .konjo-marquee-rtl { animation: none; }
+}
+
+/* Constellation edge flow — dashed stroke that flows outward from hovered node */
+@keyframes konjo-edge-flow {
+  from { stroke-dashoffset: 12; }
+  to   { stroke-dashoffset: 0; }
+}
+.konjo-edge-flow {
+  stroke-dasharray: 4 4;
+  animation: konjo-edge-flow 0.45s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .konjo-edge-flow { animation: none; stroke-dasharray: none; }
+}
