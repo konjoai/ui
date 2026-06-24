@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { severity as sevColor } from "@konjoai/ui";
 import { PRODUCTS } from "@/lib/products";
 
@@ -21,7 +22,7 @@ export function LiveTicker() {
             ? String(p.metric.value)
             : p.metric.value.toFixed(1);
           return (
-            <a
+            <Link
               key={`${p.slug}-${i}`}
               href={`/products/${p.slug}`}
               tabIndex={i >= PRODUCTS.length ? -1 : 0}
@@ -48,7 +49,7 @@ export function LiveTicker() {
                 {p.metric.label}
               </span>
               <span className="ml-4 text-konjo-line/50" aria-hidden>│</span>
-            </a>
+            </Link>
           );
         })}
       </div>
